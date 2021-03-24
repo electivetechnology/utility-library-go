@@ -16,3 +16,5 @@
 
 # Ignore main file
 /cmd/*.go
+cover.txt
+cover.html

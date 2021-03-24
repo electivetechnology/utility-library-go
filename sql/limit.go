@@ -6,7 +6,7 @@ func GetLimitSql(q *Query) string {
 	ret := ""
 
 	if q.Limit > 0 && q.Offset >= 0 {
-		ret = "LIMIT " + strconv.Itoa(q.Offset) + "," + strconv.Itoa(q.Limit)
+		ret = "LIMIT " + strconv.Itoa(q.Limit) + " OFFSET " + strconv.Itoa(q.Offset)
 	}
 
 	return ret

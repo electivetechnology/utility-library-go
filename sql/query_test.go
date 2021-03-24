@@ -16,7 +16,7 @@ func TestExpand(t *testing.T) {
 
 	testData := []TestExpandItem{
 		{statement, statement, q},
-		{statement, statement + " LIMIT 0,1000", NewQuery(statement)},
+		{statement, statement + " LIMIT 1000 OFFSET 0", NewQuery(statement)},
 	}
 
 	for _, item := range testData {

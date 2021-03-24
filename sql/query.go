@@ -1,12 +1,18 @@
 package sql
 
-import "strings"
+import (
+	"strings"
+
+	"github.com/electivetechnology/utility-library-go/request"
+)
 
 const DEFAULT_LIMIT = 1000
 const DEFAULT_OFFSET = 0
 
 type Query struct {
 	Statement  string
+	Filters    []*request.Filter
+	Sorts      []string
 	Parameters map[string]string
 	Limit      int
 	Offset     int
@@ -17,6 +23,9 @@ func (q *Query) Expand() (*Query, error) {
 
 	// Build LIMIT clause
 	sql += " " + GetLimitSql(q)
+
+	// Build Filter clause
+	sql += " " + GetFilterSql(q)
 
 	// Set Query Statement
 	q.Statement = strings.TrimSpace(sql)

@@ -3,6 +3,7 @@ package data
 type Filter struct {
 	Criterions []Criterion
 	Logic      string
+	Filters    []*Filter
 }
 
 func NewFilter() *Filter {

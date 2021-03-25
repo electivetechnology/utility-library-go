@@ -28,7 +28,7 @@ func mapFilters(m url.Values) map[string]*data.Filter {
 	filters := make(map[string]*data.Filter)
 
 	for k, v := range m {
-		filter := NewFilter()
+		filter := data.NewFilter()
 		log.Printf("Key is: %v\n", k)
 		for _, c := range v {
 			log.Printf("Value is: %v\n", c)

@@ -2,5 +2,5 @@ package sql
 
 type Clause struct {
 	Statement  string
-	Parameters []string
+	Parameters map[string]string
 }

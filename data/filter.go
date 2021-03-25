@@ -1,4 +1,4 @@
-package request
+package data
 
 type Filter struct {
 	Criterions []Criterion

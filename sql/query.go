@@ -3,7 +3,7 @@ package sql
 import (
 	"strings"
 
-	"github.com/electivetechnology/utility-library-go/request"
+	"github.com/electivetechnology/utility-library-go/data"
 )
 
 const DEFAULT_LIMIT = 1000
@@ -11,7 +11,7 @@ const DEFAULT_OFFSET = 0
 
 type Query struct {
 	Statement  string
-	Filters    []*request.Filter
+	Filters    []*data.Filter
 	Sorts      []string
 	Parameters map[string]string
 	Limit      int

@@ -1,7 +1,9 @@
 package sql
 
-func GetFilterSql(q *Query) string {
-	ret := ""
+import "github.com/electivetechnology/utility-library-go/data"
 
-	return ret
+func FiltersToSqlClause(map[string]*data.Filter) Clause {
+	c := Clause{}
+
+	return c
 }

@@ -2,6 +2,8 @@ package sql
 
 import (
 	"testing"
+
+	"github.com/electivetechnology/utility-library-go/data"
 )
 
 type TestExpandItem struct {
@@ -13,10 +15,13 @@ type TestExpandItem struct {
 func TestExpand(t *testing.T) {
 	statement := "SELECT * FROM example"
 	q := &Query{Statement: statement}
+	qSimpleFilter := NewQuery(statement)
+	qSimpleFilter.Filters = append(qSimpleFilter.Filters, data.NewFilter())
 
 	testData := []TestExpandItem{
 		{statement, statement, q},
 		{statement, statement + " LIMIT 1000 OFFSET 0", NewQuery(statement)},
+		{statement, statement + " LIMIT 1000 OFFSET 0", qSimpleFilter},
 	}
 
 	for _, item := range testData {

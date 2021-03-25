@@ -4,11 +4,12 @@ import (
 	"log"
 	"net/url"
 
+	"github.com/electivetechnology/utility-library-go/data"
 	"github.com/gin-gonic/gin"
 )
 
 type Filters struct {
-	Filters map[string]*Filter
+	Filters map[string]*data.Filter
 }
 
 func GetFilters(c *gin.Context) *Filters {
@@ -23,8 +24,8 @@ func GetFilters(c *gin.Context) *Filters {
 	return &Filters{filters}
 }
 
-func mapFilters(m url.Values) map[string]*Filter {
-	filters := make(map[string]*Filter)
+func mapFilters(m url.Values) map[string]*data.Filter {
+	filters := make(map[string]*data.Filter)
 
 	for k, v := range m {
 		filter := NewFilter()

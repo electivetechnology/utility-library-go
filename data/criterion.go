@@ -1,4 +1,4 @@
-package request
+package data
 
 type Criterion struct {
 	Logic   string

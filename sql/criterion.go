@@ -17,7 +17,6 @@ func CriterionToSqlClause(criterion data.Criterion, placeHolder string) Clause {
 }
 
 func criterionOperandToMethod(criterion data.Criterion) string {
-	fmt.Printf("Evaluating Criterion method for operand: %s\n", criterion.Operand)
 	var method string
 	switch criterion.Operand {
 	// Boolean check to see if the value is set or not.

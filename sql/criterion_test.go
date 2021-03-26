@@ -189,36 +189,37 @@ func TestCriterionOperandToMethod(t *testing.T) {
 	}
 
 	testData := []TestCriterionOperandToMethodItem{
-		{c1, "criterionToBool"},
-		{c2, "criterionToDirect"},
-		{c3, "criterionToDirect"},
-		{c4, "criterionToDirect"},
-		{c5, "criterionToDirect"},
-		{c6, "criterionToRelative"},
-		{c7, "criterionToRelative"},
-		{c8, "criterionToRelative"},
-		{c9, "criterionToRelative"},
-		{c10, "criterionToContains"},
-		{c11, "criterionToContains"},
-		{c12, "criterionToContains"},
-		{c13, "criterionToContains"},
-		{c14, "criterionToBegins"},
-		{c15, "criterionToBegins"},
-		{c16, "criterionToBegins"},
-		{c17, "criterionToBegins"},
-		{c18, "criterionToRegex"},
-		{c19, "criterionToIn"},
-		{c20, "criterionToIn"},
-		{c21, "criterionToIn"},
-		{c22, "criterionToIn"},
+		{c1, "criterionToBoolClause"},
+		{c2, "criterionToDirectClause"},
+		{c3, "criterionToDirectClause"},
+		{c4, "criterionToDirectClause"},
+		{c5, "criterionToDirectClause"},
+		{c6, "criterionToRelativeClause"},
+		{c7, "criterionToRelativeClause"},
+		{c8, "criterionToRelativeClause"},
+		{c9, "criterionToRelativeClause"},
+		{c10, "criterionToContainsClause"},
+		{c11, "criterionToContainsClause"},
+		{c12, "criterionToContainsClause"},
+		{c13, "criterionToContainsClause"},
+		{c14, "criterionToBeginsClause"},
+		{c15, "criterionToBeginsClause"},
+		{c16, "criterionToBeginsClause"},
+		{c17, "criterionToBeginsClause"},
+		{c18, "criterionToRegexClause"},
+		{c19, "criterionToInClause"},
+		{c20, "criterionToInClause"},
+		{c21, "criterionToInClause"},
+		{c22, "criterionToInClause"},
 	}
 
 	for _, item := range testData {
-		ret := criterionOperandToMethod(item.criterion)
-		if ret != item.expected {
-			t.Errorf("criterionOperandToMethod("+item.criterion.Operand+") failed, expected %v, got %v", item.expected, ret)
+		_, method := criterionOperandToMethod(item.criterion)
+
+		if method != item.expected {
+			t.Errorf("criterionOperandToMethod("+item.criterion.Operand+") failed, expected %v, got %v", item.expected, method)
 		} else {
-			t.Logf("criterionOperandToMethod("+item.criterion.Operand+") success, expected %v, got %v", item.expected, ret)
+			t.Logf("criterionOperandToMethod("+item.criterion.Operand+") success, expected %v, got %v", item.expected, method)
 		}
 	}
 }

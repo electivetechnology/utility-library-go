@@ -16,6 +16,8 @@ func CriterionToSqlClause(criterion data.Criterion, placeHolder string) Clause {
 
 	c.Statement = clause.Statement
 
+	fmt.Printf("SQL from criterion: %s", c.Statement)
+
 	return c
 }
 
@@ -28,9 +30,9 @@ func criterionToBoolClause(criterion data.Criterion, placeHolder string) Clause 
 
 	// We can only compare true or false for boolean
 	if strings.ToLower(criterion.Value) == "true" || criterion.Value == "1" {
-		c.Statement = addLogic(criterion) + ` (` + field + ` IS NOT NULL AND ` + field + ` !="")`
+		c.Statement = addLogic(criterion) + ` (` + field + ` IS NOT NULL AND ` + field + ` IS NOT FALSE)`
 	} else if strings.ToLower(criterion.Value) == "false" || criterion.Value == "0" {
-		c.Statement = addLogic(criterion) + ` (` + field + ` IS NULL OR ` + field + ` = "")`
+		c.Statement = addLogic(criterion) + ` (` + field + ` IS NULL OR ` + field + ` IS FALSE)`
 	}
 
 	return c

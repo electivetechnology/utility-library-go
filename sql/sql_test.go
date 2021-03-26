@@ -13,8 +13,8 @@ func TestGetFilterSql(t *testing.T) {
 
 	c1 := data.Criterion{
 		Logic:   "and",
-		Key:     "id",
-		Operand: "gt",
+		Key:     "isActive",
+		Operand: "bool",
 		Type:    "value",
 		Value:   "1",
 	}
@@ -27,8 +27,17 @@ func TestGetFilterSql(t *testing.T) {
 		Value:   "2",
 	}
 
+	c3 := data.Criterion{
+		Logic:   "and",
+		Key:     "id",
+		Operand: "ge",
+		Type:    "value",
+		Value:   "2",
+	}
+
 	filter.Criterions = append(filter.Criterions, c1)
 	filter.Criterions = append(filter.Criterions, c2)
+	filter.Criterions = append(filter.Criterions, c3)
 
 	q := NewQuery(statement)
 	q.Filters = append(q.Filters, filter)

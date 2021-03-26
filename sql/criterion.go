@@ -2,17 +2,26 @@ package sql
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/electivetechnology/utility-library-go/data"
 )
 
-func CriterionToSqlClause(criterion data.Criterion, placeHolder string) Clause {
+const (
+	CRITERION_TYPE_FIELD = "field" // Field type comparison
+	CRITERION_TYPE_VALUE = "value" // Value type comparison
+
+	CAST_TYPE_STRING  = "STRING"
+	CAST_TYPE_NUMERIC = "NUMERIC"
+)
+
+func CriterionToSqlClause(criterion data.Criterion, placeHolder string, collation bool) Clause {
 	c := Clause{}
 
 	method, _ := criterionOperandToMethod(criterion)
 
-	clause := method(criterion, placeHolder)
+	clause := method(criterion, placeHolder, collation)
 
 	c.Statement = clause.Statement
 
@@ -21,7 +30,7 @@ func CriterionToSqlClause(criterion data.Criterion, placeHolder string) Clause {
 	return c
 }
 
-func criterionToBoolClause(criterion data.Criterion, placeHolder string) Clause {
+func criterionToBoolClause(criterion data.Criterion, placeHolder string, collation bool) Clause {
 	c := Clause{}
 
 	// Escape, quote and qualify the field name for security.
@@ -38,44 +47,122 @@ func criterionToBoolClause(criterion data.Criterion, placeHolder string) Clause 
 	return c
 }
 
-func criterionToDirectClause(criterion data.Criterion, placeHolder string) Clause {
+// criterionToDirectClause turns Criterion object to SQL clause
+func criterionToDirectClause(criterion data.Criterion, placeHolder string, collation bool) Clause {
+	c := Clause{}
+
+	var op, collate, comparand string
+	var caseSensitive bool
+	castType := CAST_TYPE_STRING
+
+	switch criterion.Operand {
+	case "eq":
+		op = "="
+		collate = "utf8mb4_bin"
+		caseSensitive = true
+
+	case "ne":
+		op = "!="
+		collate = "utf8mb4_bin"
+		caseSensitive = true
+
+	case "eqi":
+		op = "="
+		collate = "utf8mb4_general_ci"
+		caseSensitive = false
+
+	case "nei":
+		op = "!="
+		collate = "utf8mb4_general_ci"
+		caseSensitive = false
+	}
+
+	fmt.Printf("Using operand %s and collate %s\n", op, collate)
+
+	if criterion.Type == CRITERION_TYPE_VALUE {
+		// Add the static value as a parameter
+		comparand = ":" + placeHolder
+		c.Parameters = map[string]string{
+			placeHolder: criterion.Value,
+		}
+	} else if criterion.Type == CRITERION_TYPE_FIELD {
+		comparand = getSafeFieldName(criterion.Value)
+	}
+
+	// Check value type
+	if _, err := strconv.Atoi(criterion.Value); err == nil {
+		castType = CAST_TYPE_NUMERIC
+	}
+
+	// Escape, quote and qualify the field name for security.
+	field := getSafeFieldName(criterion.Key)
+
+	// Build the final clause.
+	// We can't assume the value is text, so cast it to char and
+	// use the relevant collation for the comparison.
+	// Testing shows this doesn't affect use of keys on integer
+	// fields, if they are used as part of a case sensitive filter
+	if collation {
+		c.Statement = addLogic(criterion) +
+			" " + field + " " + op + " " +
+			" CAST(" + comparand + " AS CHAR)" +
+			" COLLATE " + collate
+	} else {
+		if caseSensitive {
+			c.Statement = addLogic(criterion) +
+				" CAST(" + field + " AS " + castType + ") " + op + " " +
+				" CAST(" + comparand + " AS " + castType + ")"
+		} else {
+			if castType == CAST_TYPE_NUMERIC {
+				c.Statement = addLogic(criterion) +
+					" CAST(" + field + " AS " + castType + ") " + op + " " +
+					" CAST(" + comparand + " AS " + castType + ")"
+			} else if castType == CAST_TYPE_STRING {
+				c.Statement = addLogic(criterion) +
+					" LOWER(CAST(" + field + " AS " + castType + " )) " + op + " " +
+					" LOWER(CAST(" + comparand + " AS " + castType + "))"
+			}
+		}
+	}
+
+	fmt.Printf("SQL Statement: %s\n", c.Statement)
+	fmt.Printf("SQL: %s\n", c.GetSql())
+
+	return c
+}
+
+func criterionToRelativeClause(criterion data.Criterion, placeHolder string, collation bool) Clause {
 	c := Clause{}
 
 	return c
 }
 
-func criterionToRelativeClause(criterion data.Criterion, placeHolder string) Clause {
+func criterionToContainsClause(criterion data.Criterion, placeHolder string, collation bool) Clause {
 	c := Clause{}
 
 	return c
 }
 
-func criterionToContainsClause(criterion data.Criterion, placeHolder string) Clause {
+func criterionToBeginsClause(criterion data.Criterion, placeHolder string, collation bool) Clause {
 	c := Clause{}
 
 	return c
 }
 
-func criterionToBeginsClause(criterion data.Criterion, placeHolder string) Clause {
+func criterionToRegexClause(criterion data.Criterion, placeHolder string, collation bool) Clause {
 	c := Clause{}
 
 	return c
 }
 
-func criterionToRegexClause(criterion data.Criterion, placeHolder string) Clause {
+func criterionToInClause(criterion data.Criterion, placeHolder string, collation bool) Clause {
 	c := Clause{}
 
 	return c
 }
 
-func criterionToInClause(criterion data.Criterion, placeHolder string) Clause {
-	c := Clause{}
-
-	return c
-}
-
-func criterionOperandToMethod(criterion data.Criterion) (func(criterion data.Criterion, placeHolder string) Clause, string) {
-	var method func(criterion data.Criterion, placeHolder string) Clause
+func criterionOperandToMethod(criterion data.Criterion) (func(criterion data.Criterion, placeHolder string, collation bool) Clause, string) {
+	var method func(criterion data.Criterion, placeHolder string, collation bool) Clause
 	var methodName string
 
 	switch criterion.Operand {

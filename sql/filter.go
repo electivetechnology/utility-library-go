@@ -40,7 +40,7 @@ func FilterToSqlClause(filter *data.Filter, namespace string) Clause {
 		placeHolder := namespace + "_" + strconv.Itoa(i)
 
 		// Turn each Criterion into Clause
-		clause := CriterionToSqlClause(criterion, placeHolder)
+		clause := CriterionToSqlClause(criterion, placeHolder, filter.Collation)
 
 		// Append SQL Statement
 		c.Statement += clause.Statement

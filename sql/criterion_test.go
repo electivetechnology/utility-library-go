@@ -1,6 +1,7 @@
 package sql
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/electivetechnology/utility-library-go/data"
@@ -9,6 +10,13 @@ import (
 type TestCriterionOperandToMethodItem struct {
 	criterion data.Criterion
 	expected  string
+}
+
+type TestCriterionToDirectClauseItem struct {
+	criterion   data.Criterion
+	placeHolder string
+	collation   bool
+	expected    string
 }
 
 func TestCriterionOperandToMethod(t *testing.T) {
@@ -220,6 +228,93 @@ func TestCriterionOperandToMethod(t *testing.T) {
 			t.Errorf("criterionOperandToMethod("+item.criterion.Operand+") failed, expected %v, got %v", item.expected, method)
 		} else {
 			t.Logf("criterionOperandToMethod("+item.criterion.Operand+") success, expected %v, got %v", item.expected, method)
+		}
+	}
+}
+
+func TestCriterionToDirectClause(t *testing.T) {
+	c1 := data.Criterion{
+		Logic:   "and",
+		Key:     "id",
+		Operand: "eq",
+		Type:    "value",
+		Value:   "hello",
+	}
+	c1_0Expected := "AND `id` =  CAST(:filter_0_0 AS CHAR) COLLATE utf8mb4_bin"
+	c1_1Expected := "AND CAST(`id` AS STRING) =  CAST(:filter_0_0 AS STRING)"
+
+	c2 := data.Criterion{
+		Logic:   "and",
+		Key:     "id",
+		Operand: "ne",
+		Type:    "value",
+		Value:   "hello",
+	}
+	c2_0Expected := "AND `id` !=  CAST(:filter_0_0 AS CHAR) COLLATE utf8mb4_bin"
+	c2_1Expected := "AND CAST(`id` AS STRING) !=  CAST(:filter_0_0 AS STRING)"
+
+	c3 := data.Criterion{
+		Logic:   "and",
+		Key:     "id",
+		Operand: "eqi",
+		Type:    "value",
+		Value:   "hello",
+	}
+	c3_0Expected := "AND `id` =  CAST(:filter_0_0 AS CHAR) COLLATE utf8mb4_general_ci"
+	c3_1Expected := "AND LOWER(CAST(`id` AS STRING )) =  LOWER(CAST(:filter_0_0 AS STRING))"
+
+	c4 := data.Criterion{
+		Logic:   "and",
+		Key:     "id",
+		Operand: "nei",
+		Type:    "value",
+		Value:   "2",
+	}
+	c4_0Expected := "AND `id` !=  CAST(:filter_0_0 AS CHAR) COLLATE utf8mb4_general_ci"
+	c4_1Expected := "AND CAST(`id` AS NUMERIC) !=  CAST(:filter_0_0 AS NUMERIC)"
+
+	c5 := data.Criterion{
+		Logic:   "and",
+		Key:     "id",
+		Operand: "eq",
+		Type:    "field",
+		Value:   "engagement_id",
+	}
+	c5_0Expected := "AND `id` =  CAST(`engagement_id` AS CHAR) COLLATE utf8mb4_bin"
+	c5_1Expected := "AND CAST(`id` AS STRING) =  CAST(`engagement_id` AS STRING)"
+
+	c6 := data.Criterion{
+		Logic:   "and",
+		Key:     "id",
+		Operand: "eqi",
+		Type:    "field",
+		Value:   "engagement_id",
+	}
+	c6_0Expected := "AND `id` =  CAST(`engagement_id` AS CHAR) COLLATE utf8mb4_general_ci"
+	c6_1Expected := "AND LOWER(CAST(`id` AS STRING )) =  LOWER(CAST(`engagement_id` AS STRING))"
+
+	testData := []TestCriterionToDirectClauseItem{
+		{c1, "filter_0_0", true, c1_0Expected},
+		{c1, "filter_0_0", false, c1_1Expected},
+		{c2, "filter_0_0", true, c2_0Expected},
+		{c2, "filter_0_0", false, c2_1Expected},
+		{c3, "filter_0_0", true, c3_0Expected},
+		{c3, "filter_0_0", false, c3_1Expected},
+		{c4, "filter_0_0", true, c4_0Expected},
+		{c4, "filter_0_0", false, c4_1Expected},
+		{c5, "filter_0_0", true, c5_0Expected},
+		{c5, "filter_0_0", false, c5_1Expected},
+		{c6, "filter_0_0", true, c6_0Expected},
+		{c6, "filter_0_0", false, c6_1Expected},
+	}
+
+	for i, item := range testData {
+		fmt.Printf("\n Runing test %d\n", i)
+		ret := criterionToDirectClause(item.criterion, item.placeHolder, item.collation)
+		if ret.Statement != item.expected {
+			t.Errorf("criterionToDirectClause() failed, expected %v, got %v", item.expected, ret.Statement)
+		} else {
+			t.Logf("criterionToDirectClause() success, expected %v, got %v", item.expected, ret.Statement)
 		}
 	}
 }

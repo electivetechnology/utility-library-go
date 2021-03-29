@@ -40,6 +40,16 @@ func (q *Query) Expand() (*Query, error) {
 	return q, nil
 }
 
+func (q Query) GetSql() string {
+	sql := q.Statement
+
+	for key, value := range q.Parameters {
+		sql = strings.ReplaceAll(sql, ":"+key, `"`+value+`"`)
+	}
+
+	return sql
+}
+
 func NewQuery(statement string) *Query {
 	query := &Query{
 		Statement: statement,

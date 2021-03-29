@@ -9,12 +9,10 @@ import (
 
 func FiltersToSqlClause(filters map[string]*data.Filter) Clause {
 	c := Clause{}
+	c.Parameters = make(map[string]string)
 
 	// Iterate over filters and turn each filter to SQL Clause
 	for i, filter := range filters {
-		fmt.Printf("Filter name: %s\n", i)
-		fmt.Printf("Filter value: %v\n", filter)
-
 		// Turn each filter into SQL Clause
 		clause := FilterToSqlClause(filter, i+"_filter")
 
@@ -34,6 +32,7 @@ func FiltersToSqlClause(filters map[string]*data.Filter) Clause {
 
 func FilterToSqlClause(filter *data.Filter, namespace string) Clause {
 	c := Clause{}
+	c.Parameters = make(map[string]string)
 
 	for i, criterion := range filter.Criterions {
 		// Placeholder name for query binding
@@ -42,14 +41,21 @@ func FilterToSqlClause(filter *data.Filter, namespace string) Clause {
 		// Turn each Criterion into Clause
 		clause := CriterionToSqlClause(criterion, placeHolder, filter.Collation)
 
-		// Append SQL Statement
-		c.Statement += clause.Statement
-
 		// Add Parametes
 		for key, parameter := range clause.Parameters {
 			c.Parameters[key] = parameter
 		}
+
+		// Remove Logic from first Statement
+		// and Append SQL Statement
+		if len(c.Statement) == 0 {
+			c.Statement += clause.removeLogicFromStatement().Statement
+		} else {
+			c.Statement += " " + clause.Statement
+		}
 	}
+
+	fmt.Printf("Filter SQL: %s", c.GetSql())
 
 	return c
 }

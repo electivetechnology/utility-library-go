@@ -1,6 +1,7 @@
 package sql
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/electivetechnology/utility-library-go/data"
@@ -29,6 +30,8 @@ func (q *Query) Expand() (*Query, error) {
 
 	// Set Query Statement
 	q.Statement = strings.TrimSpace(sql)
+
+	fmt.Printf("Query Statement: %v\n", q.Statement)
 
 	return q, nil
 }

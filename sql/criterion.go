@@ -25,7 +25,7 @@ func CriterionToSqlClause(criterion data.Criterion, placeHolder string, collatio
 
 	c.Statement = clause.Statement
 
-	fmt.Printf("SQL from criterion: %s", c.Statement)
+	c.Parameters = clause.Parameters
 
 	return c
 }
@@ -77,8 +77,6 @@ func criterionToDirectClause(criterion data.Criterion, placeHolder string, colla
 		caseSensitive = false
 	}
 
-	fmt.Printf("Using operand %s and collate %s\n", op, collate)
-
 	if criterion.Type == CRITERION_TYPE_VALUE {
 		// Add the static value as a parameter
 		comparand = ":" + placeHolder
@@ -124,9 +122,6 @@ func criterionToDirectClause(criterion data.Criterion, placeHolder string, colla
 			}
 		}
 	}
-
-	fmt.Printf("SQL Statement: %s\n", c.Statement)
-	fmt.Printf("SQL: %s\n", c.GetSql())
 
 	return c
 }
@@ -254,4 +249,16 @@ func quote(name string) string {
 
 func addLogic(criterion data.Criterion) string {
 	return strings.ToUpper(criterion.Logic)
+}
+
+func (c Clause) removeLogicFromStatement() Clause {
+	isAnd := strings.HasPrefix(strings.ToUpper(c.Statement), "AND")
+
+	if isAnd {
+		c.Statement = strings.TrimPrefix(c.Statement, "AND ")
+	} else {
+		c.Statement = strings.TrimPrefix(c.Statement, "OR ")
+	}
+
+	return c
 }

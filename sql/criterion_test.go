@@ -1,7 +1,6 @@
 package sql
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/electivetechnology/utility-library-go/data"
@@ -308,8 +307,7 @@ func TestCriterionToDirectClause(t *testing.T) {
 		{c6, "filter_0_0", false, c6_1Expected},
 	}
 
-	for i, item := range testData {
-		fmt.Printf("\n Runing test %d\n", i)
+	for _, item := range testData {
 		ret := criterionToDirectClause(item.criterion, item.placeHolder, item.collation)
 		if ret.Statement != item.expected {
 			t.Errorf("criterionToDirectClause() failed, expected %v, got %v", item.expected, ret.Statement)

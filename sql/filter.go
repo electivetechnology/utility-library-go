@@ -1,8 +1,8 @@
 package sql
 
 import (
-	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/electivetechnology/utility-library-go/data"
 )
@@ -16,16 +16,19 @@ func FiltersToSqlClause(filters map[string]*data.Filter) Clause {
 		// Turn each filter into SQL Clause
 		clause := FilterToSqlClause(filter, i+"_filter")
 
+		// Add filter Logic
+		if len(c.Statement) != 0 {
+			c.Statement += " " + strings.ToUpper(filter.Logic) + " "
+		}
+
 		// Append SQL Statement
-		c.Statement += clause.Statement
+		c.Statement += "(" + clause.Statement + ")"
 
 		// Add Parametes
 		for key, parameter := range clause.Parameters {
 			c.Parameters[key] = parameter
 		}
 	}
-
-	fmt.Printf("SQL for filters: %s\n", c.Statement)
 
 	return c
 }
@@ -55,7 +58,15 @@ func FilterToSqlClause(filter *data.Filter, namespace string) Clause {
 		}
 	}
 
-	fmt.Printf("Filter SQL: %s", c.GetSql())
+	if len(filter.Filters) > 0 {
+		clause := FiltersToSqlClause(filter.Filters)
+		c.Statement += " AND " + clause.Statement
+
+		// Add Parametes
+		for key, parameter := range clause.Parameters {
+			c.Parameters[key] = parameter
+		}
+	}
 
 	return c
 }

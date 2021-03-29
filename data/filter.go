@@ -3,7 +3,7 @@ package data
 type Filter struct {
 	Criterions []Criterion
 	Logic      string
-	Filters    []*Filter
+	Filters    map[string]*Filter
 	Collation  bool
 }
 

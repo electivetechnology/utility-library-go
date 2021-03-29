@@ -225,6 +225,13 @@ func getSafeFieldName(field string) string {
 	return ret
 }
 
+func getSafeTableName(name string) string {
+	// Start by escaping and quoting the field name.
+	ret := quote(escape(name))
+
+	return ret
+}
+
 // Escape a SQL string for use with MySQL
 func escape(name string) string {
 	name = strings.ReplaceAll(name, "\\", "\\\\")

@@ -216,3 +216,103 @@ func TestFiltersToSqlClauseNestedFilters(t *testing.T) {
 		t.Logf("FiltersToSqlClause() success, expected %v, got %v", expected, clause.Statement)
 	}
 }
+
+func TestFiltersToSqlClauseNestedFiltersWithSubquery(t *testing.T) {
+	c1 := data.Criterion{
+		Logic:   "and",
+		Key:     "organisation",
+		Operand: "eq",
+		Type:    "value",
+		Value:   "fRnFPWTQyLMl",
+	}
+
+	c2 := data.Criterion{
+		Logic:   "and",
+		Key:     "job_id",
+		Operand: "eq",
+		Type:    "value",
+		Value:   "rb6RpwrSLbiV",
+	}
+
+	c3 := data.Criterion{
+		Logic:   "and",
+		Key:     "question_id",
+		Operand: "eq",
+		Type:    "value",
+		Value:   "N1Romm5N1wgq",
+	}
+
+	c4 := data.Criterion{
+		Logic:   "and",
+		Key:     "intent",
+		Operand: "eq",
+		Type:    "value",
+		Value:   "no_intent",
+	}
+
+	c5 := data.Criterion{
+		Logic:   "and",
+		Key:     "entity",
+		Operand: "eq",
+		Type:    "value",
+		Value:   "Duration",
+	}
+
+	c6 := data.Criterion{
+		Logic:   "or",
+		Key:     "keyword",
+		Operand: "eq",
+		Type:    "value",
+		Value:   "a day",
+	}
+
+	c7 := data.Criterion{
+		Logic:   "or",
+		Key:     "keyword",
+		Operand: "eq",
+		Type:    "value",
+		Value:   "1 year",
+	}
+
+	f1 := data.NewFilter()
+	f1.Criterions = append(f1.Criterions, c1)
+	f1.Criterions = append(f1.Criterions, c2)
+	f1.Filters = make(map[string]*data.Filter)
+	f1.Collation = false
+
+	f2 := data.NewFilter()
+	f2.Collation = false
+	f2.Subquery.IsEnabled = true
+	f2.Subquery.Key = "engagement_id"
+	f2.Subquery.Set = "connect-f7e5b.staging_reporting.transcripts"
+	f2.Filters = make(map[string]*data.Filter)
+	f2.Criterions = append(f2.Criterions, c3)
+	f2.Criterions = append(f2.Criterions, c4)
+
+	f3 := data.NewFilter()
+	f3.Collation = false
+	f3.Criterions = append(f3.Criterions, c5)
+	f3.Filters = make(map[string]*data.Filter)
+
+	f4 := data.NewFilter()
+	f4.Collation = false
+	f4.Criterions = append(f4.Criterions, c6)
+	f4.Criterions = append(f4.Criterions, c7)
+
+	f3.Filters["4"] = f4
+	f2.Filters["3"] = f3
+	f1.Filters["2"] = f2
+
+	var filters = make(map[string]*data.Filter)
+
+	filters["1"] = f1
+
+	clause := FiltersToSqlClause(filters)
+	expected := "(CAST(`organisation` AS STRING) =  CAST(:1_filter_0 AS STRING) AND CAST(`job_id` AS STRING) =  CAST(:1_filter_1 AS STRING) AND `engagement_id` IN (SELECT `engagement_id` FROM `connect-f7e5b`.`staging_reporting`.`transcripts` WHERE CAST(`question_id` AS STRING) =  CAST(:2_filter_0 AS STRING) AND CAST(`intent` AS STRING) =  CAST(:2_filter_1 AS STRING) AND (CAST(`entity` AS STRING) =  CAST(:3_filter_0 AS STRING) AND (CAST(`keyword` AS STRING) =  CAST(:4_filter_0 AS STRING) OR CAST(`keyword` AS STRING) =  CAST(:4_filter_1 AS STRING)))))"
+
+	if clause.Statement != expected {
+		t.Errorf("FiltersToSqlClause() failed, expected %v, got %v", expected, clause.Statement)
+	} else {
+		t.Logf("FiltersToSqlClause() success, expected %v, got %v", expected, clause.Statement)
+	}
+}

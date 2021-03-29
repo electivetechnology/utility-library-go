@@ -21,8 +21,20 @@ func FiltersToSqlClause(filters map[string]*data.Filter) Clause {
 			c.Statement += " " + strings.ToUpper(filter.Logic) + " "
 		}
 
-		// Append SQL Statement
-		c.Statement += "(" + clause.Statement + ")"
+		// Process filter subquery
+		if filter.Subquery.IsEnabled && len(filter.Subquery.Key) > 0 && len(filter.Subquery.Set) > 0 {
+			// Append SQL Statement
+			c.Statement += getSafeFieldName(filter.Subquery.Key) +
+				" IN (SELECT " +
+				getSafeFieldName(filter.Subquery.Key) +
+				" FROM " +
+				getSafeTableName(filter.Subquery.Set) +
+				" WHERE " +
+				clause.Statement + ")"
+		} else {
+			// Append SQL Statement
+			c.Statement += "(" + clause.Statement + ")"
+		}
 
 		// Add Parametes
 		for key, parameter := range clause.Parameters {

@@ -1,7 +1,6 @@
 package sql
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/electivetechnology/utility-library-go/data"
@@ -22,16 +21,21 @@ type Query struct {
 func (q *Query) Expand() (*Query, error) {
 	sql := q.Statement
 
+	// Build Filter clause
+	filterClause := GetFilterSql(q)
+	if len(filterClause.Statement) > 0 {
+		sql += " " + filterClause.Statement
+	}
+
+	// Add Filter Parameters
+	q.Parameters = make(map[string]string)
+	q.Parameters = filterClause.Parameters
+
 	// Build LIMIT clause
 	sql += " " + GetLimitSql(q)
 
-	// Build Filter clause
-	sql += " " + GetFilterSql(q)
-
 	// Set Query Statement
 	q.Statement = strings.TrimSpace(sql)
-
-	fmt.Printf("Query Statement: %v\n", q.Statement)
 
 	return q, nil
 }

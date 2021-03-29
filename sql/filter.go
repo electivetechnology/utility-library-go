@@ -33,7 +33,9 @@ func FiltersToSqlClause(filters map[string]*data.Filter) Clause {
 				clause.Statement + ")"
 		} else {
 			// Append SQL Statement
-			c.Statement += "(" + clause.Statement + ")"
+			if len(clause.Statement) > 0 {
+				c.Statement += "(" + clause.Statement + ")"
+			}
 		}
 
 		// Add Parametes

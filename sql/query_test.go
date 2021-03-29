@@ -15,13 +15,38 @@ type TestExpandItem struct {
 func TestExpand(t *testing.T) {
 	statement := "SELECT * FROM example"
 	q := &Query{Statement: statement}
-	qSimpleFilter := NewQuery(statement)
-	qSimpleFilter.Filters = append(qSimpleFilter.Filters, data.NewFilter())
+	q2 := NewQuery(statement)
+	q2.Filters = append(q2.Filters, data.NewFilter())
+
+	c1 := data.Criterion{
+		Logic:   "and",
+		Key:     "organisation",
+		Operand: "eq",
+		Type:    "value",
+		Value:   "fRnFPWTQyLMl",
+	}
+
+	c2 := data.Criterion{
+		Logic:   "and",
+		Key:     "job_id",
+		Operand: "eq",
+		Type:    "value",
+		Value:   "rb6RpwrSLbiV",
+	}
+	f1 := data.NewFilter()
+	f1.Criterions = append(f1.Criterions, c1)
+	f1.Criterions = append(f1.Criterions, c2)
+	f1.Filters = make(map[string]*data.Filter)
+	f1.Collation = false
+
+	q3 := NewQuery(statement)
+	q3.Filters = append(q3.Filters, f1)
 
 	testData := []TestExpandItem{
 		{statement, statement, q},
 		{statement, statement + " LIMIT 1000 OFFSET 0", NewQuery(statement)},
-		{statement, statement + " LIMIT 1000 OFFSET 0", qSimpleFilter},
+		{statement, statement + " LIMIT 1000 OFFSET 0", q2},
+		{statement, "SELECT * FROM example WHERE (CAST(`organisation` AS STRING) =  CAST(:0_w_filter_0 AS STRING) AND CAST(`job_id` AS STRING) =  CAST(:0_w_filter_1 AS STRING)) LIMIT 1000 OFFSET 0", q3},
 	}
 
 	for _, item := range testData {

@@ -6,8 +6,12 @@ import (
 	"github.com/electivetechnology/utility-library-go/data"
 )
 
-const DEFAULT_LIMIT = 1000
-const DEFAULT_OFFSET = 0
+const (
+	DEFAULT_LIMIT           = 1000
+	DEFAULT_OFFSET          = 0
+	QUERY_FLAVOUR_MYSQL     = "mysql"
+	QUERY_FLAVOUR_BIG_QUERY = "bigquery"
+)
 
 type Query struct {
 	Statement  string
@@ -16,6 +20,7 @@ type Query struct {
 	Parameters map[string]string
 	Limit      int
 	Offset     int
+	Flavour    string
 }
 
 func (q *Query) Expand() (*Query, error) {
@@ -55,6 +60,7 @@ func NewQuery(statement string) *Query {
 		Statement: statement,
 		Limit:     DEFAULT_LIMIT,
 		Offset:    DEFAULT_OFFSET,
+		Flavour:   QUERY_FLAVOUR_MYSQL,
 	}
 
 	return query

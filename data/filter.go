@@ -9,9 +9,10 @@ type Filter struct {
 }
 
 type Subquery struct {
-	IsEnabled bool
-	Key       string
-	Set       string
+	IsEnabled  bool
+	Key        string
+	Set        string
+	IsDistinct bool
 }
 
 func NewFilter() *Filter {
@@ -21,7 +22,7 @@ func NewFilter() *Filter {
 }
 
 func NewSubquery() *Subquery {
-	subquery := &Subquery{IsEnabled: false}
+	subquery := &Subquery{IsEnabled: false, IsDistinct: false}
 
 	return subquery
 }

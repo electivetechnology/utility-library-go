@@ -25,8 +25,29 @@ type Filter struct {
 
 func GetFilters(c *gin.Context) []*data.Filter {
 	// Get Query Map
-	q := c.Request.URL.Query()
+	q := c.Request.URL.RawQuery
 
+	filters := GetFiltersFromQueryString(q)
+
+	return filters
+}
+
+func GetFiltersFromQueryString(query string) []*data.Filter {
+	// Add query string if required
+	if !strings.HasPrefix(query, "?") {
+		query = "?" + query
+	}
+
+	// Parse URL
+	u, err := url.Parse(query)
+	if err != nil {
+		log.Debugf("Could not parse query: %v\n", err)
+	}
+
+	// Extract values
+	q := u.Query()
+
+	// Map filters
 	filters := mapFilters(q)
 
 	return filters

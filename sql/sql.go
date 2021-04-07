@@ -18,7 +18,6 @@ func GetFilterSql(q *Query) Clause {
 		// @todo, iterate over criterions and compare keys with FieldMap
 
 		// Set filter collation based on query flavour
-		fmt.Printf("QUERY flavour is %s \n", q.Flavour)
 		if q.Flavour == QUERY_FLAVOUR_MYSQL {
 			collation = true
 		} else if q.Flavour == QUERY_FLAVOUR_BIG_QUERY {

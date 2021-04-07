@@ -46,7 +46,7 @@ func TestExpand(t *testing.T) {
 		{statement, statement, q},
 		{statement, statement + " LIMIT 1000 OFFSET 0", NewQuery(statement)},
 		{statement, statement + " LIMIT 1000 OFFSET 0", q2},
-		{statement, "SELECT * FROM example WHERE (CAST(`organisation` AS STRING) =  CAST(:0_w_filter_0 AS STRING) AND CAST(`job_id` AS STRING) =  CAST(:0_w_filter_1 AS STRING)) LIMIT 1000 OFFSET 0", q3},
+		{statement, "SELECT * FROM example WHERE (`organisation` =  CAST(:0_w_filter_0 AS CHAR) COLLATE utf8mb4_bin AND `job_id` =  CAST(:0_w_filter_1 AS CHAR) COLLATE utf8mb4_bin) LIMIT 1000 OFFSET 0", q3},
 	}
 
 	for _, item := range testData {

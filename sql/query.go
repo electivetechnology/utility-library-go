@@ -16,7 +16,7 @@ const (
 type Query struct {
 	Statement  string
 	Filters    []*data.Filter
-	Sorts      []string
+	Sorts      []*data.Sort
 	Parameters map[string]string
 	Limit      int
 	Offset     int
@@ -35,6 +35,12 @@ func (q *Query) Expand() (*Query, error) {
 	// Add Filter Parameters
 	q.Parameters = make(map[string]string)
 	q.Parameters = filterClause.Parameters
+
+	// Build Sort clause
+	sortClause := GetSortSql(q)
+	if len(sortClause.Statement) > 0 {
+		sql += " " + sortClause.Statement
+	}
 
 	// Build LIMIT clause
 	sql += " " + GetLimitSql(q)

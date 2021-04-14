@@ -3,6 +3,7 @@ package sql
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/electivetechnology/utility-library-go/data"
 )
@@ -39,6 +40,23 @@ func GetFilterSql(q *Query) Clause {
 
 	if len(clause.Statement) > 0 {
 		c.Statement = "WHERE " + clause.Statement
+	}
+
+	return c
+}
+
+func GetSortSql(q *Query) Clause {
+	c := Clause{}
+
+	var sql string
+
+	for _, sort := range q.Sorts {
+		field := getSafeFieldName(sort.Field)
+		sql += field + " " + strings.ToUpper(sort.Direction) + ", "
+	}
+
+	if len(sql) > 0 {
+		c.Statement = "ORDER BY " + strings.TrimSuffix(sql, ", ")
 	}
 
 	return c

@@ -18,6 +18,7 @@ type Logger struct {
 
 func NewLogger(module string) *Logger {
 	log, _ := log.New(module, 1)
+	log.SetFormat("#%{id} %{time} ▶ [%{module}][%{level}]: %{message}")
 
 	mode := os.Getenv("LOGGER_MODE")
 	if mode != PROD {

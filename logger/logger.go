@@ -11,6 +11,12 @@ const (
 	DEV  = "dev"
 )
 
+type Logging interface {
+	Fatalf(format string, v ...interface{})
+	Panicf(format string, v ...interface{})
+	Printf(format string, v ...interface{})
+}
+
 type Logger struct {
 	Mode   string
 	Logger *log.Logger
@@ -29,6 +35,18 @@ func NewLogger(module string) *Logger {
 		Mode:   mode,
 		Logger: log,
 	}
+}
+
+func (l *Logger) Fatalf(format string, err ...interface{}) {
+	l.CriticalF(format, err...)
+}
+
+func (l *Logger) Panicf(format string, err ...interface{}) {
+	l.CriticalF(format, err...)
+}
+
+func (l *Logger) Printf(format string, err ...interface{}) {
+	l.DebugF(format, err...)
 }
 
 func (l *Logger) CriticalF(format string, err ...interface{}) {

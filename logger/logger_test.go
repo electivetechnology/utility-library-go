@@ -4,6 +4,24 @@ import (
 	"testing"
 )
 
+func TestFatalf(t *testing.T) {
+	logger := NewLogger("logger")
+
+	logger.Fatalf("This is Fatalf Logging interface error %d", 15)
+}
+
+func TestPanicf(t *testing.T) {
+	logger := NewLogger("logger")
+
+	logger.Panicf("This is Panicf Logging interface error %d", 15)
+}
+
+func TestPrintf(t *testing.T) {
+	logger := NewLogger("logger")
+
+	logger.Printf("This is Printf Logging interface error %d", 15)
+}
+
 func TestCriticalF(t *testing.T) {
 	logger := NewLogger("logger")
 

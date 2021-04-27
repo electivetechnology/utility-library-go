@@ -3,6 +3,7 @@ package request
 import (
 	"errors"
 	"net/url"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -54,6 +55,9 @@ func GetFiltersFromQueryString(query string) []*data.Filter {
 }
 
 func mapFilters(m url.Values) []*data.Filter {
+	projectId := os.Getenv("GOOGLE_PROJECT_ID")
+	dataSet := os.Getenv("BIG_QUERY_DATASET")
+	dataTable := os.Getenv("BIG_QUERY_TABLE_TRANSCRIPTS")
 	var dataFilters []*data.Filter
 	filters := make(map[string]Filter)
 	filtersWithData := make(map[string]Filter)
@@ -89,7 +93,7 @@ func mapFilters(m url.Values) []*data.Filter {
 		if strings.Contains(filter.ID, "sub") {
 			filter.DataFilter.Subquery.IsEnabled = true
 			filter.DataFilter.Subquery.Key = "engagement_id"
-			filter.DataFilter.Subquery.Set = "connect-f7e5b.staging_reporting.transcripts"
+			filter.DataFilter.Subquery.Set = projectId + "." + dataSet + "." + dataTable
 		}
 
 		// Add filter to list of filters

@@ -3,6 +3,7 @@ package router
 import (
 	"os"
 
+	"github.com/electivetechnology/utility-library-go/auth"
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,6 +23,10 @@ func SetupEngine() *gin.Engine {
 		isCorsEnabled = true
 		engine.Use(AddCors())
 	}
+
+	// Use the checkAuthentication middleware for every route to set a flag
+	// indicating whether the request was from an authenticated user or not
+	engine.Use(auth.CheckAuthentication())
 
 	// Load endpoints
 	loadEndpoints(engine, routes, isCorsEnabled)

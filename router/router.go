@@ -1,10 +1,15 @@
 package router
 
 import (
+	"os"
 	"strconv"
 
 	"github.com/electivetechnology/utility-library-go/logger"
 	"github.com/gin-gonic/gin"
+)
+
+const (
+	DEFAULT_PORT = 80
 )
 
 type Router struct {
@@ -20,11 +25,22 @@ func NewRouter() *Router {
 	// Add generic logger
 	log = logger.NewLogger("router")
 
+	// Assign default port
+	port := DEFAULT_PORT
+
+	// Check if port has been reconfigured by ENV
+	p := os.Getenv("ROUTER_PORT")
+	log.Printf("Read router port from env: %s", p)
+	if p != "" {
+		port, _ = strconv.Atoi(p)
+	}
+	log.Printf("Router configured to run on port %d", port)
+
 	// Setup Router
 	r := Router{
 		Logger: log,
 		Engine: SetupEngine(),
-		Port:   80,
+		Port:   port,
 	}
 
 	return &r

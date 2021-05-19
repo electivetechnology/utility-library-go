@@ -4,14 +4,14 @@ import (
 	"math/rand"
 )
 
-var letter = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+const characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 func GenerateHash(length int) string {
 
-	b := make([]rune, length)
+	b := make([]byte, length)
 
 	for i := range b {
-		b[i] = letter[rand.Intn(len(letter))]
+		b[i] = characters[rand.Int63()%int64(len(characters))]
 	}
 
 	return string(b)

@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"errors"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"os"
 	"time"
 
 	"github.com/electivetechnology/utility-library-go/clients/oauth"
+	"github.com/electivetechnology/utility-library-go/logger"
 )
 
 const (
@@ -18,8 +18,15 @@ const (
 	AUTH_TOKEN_URL         = "/oauth/token"
 )
 
+var log logger.Logging
+
 type OAuthClient struct {
 	BaseUrl string
+}
+
+func init() {
+	// Add generic logger
+	log = logger.NewLogger("clients/bullhorn")
 }
 
 func NewOAuthClient() *OAuthClient {
@@ -47,6 +54,8 @@ func (client *OAuthClient) GetToken(auth oauth.Authorization) (oauth.Token, erro
 		"redirect_uri":  []string{redirectUrl},
 	}
 
+	log.Printf("Sending following data to bullhorn for exchange: %v", values)
+
 	// Perform Request
 	res, err := http.PostForm(client.BaseUrl+AUTH_TOKEN_URL, values)
 
@@ -61,6 +70,9 @@ func (client *OAuthClient) GetToken(auth oauth.Authorization) (oauth.Token, erro
 
 	// defer closing response body
 	defer res.Body.Close()
+
+	// print `data` as a string
+	log.Printf("%s", data)
 
 	// Success, populate token
 	if res.StatusCode == http.StatusOK {

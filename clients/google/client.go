@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -13,15 +12,23 @@ import (
 	"time"
 
 	"github.com/electivetechnology/utility-library-go/clients/oauth"
+	"github.com/electivetechnology/utility-library-go/logger"
 )
 
 const (
 	AUTH_TOKEN_URL = "/token"
 )
 
+var log logger.Logging
+
 type OAuthClient struct {
 	BaseUrl string
 	Host    string
+}
+
+func init() {
+	// Add generic logger
+	log = logger.NewLogger("clients/google")
 }
 
 func NewOAuthClient() *OAuthClient {
@@ -49,6 +56,8 @@ func (client *OAuthClient) GetToken(auth oauth.Authorization) (oauth.Token, erro
 		"redirect_uri":  []string{redirectUrl},
 	}
 
+	log.Printf("Sending following data to google for exchange: %v", values)
+
 	// Perform Request
 	c := &http.Client{}
 	r, _ := http.NewRequest(http.MethodPost, client.BaseUrl+AUTH_TOKEN_URL, strings.NewReader(values.Encode())) // URL-encoded payload
@@ -69,6 +78,9 @@ func (client *OAuthClient) GetToken(auth oauth.Authorization) (oauth.Token, erro
 
 	// defer closing response body
 	defer res.Body.Close()
+
+	// print `data` as a string
+	log.Printf("%s", data)
 
 	// Success, populate token
 	if res.StatusCode == http.StatusOK {

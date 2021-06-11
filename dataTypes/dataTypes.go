@@ -14,7 +14,7 @@ type Field struct {
 }
 
 type FieldMap struct {
-	candidate Candidate
+	Candidate Candidate
 }
 
 type TransformedData struct {
@@ -28,7 +28,17 @@ type ElectiveResponse struct {
 }
 
 func ToElectiveStruct(fieldMap FieldMap, data types.Map) (transformedData TransformedData, entityType string, error string) {
-	candidate := CreateCandidate(fieldMap.candidate, data)
+
+	//fmt.Print(fieldMap)
+	//fmt.Print(data)
+
+	candidate := CreateCandidate(fieldMap.Candidate, data)
+
+
+
+	//logger.Logging.Printf("Candidate", candidate)
+	//log.DebugF("Starting Library Dev")
+	//log.Printf("Candidate: ", candidate)
 
 	ret := TransformedData{}
 	ret.Candidate = candidate

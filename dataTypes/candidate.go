@@ -1,8 +1,7 @@
 package dataTypes
 
 import (
-	"go/types"
-	"reflect"
+	"fmt"
 )
 
 type Candidate struct {
@@ -11,16 +10,19 @@ type Candidate struct {
 }
 
 type CandidateResponse struct {
-	Dob string
-	Email string
+	Dob interface{}
+	//Dob string
+	Email interface{}
 }
 
-func CreateCandidate(candidate Candidate, data types.Map) [2]string {
-	v := reflect.ValueOf(data)
-	dob := v.FieldByName(candidate.Dob.Field)
-	email := v.FieldByName(candidate.Email.Field)
+func CreateCandidate(candidate Candidate, data map[string]interface{}) CandidateResponse {
+	dob := data[candidate.Dob.Field]
+	email := data[candidate.Email.Field]
 
-	x := [2]string{dob.String(), email.String()}
+	fmt.Print(dob)
+	fmt.Print(email)
 
-	return x
+	rep := CandidateResponse{}
+	rep.Email = email
+	rep.Dob = dob
 }

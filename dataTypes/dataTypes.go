@@ -2,7 +2,6 @@ package dataTypes
 
 import (
 	"github.com/electivetechnology/utility-library-go/logger"
-	"go/types"
 )
 
 var log logger.Logging
@@ -27,22 +26,10 @@ type ElectiveResponse struct {
 	error string
 }
 
-func ToElectiveStruct(fieldMap FieldMap, data types.Map) (transformedData TransformedData, entityType string, error string) {
+func ToElectiveStruct(fieldMap FieldMap, data map[string]interface{}) {
 
 	//fmt.Print(fieldMap)
 	//fmt.Print(data)
 
-	candidate := CreateCandidate(fieldMap.Candidate, data)
-
-
-
-	//logger.Logging.Printf("Candidate", candidate)
-	//log.DebugF("Starting Library Dev")
-	//log.Printf("Candidate: ", candidate)
-
-	ret := TransformedData{}
-	ret.Candidate = candidate
-
-	return ret,  "candidate", ""
-
+	CreateCandidate(fieldMap.Candidate, data)
 }

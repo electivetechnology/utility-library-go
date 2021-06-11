@@ -6,8 +6,8 @@ type Candidate struct {
 }
 
 type CandidateResponse struct {
-	Dob string
-	Email string
+	Dob  		string     `json:"dob"`
+	Email    	string     `json:"email"`
 }
 
 func CreateCandidate(candidate Candidate, data map[string] string) CandidateResponse {

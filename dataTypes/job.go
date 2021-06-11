@@ -6,17 +6,17 @@ type Job struct {
 }
 
 type JobResponse struct {
-	Title string
-	Headline string
+	Title  			string     `json:"title"`
+	Headline    	string     `json:"headline"`
 }
 
 func CreateJob(job Job, data map[string] string) JobResponse {
-	dob := data[job.Title.Field]
-	email := data[job.Headline.Field]
+	title := data[job.Title.Field]
+	headline := data[job.Headline.Field]
 
 	rep := JobResponse{}
-	rep.Title = email
-	rep.Headline = dob
+	rep.Title = title
+	rep.Headline = headline
 
 	return rep
 }

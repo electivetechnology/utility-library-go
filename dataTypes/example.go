@@ -21,12 +21,30 @@ func Example() {
 	candidate.Email = email
 	candidate.Dob = dob
 
+	title := Field{}
+	title.Type = "string"
+	title.Field = "VendorMergedTitle"
+	title.DisplayName = "Title"
+
+	headline := Field{}
+	headline.Type = "string"
+	headline.Field = "VendorHeadline"
+	headline.DisplayName = "Headline"
+
+
+	job := Job{}
+	job.Title = title
+	job.Headline = headline
+
 	fieldMap := FieldMap{}
 	fieldMap.Candidate = candidate
+	fieldMap.Job = job
 
 	dataJSON := `{
-	   "VendorDateOfBirth": "11/12/13",
-	   "VendorMergedEmail": "dixon@awesome.co.uk"
+	   	"VendorDateOfBirth": "11/12/13",
+	   	"VendorMergedEmail": "dixon@awesome.co.uk",
+		"VendorMergedTitle": "Sales Rep",
+		"VendorHeadline": "Read all about it"
 	}`
 
 	// Declared an empty map interface

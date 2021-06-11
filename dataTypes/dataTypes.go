@@ -14,24 +14,31 @@ type Field struct {
 
 type FieldMap struct {
 	Candidate Candidate
+	Job Job
 }
 
 type TransformedData struct {
-	Candidate [2]string
+	Candidate CandidateResponse
+	Job JobResponse
 }
 
 type ElectiveResponse struct {
-	TransformedData CandidateResponse
+	TransformedData TransformedData
 	entityType string
 	error string
 }
 
 func ToElectiveStruct(fieldMap FieldMap, data map[string]string) ElectiveResponse{
-	rep := ElectiveResponse{}
+	ret := ElectiveResponse{}
+	transformedData := TransformedData{}
 
-	ret := CreateCandidate(fieldMap.Candidate, data)
+	candidate := CreateCandidate(fieldMap.Candidate, data)
+	transformedData.Candidate = candidate
 
-	rep.TransformedData = ret
+	job := CreateJob(fieldMap.Job, data)
+	transformedData.Job = job
 
-	return rep
+	ret.TransformedData = transformedData
+
+	return ret
 }

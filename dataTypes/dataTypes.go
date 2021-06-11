@@ -21,15 +21,17 @@ type TransformedData struct {
 }
 
 type ElectiveResponse struct {
-	TransformedData byte
+	TransformedData CandidateResponse
 	entityType string
 	error string
 }
 
-func ToElectiveStruct(fieldMap FieldMap, data map[string]interface{}) {
+func ToElectiveStruct(fieldMap FieldMap, data map[string]string) ElectiveResponse{
+	rep := ElectiveResponse{}
 
-	//fmt.Print(fieldMap)
-	//fmt.Print(data)
+	ret := CreateCandidate(fieldMap.Candidate, data)
 
-	CreateCandidate(fieldMap.Candidate, data)
+	rep.TransformedData = ret
+
+	return rep
 }

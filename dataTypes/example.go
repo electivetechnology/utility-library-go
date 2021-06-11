@@ -2,6 +2,7 @@ package dataTypes
 
 import (
 	"encoding/json"
+	"fmt"
 )
 
 func Example() {
@@ -29,20 +30,12 @@ func Example() {
 	}`
 
 	// Declared an empty map interface
-	var result map[string]interface{}
-	//var result types.Map
+	var result map[string]string
 
 	// Unmarshal or Decode the JSON to the interface.
 	json.Unmarshal([]byte(dataJSON), &result)
 
-	//fmt.Print(result["VendorDateOfBirth"])
-	//fmt.Print(result)
-
 	// Run App Migrations
-	ToElectiveStruct(fieldMap, result)
-	//ret, entity, err := ToElectiveStruct(fieldMap, result)
-
-	//log.Printf("Results: ", ret)
-	//log.Printf("Entity: " + entity)
-	//log.Printf("Error: " + err)
+	ret := ToElectiveStruct(fieldMap, result)
+	fmt.Print(ret)
 }

@@ -18,3 +18,6 @@
 /cmd/*.go
 cover.txt
 cover.html
+
+# IDE
+.idea

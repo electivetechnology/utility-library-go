@@ -1,12 +1,14 @@
 package dataTypes
 
+import "time"
+
 type Candidate struct {
 	Dob Field
 	Email Field
 }
 
 type CandidateResponse struct {
-	Dob  		string     `json:"dob"`
+	Dob  		time.Time     `json:"dob"`
 	Email    	string     `json:"email"`
 }
 

@@ -31,6 +31,10 @@ func (t Token) GetOrganisation() string {
 	return t.Organisation
 }
 
+func (t Token) GetUsername() string {
+	return t.Username
+}
+
 func (t Token) GetRawToken() string {
 	return t.RawToken
 }

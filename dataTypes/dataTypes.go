@@ -19,21 +19,14 @@ type FieldMap struct {
 	Job Job
 }
 
-type TransformedData struct {
-	Candidate CandidateResponse
-	Job JobResponse
-}
-
 type ElectiveResponse struct {
-	TransformedData TransformedData
+	TransformedData interface{}
 	entityType string
 	error string
 }
 
 func ToElectiveStruct(fieldMap []byte, data []byte) ElectiveResponse{
 	ret := ElectiveResponse{}
-	transformedData := TransformedData{}
-
 
 	var fieldFinal FieldMap
 	err := json.Unmarshal(fieldMap, &fieldFinal)
@@ -47,18 +40,13 @@ func ToElectiveStruct(fieldMap []byte, data []byte) ElectiveResponse{
 		panic(err)
 	}
 
-
-	//fmt.Print(fieldFinal["candidate"])
-
-
 	candidate := CreateCandidate(fieldFinal.Candidate, dataFinal)
-	transformedData.Candidate = candidate
-	fmt.Print(candidate)
+	ret.TransformedData = candidate
+
+	fmt.Print(fieldFinal.Job)
 	//
 	//job := CreateJob(fieldMap.Job, data)
 	//transformedData.Job = job
-
-	ret.TransformedData = transformedData
 
 	return ret
 }

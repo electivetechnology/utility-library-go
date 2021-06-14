@@ -35,24 +35,25 @@ func ToElectiveStruct(fieldMap []byte, data []byte) ElectiveResponse{
 	transformedData := TransformedData{}
 
 
-	var fieldFinal map[string]interface{}
+	var fieldFinal FieldMap
 	err := json.Unmarshal(fieldMap, &fieldFinal)
 	if err != nil {
 		panic(err)
 	}
 
-	var dataFinal map[string]interface{}
+	var dataFinal map[string] string
 	err = json.Unmarshal(data, &dataFinal)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Print(dataFinal)
-	fmt.Print(fieldFinal)
+
+	//fmt.Print(fieldFinal["candidate"])
 
 
-	//candidate := CreateCandidate(fieldMap.Candidate, data)
-	//transformedData.Candidate = candidate
+	candidate := CreateCandidate(fieldFinal.Candidate, dataFinal)
+	transformedData.Candidate = candidate
+	fmt.Print(candidate)
 	//
 	//job := CreateJob(fieldMap.Job, data)
 	//transformedData.Job = job

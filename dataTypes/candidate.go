@@ -30,8 +30,6 @@ type Candidate struct {
 	PrimaryLanguage Field
 	SecondaryLanguage Field
 	TertiaryLanguage Field
-	CandidateAddress CandidateAddress
-	CandidateJob CandidateJob
 	CvText Field
 	Title Field
 	AlternativePhoneNumber Field
@@ -41,6 +39,8 @@ type Candidate struct {
 	VendorSource Field
 	Gender Field
 	Status Field
+	CandidateAddress CandidateAddress
+	CandidateJob CandidateJob
 }
 
 
@@ -74,8 +74,6 @@ type CandidateResponse struct {
 	PrimaryLanguage    		string     					`json:"primaryLanguage"`
 	SecondaryLanguage    	string     					`json:"secondaryLanguage"`
 	TertiaryLanguage    	string     					`json:"tertiaryLanguage"`
-	CandidateAddress    	CandidateAddressResponse    `json:"address"`
-	CandidateJob    		CandidateJobResponse     	`json:"job"`
 	CvText    				string     					`json:"cvText"`
 	AlternativePhoneNumber  string     					`json:"alternativePhoneNumber"`
 	Dob    					string     					`json:"dob"`
@@ -84,6 +82,8 @@ type CandidateResponse struct {
 	VendorSource    		string     					`json:"vendorSource"`
 	Gender    				string     					`json:"gender"`
 	Status    				string     					`json:"status"`
+	CandidateAddress    	CandidateAddressResponse    `json:"address"`
+	CandidateJob    		CandidateJobResponse     	`json:"job"`
 }
 
 func CreateCandidate(candidate Candidate, data map[string] string) CandidateResponse {
@@ -103,6 +103,23 @@ func CreateCandidate(candidate Candidate, data map[string] string) CandidateResp
 	gender 					:= data[candidate.Gender.Field]
 	status 					:= data[candidate.Status.Field]
 
+	address1 				:= data[candidate.CandidateAddress.AddressLine1.Field]
+	address2 				:= data[candidate.CandidateAddress.AddressLine2.Field]
+	city 					:= data[candidate.CandidateAddress.City.Field]
+	postcode 				:= data[candidate.CandidateAddress.Postcode.Field]
+	country 				:= data[candidate.CandidateAddress.Country.Field]
+	county 					:= data[candidate.CandidateAddress.County.Field]
+
+	title 					:= data[candidate.CandidateJob.Title.Field]
+	location 				:= data[candidate.CandidateJob.Location.Field]
+	willRelocate 			:= data[candidate.CandidateJob.WillRelocate.Field]
+	expectedSalary 			:= data[candidate.CandidateJob.ExpectedSalary.Field]
+	salaryCurrency 			:= data[candidate.CandidateJob.SalaryCurrency.Field]
+	notice 					:= data[candidate.CandidateJob.Notice.Field]
+	noticeUnit 				:= data[candidate.CandidateJob.NoticeUnit.Field]
+	jobType 				:= data[candidate.CandidateJob.JobType.Field]
+	company 				:= data[candidate.CandidateJob.Company.Field]
+	summary 				:= data[candidate.CandidateJob.Summary.Field]
 
 	rep 						:= CandidateResponse{}
 	rep.Email 					= email
@@ -121,5 +138,22 @@ func CreateCandidate(candidate Candidate, data map[string] string) CandidateResp
 	rep.Gender 					= gender
 	rep.Status 					= status
 
+	rep.CandidateAddress.AddressLine1 			= address1
+	rep.CandidateAddress.AddressLine2 			= address2
+	rep.CandidateAddress.City 					= city
+	rep.CandidateAddress.Postcode 				= postcode
+	rep.CandidateAddress.Country 				= country
+	rep.CandidateAddress.County 				= county
+
+	rep.CandidateJob.Title 				= title
+	rep.CandidateJob.Location 			= location
+	rep.CandidateJob.WillRelocate 		= willRelocate
+	rep.CandidateJob.ExpectedSalary 	= expectedSalary
+	rep.CandidateJob.SalaryCurrency		= salaryCurrency
+	rep.CandidateJob.Notice 			= notice
+	rep.CandidateJob.NoticeUnit 		= noticeUnit
+	rep.CandidateJob.JobType 			= jobType
+	rep.CandidateJob.Company 			= company
+	rep.CandidateJob.Summary 			= summary
 	return rep
 }

@@ -16,6 +16,7 @@ type Field struct {
 type FieldMap struct {
 	Candidate Candidate
 	Job Job
+	Client Client
 }
 
 type ElectiveResponse struct {
@@ -48,6 +49,11 @@ func ToElectiveStruct(fieldMap []byte, data []byte) ElectiveResponse{
 	if(fieldInfo.Job != Job{}){
 		job := CreateJob(fieldInfo.Job, dataInfo)
 		ret.TransformedData = job
+	}
+
+	if(fieldInfo.Client != Client{}){
+		client := CreateClient(fieldInfo.Client, dataInfo)
+		ret.TransformedData = client
 	}
 
 	return ret

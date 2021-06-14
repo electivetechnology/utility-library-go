@@ -39,11 +39,16 @@ func ToElectiveStruct(fieldMap []byte, data []byte) ElectiveResponse{
 		panic(err)
 	}
 
-	candidate := CreateCandidate(fieldInfo.Candidate, dataInfo)
-	ret.TransformedData = candidate
 
-	job := CreateJob(fieldInfo.Job, dataInfo)
-	ret.TransformedData = job
+	if(fieldInfo.Candidate != Candidate{}){
+		candidate := CreateCandidate(fieldInfo.Candidate, dataInfo)
+		ret.TransformedData = candidate
+	}
+
+	if(fieldInfo.Job != Job{}){
+		job := CreateJob(fieldInfo.Job, dataInfo)
+		ret.TransformedData = job
+	}
 
 	return ret
 }

@@ -18,7 +18,7 @@ func NewJwtAuthenticator() JwtAuthenticator {
 }
 
 func (a JwtAuthenticator) Authentiicate(c *gin.Context) (SecurityToken, error) {
-	t, err := getJwtToken(c)
+	t, err := GetJwtToken(c)
 
 	if err != nil {
 		log.Printf("Received arro authenticating JWT %v", err)
@@ -32,7 +32,7 @@ func (a JwtAuthenticator) Authentiicate(c *gin.Context) (SecurityToken, error) {
 	return t, nil
 }
 
-func getJwtToken(c *gin.Context) (Token, error) {
+func GetJwtToken(c *gin.Context) (Token, error) {
 	jWtToken := NewToken()
 
 	// Get Public Key path

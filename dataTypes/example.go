@@ -12,20 +12,19 @@ func Example() {
 
 	dataJSON := `{"VendorDateOfBirth":"11/12/13","VendorMergedEmail":"dixon@awesome.co.uk"}`
 
-
 	rawData := json.RawMessage(dataJSON)
-	dataMarsh, err := rawData.MarshalJSON()
+	data, err := rawData.MarshalJSON()
 	if err != nil {
 		panic(err)
 	}
 
 	rawField := json.RawMessage(fieldMapJSON)
-	fieldMarsh, err := rawField.MarshalJSON()
+	fieldMap, err := rawField.MarshalJSON()
 	if err != nil {
 		panic(err)
 	}
 	
-	ToElectiveStruct(fieldMarsh, dataMarsh)
+	ToElectiveStruct(fieldMap, data)
 
 	//// Run App Migrations
 	//ret := ToElectiveStruct(fieldMap, data)

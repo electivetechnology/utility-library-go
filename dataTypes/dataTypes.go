@@ -2,7 +2,6 @@ package dataTypes
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/electivetechnology/utility-library-go/logger"
 )
 
@@ -28,25 +27,23 @@ type ElectiveResponse struct {
 func ToElectiveStruct(fieldMap []byte, data []byte) ElectiveResponse{
 	ret := ElectiveResponse{}
 
-	var fieldFinal FieldMap
-	err := json.Unmarshal(fieldMap, &fieldFinal)
+	var fieldInfo FieldMap
+	err := json.Unmarshal(fieldMap, &fieldInfo)
 	if err != nil {
 		panic(err)
 	}
 
-	var dataFinal map[string] string
-	err = json.Unmarshal(data, &dataFinal)
+	var dataInfo map[string] string
+	err = json.Unmarshal(data, &dataInfo)
 	if err != nil {
 		panic(err)
 	}
 
-	candidate := CreateCandidate(fieldFinal.Candidate, dataFinal)
+	candidate := CreateCandidate(fieldInfo.Candidate, dataInfo)
 	ret.TransformedData = candidate
 
-	fmt.Print(fieldFinal.Job)
-	//
-	//job := CreateJob(fieldMap.Job, data)
-	//transformedData.Job = job
+	job := CreateJob(fieldInfo.Job, dataInfo)
+	ret.TransformedData = job
 
 	return ret
 }

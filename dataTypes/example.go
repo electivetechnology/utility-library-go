@@ -2,58 +2,32 @@ package dataTypes
 
 import (
 	"encoding/json"
-	"fmt"
 )
-
+type Person struct {
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
+}
 func Example() {
-	email := Field{}
-	email.Type = "string"
-	email.Field = "VendorMergedEmail"
-	email.DisplayName = "Email"
+	fieldMapJSON := `{"candidate":{"Dob":{"type":"string","field":"VendorDateOfBirth","DisplayName":"Date of Birth"},"Email":{"type":"string","field":"VendorMergedEmail","DisplayName":"Email"}}}`
 
-	dob := Field{}
-	dob.Type = "string"
-	dob.Field = "VendorDateOfBirth"
-	dob.DisplayName = "Date of Birth"
+	dataJSON := `{"VendorDateOfBirth":"11/12/13","VendorMergedEmail":"dixon@awesome.co.uk"}`
 
 
-	candidate := Candidate{}
-	candidate.Email = email
-	candidate.Dob = dob
+	rawData := json.RawMessage(dataJSON)
+	dataMarsh, err := rawData.MarshalJSON()
+	if err != nil {
+		panic(err)
+	}
 
-	title := Field{}
-	title.Type = "string"
-	title.Field = "VendorMergedTitle"
-	title.DisplayName = "Title"
+	rawField := json.RawMessage(fieldMapJSON)
+	fieldMarsh, err := rawField.MarshalJSON()
+	if err != nil {
+		panic(err)
+	}
+	
+	ToElectiveStruct(fieldMarsh, dataMarsh)
 
-	headline := Field{}
-	headline.Type = "string"
-	headline.Field = "VendorHeadline"
-	headline.DisplayName = "Headline"
-
-
-	job := Job{}
-	job.Title = title
-	job.Headline = headline
-
-	fieldMap := FieldMap{}
-	fieldMap.Candidate = candidate
-	fieldMap.Job = job
-
-	dataJSON := `{
-	   	"VendorDateOfBirth": "11/12/13",
-	   	"VendorMergedEmail": "dixon@awesome.co.uk",
-		"VendorMergedTitle": "Sales Rep",
-		"VendorHeadline": "Read all about it"
-	}`
-
-	// Declared an empty map interface
-	var result map[string]string
-
-	// Unmarshal or Decode the JSON to the interface.
-	json.Unmarshal([]byte(dataJSON), &result)
-
-	// Run App Migrations
-	ret := ToElectiveStruct(fieldMap, result)
-	fmt.Print(ret)
+	//// Run App Migrations
+	//ret := ToElectiveStruct(fieldMap, data)
+	//fmt.Print(ret)
 }

@@ -1,6 +1,8 @@
 package dataTypes
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/electivetechnology/utility-library-go/logger"
 )
 
@@ -28,15 +30,32 @@ type ElectiveResponse struct {
 	error string
 }
 
-func ToElectiveStruct(fieldMap FieldMap, data map[string]string) ElectiveResponse{
+func ToElectiveStruct(fieldMap []byte, data []byte) ElectiveResponse{
 	ret := ElectiveResponse{}
 	transformedData := TransformedData{}
 
-	candidate := CreateCandidate(fieldMap.Candidate, data)
-	transformedData.Candidate = candidate
 
-	job := CreateJob(fieldMap.Job, data)
-	transformedData.Job = job
+	var fieldFinal map[string]interface{}
+	err := json.Unmarshal(fieldMap, &fieldFinal)
+	if err != nil {
+		panic(err)
+	}
+
+	var dataFinal map[string]interface{}
+	err = json.Unmarshal(data, &dataFinal)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Print(dataFinal)
+	fmt.Print(fieldFinal)
+
+
+	//candidate := CreateCandidate(fieldMap.Candidate, data)
+	//transformedData.Candidate = candidate
+	//
+	//job := CreateJob(fieldMap.Job, data)
+	//transformedData.Job = job
 
 	ret.TransformedData = transformedData
 

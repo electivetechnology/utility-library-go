@@ -1,5 +1,7 @@
 package dataTypes
 
+import "strconv"
+
 type Candidate struct {
 	Email Field
 	FirstName Field
@@ -46,15 +48,15 @@ type CandidateAddressResponse struct {
 
 type CandidateJobResponse struct {
 	JobTitle 			string     `json:"title"`
-	Location 		string     `json:"location"`
-	WillRelocate 	string     `json:"willRelocate"`
-	ExpectedSalary 	string     `json:"expectedSalary"`
-	SalaryCurrency 	string     `json:"salaryCurrency"`
-	Notice 			string     `json:"notice"`
-	NoticeUnit 		string     `json:"noticeUnit"`
-	JobType 		string     `json:"jobType"`
-	Company 		string     `json:"company"`
-	Summary 		string     `json:"summary"`
+	Location 			string     `json:"location"`
+	WillRelocate 		string     `json:"willRelocate"`
+	ExpectedSalary 		float32     `json:"expectedSalary"`
+	SalaryCurrency 		string     `json:"salaryCurrency"`
+	Notice 				int     `json:"notice"`
+	NoticeUnit 			string     `json:"noticeUnit"`
+	JobType 			string     `json:"jobType"`
+	Company 			string     `json:"company"`
+	Summary 			string     `json:"summary"`
 }
 
 type CandidateResponse struct {
@@ -104,9 +106,9 @@ func CreateCandidate(candidate Candidate, data map[string] string) CandidateResp
 	title 					:= data[candidate.JobTitle.Field]
 	location 				:= data[candidate.Location.Field]
 	willRelocate 			:= data[candidate.WillRelocate.Field]
-	expectedSalary 			:= data[candidate.ExpectedSalary.Field]
+	expectedSalary, _ 		:= strconv.ParseFloat(data[candidate.ExpectedSalary.Field], 32)
 	salaryCurrency 			:= data[candidate.SalaryCurrency.Field]
-	notice 					:= data[candidate.Notice.Field]
+	notice, _ 				:= strconv.Atoi(data[candidate.Notice.Field])
 	noticeUnit 				:= data[candidate.NoticeUnit.Field]
 	jobType 				:= data[candidate.JobType.Field]
 	company 				:= data[candidate.Company.Field]
@@ -139,7 +141,7 @@ func CreateCandidate(candidate Candidate, data map[string] string) CandidateResp
 	rep.CandidateJob.JobTitle 			= title
 	rep.CandidateJob.Location 			= location
 	rep.CandidateJob.WillRelocate 		= willRelocate
-	rep.CandidateJob.ExpectedSalary 	= expectedSalary
+	rep.CandidateJob.ExpectedSalary 	= float32(expectedSalary)
 	rep.CandidateJob.SalaryCurrency		= salaryCurrency
 	rep.CandidateJob.Notice 			= notice
 	rep.CandidateJob.NoticeUnit 		= noticeUnit

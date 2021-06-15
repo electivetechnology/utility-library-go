@@ -1,6 +1,9 @@
 package dataTypes
 
-import "strconv"
+import (
+	"strconv"
+	"time"
+)
 
 type Candidate struct {
 	Email Field
@@ -47,16 +50,16 @@ type CandidateAddressResponse struct {
 }
 
 type CandidateJobResponse struct {
-	JobTitle 			string     `json:"title"`
-	Location 			string     `json:"location"`
-	WillRelocate 		string     `json:"willRelocate"`
-	ExpectedSalary 		float32     `json:"expectedSalary"`
-	SalaryCurrency 		string     `json:"salaryCurrency"`
-	Notice 				int     `json:"notice"`
-	NoticeUnit 			string     `json:"noticeUnit"`
-	JobType 			string     `json:"jobType"`
-	Company 			string     `json:"company"`
-	Summary 			string     `json:"summary"`
+	JobTitle 			string     	`json:"title"`
+	Location 			string     	`json:"location"`
+	WillRelocate 		string     	`json:"willRelocate"`
+	ExpectedSalary 		float32    	`json:"expectedSalary"`
+	SalaryCurrency 		string     	`json:"salaryCurrency"`
+	Notice 				int     	`json:"notice"`
+	NoticeUnit 			string     	`json:"noticeUnit"`
+	JobType 			string     	`json:"jobType"`
+	Company 			string     	`json:"company"`
+	Summary 			string     	`json:"summary"`
 }
 
 type CandidateResponse struct {
@@ -69,7 +72,7 @@ type CandidateResponse struct {
 	TertiaryLanguage    	string     					`json:"tertiaryLanguage"`
 	CvText    				string     					`json:"cvText"`
 	AlternativePhoneNumber  string     					`json:"alternativePhoneNumber"`
-	Dob    					string     					`json:"dob"`
+	Dob    					time.Time     					`json:"dob"`
 	VendorId    			string     					`json:"vendorId"`
 	VendorStatus    		string     					`json:"vendorStatus"`
 	VendorSource    		string     					`json:"vendorSource"`
@@ -89,7 +92,7 @@ func CreateCandidate(candidate Candidate, data map[string] string) CandidateResp
 	tertiaryLanguage 		:= data[candidate.TertiaryLanguage.Field]
 	cvText 					:= data[candidate.CvText.Field]
 	alternativePhoneNumber 	:= data[candidate.AlternativePhoneNumber.Field]
-	dob 					:= data[candidate.Dob.Field]
+	dob, _ 					:= time.Parse(time.UnixDate, data[candidate.Dob.Field])
 	vendorId 				:= data[candidate.VendorId.Field]
 	vendorStatus 			:= data[candidate.VendorStatus.Field]
 	vendorSource 			:= data[candidate.VendorSource.Field]

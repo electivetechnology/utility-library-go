@@ -1,7 +1,6 @@
 package dataTypes
 
 import (
-	"math/big"
 	"strconv"
 	"time"
 )
@@ -56,7 +55,7 @@ func CreateJob(job Job, data map[string] string) JobResponse {
 	currency 				:= data[job.Currency.Field]
 	salary, _				:= strconv.ParseFloat(data[job.Salary.Field], 32)
 	salaryUnit 				:= data[job.SalaryUnit.Field]
-	startDate 				:= data[job.StartDate.Field]
+	startDate, _ 			:= time.Parse(time.UnixDate, data[job.StartDate.Field])
 	location 				:= data[job.Location.Field]
 	keywords 				:= data[job.Keywords.Field]
 	remoteWorking, _ 		:= strconv.ParseBool(data[job.RemoteWorking.Field])
@@ -76,7 +75,7 @@ func CreateJob(job Job, data map[string] string) JobResponse {
 	rep.Currency 			= currency
 	rep.Salary				= float32(salary)
 	rep.SalaryUnit 			= salaryUnit
-	rep.StartDate, _ = time.Parse(startDate)
+	rep.StartDate 			= startDate
 	rep.Location 			= location
 	rep.Keywords 			= keywords
 	rep.RemoteWorking 		= remoteWorking

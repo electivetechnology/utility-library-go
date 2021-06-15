@@ -81,6 +81,5 @@ func CreateJob(job Job, data map[string] string) JobResponse {
 	rep.Status 				= status
 	rep.Headline 			= headline
 	rep.Notes 				= notes
-
 	return rep
 }

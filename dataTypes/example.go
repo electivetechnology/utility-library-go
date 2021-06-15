@@ -2,6 +2,7 @@ package dataTypes
 
 import (
 	"encoding/json"
+	"fmt"
 )
 type Person struct {
 	FirstName string `json:"firstName"`
@@ -10,7 +11,9 @@ type Person struct {
 func Example() {
 	fieldMapJSON := `{"candidate":{"Dob":{"type":"string","field":"VendorDateOfBirth","DisplayName":"Date of Birth"},"Email":{"type":"string","field":"VendorMergedEmail","DisplayName":"Email"}}}`
 
-	dataJSON := `{"VendorDateOfBirth":"11/12/13","VendorMergedEmail":"dixon@awesome.co.uk"}`
+	dob := `"11/12/13"`
+	email := `"dixon@awesome.co.uk"`
+	dataJSON := `{"VendorDateOfBirth":` + dob + `,"VendorMergedEmail":` + email + `}`
 
 	rawData := json.RawMessage(dataJSON)
 	data, err := rawData.MarshalJSON()
@@ -23,10 +26,8 @@ func Example() {
 	if err != nil {
 		panic(err)
 	}
-	
-	ToElectiveStruct(fieldMap, data)
 
-	//// Run App Migrations
-	//ret := ToElectiveStruct(fieldMap, data)
-	//fmt.Print(ret)
+	// Run App Migrations
+	ret := ToElectiveStruct(fieldMap, data)
+	fmt.Print(ret)
 }

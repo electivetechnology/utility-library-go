@@ -31,29 +31,37 @@ func ToElectiveStruct(fieldMap []byte, data []byte) ElectiveResponse{
 	var fieldInfo FieldMap
 	err := json.Unmarshal(fieldMap, &fieldInfo)
 	if err != nil {
-		panic(err)
+		ret.error = err.Error()
+		return ret
 	}
 
 	var dataInfo map[string] string
 	err = json.Unmarshal(data, &dataInfo)
 	if err != nil {
-		panic(err)
+		ret.error = err.Error()
+		return ret
 	}
 
 
 	if(fieldInfo.Candidate != Candidate{}){
 		candidate := CreateCandidate(fieldInfo.Candidate, dataInfo)
 		ret.TransformedData = candidate
+		ret.entityType = "candidate"
+		return ret
 	}
 
 	if(fieldInfo.Job != Job{}){
 		job := CreateJob(fieldInfo.Job, dataInfo)
 		ret.TransformedData = job
+		ret.entityType = "job"
+		return ret
 	}
 
 	if(fieldInfo.Client != Client{}){
 		client := CreateClient(fieldInfo.Client, dataInfo)
 		ret.TransformedData = client
+		ret.entityType = "client"
+		return ret
 	}
 
 	return ret

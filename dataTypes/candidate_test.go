@@ -152,6 +152,5 @@ func TestToElectiveCandidateStruct(t *testing.T) {
 	rep.CandidateJob.JobType 							= jobType
 	rep.CandidateJob.Company 							= company
 	rep.CandidateJob.Summary 							= summary
-
 	assert.Equal(t, rep, ret.TransformedData)
 }

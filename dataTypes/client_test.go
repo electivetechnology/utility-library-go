@@ -65,6 +65,5 @@ func TestToElectiveClientStruct(t *testing.T) {
 	rep.PrimaryContactPhone 	= primaryContactPhone
 	rep.Status 					= status
 	rep.BrandColour 			= brandColour
-
 	assert.Equal(t, rep, ret.TransformedData)
 }

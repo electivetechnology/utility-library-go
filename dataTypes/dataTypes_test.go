@@ -1,12 +1,21 @@
 package dataTypes
 
 import (
-	"testing"
+	"encoding/json"
 )
 
-func TestToElectiveStruct(t *testing.T) {
+func formatResponse (fieldMapJSON string, dataJSON string) ElectiveResponse {
+	rawData := json.RawMessage(dataJSON)
+	data, err := rawData.MarshalJSON()
+	if err != nil {
+		panic(err)
+	}
 
-	//candidate := CreateCandidate(fieldMap.candidate, data)
-	//
-	//ToElectiveStruct(fieldMap, data)
+	rawField := json.RawMessage(fieldMapJSON)
+	fieldMap, err := rawField.MarshalJSON()
+	if err != nil {
+		panic(err)
+	}
+
+	return ToElectiveStruct(fieldMap, data)
 }

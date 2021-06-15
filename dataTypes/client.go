@@ -53,6 +53,5 @@ func CreateClient(client Client, data map[string] string) ClientResponse {
 	rep.PrimaryContactPhone 	= primaryContactPhone
 	rep.Status 					= status
 	rep.BrandColour 			= brandColour
-
 	return rep
 }

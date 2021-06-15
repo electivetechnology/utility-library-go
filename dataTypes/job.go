@@ -1,5 +1,11 @@
 package dataTypes
 
+import (
+	"math/big"
+	"strconv"
+	"time"
+)
+
 type Job struct {
 	Title Field
 	CandidateSummary Field
@@ -27,40 +33,40 @@ type JobResponse struct {
 	Brief    				string     `json:"brief"`
 	Type    				string     `json:"type"`
 	Currency    			string     `json:"currency"`
-	Salary    				string     `json:"salary"`
+	Salary    				float32     `json:"salary"`
 	SalaryUnit    			string     `json:"salaryUnit"`
-	StartDate    			string     `json:"startDate"`
+	StartDate    			time.Time     `json:"startDate"`
 	Location    			string     `json:"location"`
 	Keywords    			string     `json:"keywords"`
-	RemoteWorking    		string     `json:"remoteWorking"`
-	OtherTypes    			string     `json:"otherTypes"`
-	SalaryFlexibility    	string     `json:"salaryFlexibility"`
-	EarlierStart    		string     `json:"earlierStart"`
-	NoticeFlexibility    	string     `json:"noticeFlexibility"`
+	RemoteWorking    		bool     `json:"remoteWorking"`
+	OtherTypes    			bool     `json:"otherTypes"`
+	SalaryFlexibility    	int     `json:"salaryFlexibility"`
+	EarlierStart    		bool     `json:"earlierStart"`
+	NoticeFlexibility    	int     `json:"noticeFlexibility"`
 	Status    				string     `json:"status"`
 	Headline    			string     `json:"headline"`
 	Notes    				string     `json:"notes"`
 }
 
 func CreateJob(job Job, data map[string] string) JobResponse {
-	title 				:= data[job.Title.Field]
-	candidateSummary 	:= data[job.CandidateSummary.Field]
-	brief 				:= data[job.Brief.Field]
-	jobType 			:= data[job.Type.Field]
-	currency 			:= data[job.Currency.Field]
-	salary 				:= data[job.Salary.Field]
-	salaryUnit 			:= data[job.SalaryUnit.Field]
-	startDate 			:= data[job.StartDate.Field]
-	location 			:= data[job.Location.Field]
-	keywords 			:= data[job.Keywords.Field]
-	remoteWorking 		:= data[job.RemoteWorking.Field]
-	otherTypes 			:= data[job.OtherTypes.Field]
-	salaryFlexibility 	:= data[job.SalaryFlexibility.Field]
-	earlierStart 		:= data[job.EarlierStart.Field]
-	noticeFlexibility 	:= data[job.NoticeFlexibility.Field]
-	status 				:= data[job.Status.Field]
-	headline 			:= data[job.Headline.Field]
-	notes 				:= data[job.Notes.Field]
+	title 					:= data[job.Title.Field]
+	candidateSummary 		:= data[job.CandidateSummary.Field]
+	brief 					:= data[job.Brief.Field]
+	jobType 				:= data[job.Type.Field]
+	currency 				:= data[job.Currency.Field]
+	salary, _				:= strconv.ParseFloat(data[job.Salary.Field], 32)
+	salaryUnit 				:= data[job.SalaryUnit.Field]
+	startDate 				:= data[job.StartDate.Field]
+	location 				:= data[job.Location.Field]
+	keywords 				:= data[job.Keywords.Field]
+	remoteWorking, _ 		:= strconv.ParseBool(data[job.RemoteWorking.Field])
+	otherTypes, _ 			:= strconv.ParseBool(data[job.OtherTypes.Field])
+	salaryFlexibility, _	:= strconv.Atoi(data[job.SalaryFlexibility.Field])
+	earlierStart, _ 		:= strconv.ParseBool(data[job.EarlierStart.Field])
+	noticeFlexibility, _ 	:= strconv.Atoi(data[job.NoticeFlexibility.Field])
+	status 					:= data[job.Status.Field]
+	headline 				:= data[job.Headline.Field]
+	notes 					:= data[job.Notes.Field]
 
 	rep := JobResponse{}
 	rep.Title 				= title
@@ -68,9 +74,9 @@ func CreateJob(job Job, data map[string] string) JobResponse {
 	rep.Brief 				= brief
 	rep.Type 				= jobType
 	rep.Currency 			= currency
-	rep.Salary 				= salary
+	rep.Salary				= float32(salary)
 	rep.SalaryUnit 			= salaryUnit
-	rep.StartDate 			= startDate
+	rep.StartDate, _ = time.Parse(startDate)
 	rep.Location 			= location
 	rep.Keywords 			= keywords
 	rep.RemoteWorking 		= remoteWorking

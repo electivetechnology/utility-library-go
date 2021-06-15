@@ -4,10 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 )
-type Person struct {
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
-}
+
 func Example() {
 	fieldMapJSON := `{"candidate":{"Dob":{"type":"string","field":"VendorDateOfBirth","DisplayName":"Date of Birth"},"Email":{"type":"string","field":"VendorMergedEmail","DisplayName":"Email"}}}`
 

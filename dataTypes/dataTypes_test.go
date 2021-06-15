@@ -22,9 +22,19 @@ func formatResponse (fieldMapJSON string, dataJSON string) ElectiveResponse {
 	return ToElectiveStruct(fieldMap, data)
 }
 
+
+
 func TestToElectiveCandidateStruct(t *testing.T) {
 	fieldMapJSON := `{"candidate":{
 "Email":{"type":"string","field":"Email","DisplayName":"Email"},
+"FirstName":{"type":"string","field":"FirstName","DisplayName":"FirstName"},
+"LastName":{"type":"string","field":"LastName","DisplayName":"LastName"},
+"Phone":{"type":"string","field":"Phone","DisplayName":"Phone"},
+"PrimaryLanguage":{"type":"string","field":"PrimaryLanguage","DisplayName":"PrimaryLanguage"},
+"SecondaryLanguage":{"type":"string","field":"SecondaryLanguage","DisplayName":"SecondaryLanguage"},
+"TertiaryLanguage":{"type":"string","field":"TertiaryLanguage","DisplayName":"TertiaryLanguage"},
+"CvText":{"type":"string","field":"CvText","DisplayName":"CvText"},
+"AlternativePhoneNumber":{"type":"string","field":"AlternativePhoneNumber","DisplayName":"AlternativePhoneNumber"},
 "Dob":{"type":"string","field":"Dob","DisplayName":"Date of Birth"}
 }}`
 
@@ -85,14 +95,14 @@ func TestToElectiveCandidateStruct(t *testing.T) {
 
 	rep 						:= CandidateResponse{}
 	rep.Email = email
-	//rep.FirstName = email
-	//rep.LastName = email
-	//rep.Phone = email
-	//rep.PrimaryLanguage = primaryLanguage
-	//rep.SecondaryLanguage = secondaryLanguage
-	//rep.TertiaryLanguage = tertiaryLanguage
-	//rep.CvText = cvText
-	//rep.AlternativePhoneNumber = alternativePhoneNumber
+	rep.FirstName = firstName
+	rep.LastName = lastName
+	rep.Phone = phone
+	rep.PrimaryLanguage = primaryLanguage
+	rep.SecondaryLanguage = secondaryLanguage
+	rep.TertiaryLanguage = tertiaryLanguage
+	rep.CvText = cvText
+	rep.AlternativePhoneNumber = alternativePhoneNumber
 	rep.Dob = dob
 
 

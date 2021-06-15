@@ -35,7 +35,12 @@ func TestToElectiveCandidateStruct(t *testing.T) {
 "TertiaryLanguage":{"type":"string","field":"TertiaryLanguage","DisplayName":"TertiaryLanguage"},
 "CvText":{"type":"string","field":"CvText","DisplayName":"CvText"},
 "AlternativePhoneNumber":{"type":"string","field":"AlternativePhoneNumber","DisplayName":"AlternativePhoneNumber"},
-"Dob":{"type":"string","field":"Dob","DisplayName":"Date of Birth"}
+"Dob":{"type":"string","field":"Dob","DisplayName":"Date of Birth"},
+"VendorId":{"type":"string","field":"VendorId","DisplayName":"VendorId"},
+"VendorStatus":{"type":"string","field":"VendorStatus","DisplayName":"VendorStatus"},
+"VendorSource":{"type":"string","field":"VendorSource","DisplayName":"VendorSource"},
+"Gender":{"type":"string","field":"Gender","DisplayName":"Gender"},
+"Status":{"type":"string","field":"Status","DisplayName":"Status"}
 }}`
 
 
@@ -49,12 +54,12 @@ func TestToElectiveCandidateStruct(t *testing.T) {
 	cvText 					:= "Some cv text"
 	alternativePhoneNumber 	:= "+44231412423123"
 	dob 					:= "11/12/13"
-	//vendorId 				:= "some Id"
-	//vendorStatus 			:= "soem status"
-	//vendorSource 			:= "some source"
-	//gender 					:= "male"
-	//status 					:= "active"
-	//
+	vendorId 				:= "some Id"
+	vendorStatus 			:= "soem status"
+	vendorSource 			:= "some source"
+	gender 					:= "male"
+	status 					:= "active"
+
 	//address1 				:= "2"
 	//address2 				:= "Carlile Mews"
 	//city 					:= "Leeds"
@@ -84,7 +89,12 @@ func TestToElectiveCandidateStruct(t *testing.T) {
 "TertiaryLanguage":"` + tertiaryLanguage + `",
 "CvText":"` + cvText + `",
 "AlternativePhoneNumber":"` + alternativePhoneNumber + `",
-"Dob":"` + dob + `"
+"Dob":"` + dob + `",
+"VendorId":"` + vendorId + `",
+"VendorStatus":"` + vendorStatus + `",
+"VendorSource":"` + vendorSource + `",
+"Gender":"` + gender + `",
+"Status":"` + status + `"
 }`
 
 	ret := formatResponse(fieldMapJSON, dataJSON)
@@ -104,6 +114,11 @@ func TestToElectiveCandidateStruct(t *testing.T) {
 	rep.CvText = cvText
 	rep.AlternativePhoneNumber = alternativePhoneNumber
 	rep.Dob = dob
+	rep.VendorId = vendorId
+	rep.VendorStatus = vendorStatus
+	rep.VendorSource = vendorSource
+	rep.Gender = gender
+	rep.Status = status
 
 
 	assert.Equal(t, rep, ret.TransformedData)

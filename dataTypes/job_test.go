@@ -2,7 +2,9 @@ package dataTypes
 
 import (
 	"github.com/stretchr/testify/assert"
+	"strconv"
 	"testing"
+	"time"
 )
 
 func TestToElectiveJobStruct(t *testing.T) {
@@ -80,16 +82,17 @@ func TestToElectiveJobStruct(t *testing.T) {
 	rep.Brief 					= brief
 	rep.Type 					= jobType
 	rep.Currency 				= currency
-	rep.Salary 					= salary
+	salaryFloat, _ 				:= strconv.ParseFloat(salary, 32)
+	rep.Salary 					= float32(salaryFloat)
 	rep.SalaryUnit 				= salaryUnit
-	rep.StartDate 				= startDate
+	rep.StartDate, _ 			= time.Parse(time.UnixDate, startDate)
 	rep.Location 				= location
 	rep.Keywords 				= keywords
-	rep.RemoteWorking 			= remoteWorking
-	rep.OtherTypes 				= otherTypes
-	rep.SalaryFlexibility 		= salaryFlexibility
-	rep.EarlierStart 			= earlierStart
-	rep.NoticeFlexibility 		= noticeFlexibility
+	rep.RemoteWorking, _ 		= strconv.ParseBool(remoteWorking)
+	rep.OtherTypes, _ 			= strconv.ParseBool(otherTypes)
+	rep.SalaryFlexibility, _	= strconv.Atoi(salaryFlexibility)
+	rep.EarlierStart, _ 		= strconv.ParseBool(earlierStart)
+	rep.NoticeFlexibility, _ 	= strconv.Atoi(noticeFlexibility)
 	rep.Status 					= status
 	rep.Headline 				= headline
 	rep.Notes 					= notes

@@ -27,7 +27,17 @@ func TestToElectiveCandidateStruct(t *testing.T) {
 "City":{"type":"string","field":"City","DisplayName":"City"},
 "Postcode":{"type":"string","field":"Postcode","DisplayName":"Postcode"},
 "Country":{"type":"string","field":"Country","DisplayName":"Country"},
-"County":{"type":"string","field":"County","DisplayName":"County"}
+"County":{"type":"string","field":"County","DisplayName":"County"},
+"JobTitle":{"type":"string","field":"JobTitle","DisplayName":"JobTitle"},
+"Location":{"type":"string","field":"Location","DisplayName":"Location"},
+"WillRelocate":{"type":"string","field":"WillRelocate","DisplayName":"WillRelocate"},
+"ExpectedSalary":{"type":"string","field":"ExpectedSalary","DisplayName":"ExpectedSalary"},
+"SalaryCurrency":{"type":"string","field":"SalaryCurrency","DisplayName":"SalaryCurrency"},
+"Notice":{"type":"string","field":"Notice","DisplayName":"Notice"},
+"NoticeUnit":{"type":"string","field":"NoticeUnit","DisplayName":"NoticeUnit"},
+"JobType":{"type":"string","field":"JobType","DisplayName":"JobType"},
+"Company":{"type":"string","field":"Company","DisplayName":"Company"},
+"Summary":{"type":"string","field":"Summary","DisplayName":"Summary"}
 }}`
 
 
@@ -39,10 +49,11 @@ func TestToElectiveCandidateStruct(t *testing.T) {
 	secondaryLanguage 		:= "german"
 	tertiaryLanguage 		:= "spanish"
 	cvText 					:= "Some cv text"
+	title 					:= "Mr"
 	alternativePhoneNumber 	:= "+44231412423123"
 	dob 					:= "11/12/13"
 	vendorId 				:= "some Id"
-	vendorStatus 			:= "soem status"
+	vendorStatus 			:= "some status"
 	vendorSource 			:= "some source"
 	gender 					:= "male"
 	status 					:= "active"
@@ -54,16 +65,16 @@ func TestToElectiveCandidateStruct(t *testing.T) {
 	country 				:= "UK"
 	county 					:= "Yorkshire"
 
-	//title 					:= "Mr"
-	//location 				:= "London"
-	//willRelocate 			:= "true"
-	//expectedSalary 			:= "40000"
-	//salaryCurrency 			:= "GBP"
-	//notice 					:= "4"
-	//noticeUnit 				:= "weeks"
-	//jobType 				:= "permenant"
-	//company 				:= "recii"
-	//summary 				:= "great guy"
+	jobTitle 				:= "permanent"
+	location 				:= "London"
+	willRelocate 			:= "true"
+	expectedSalary 			:= "40000"
+	salaryCurrency 			:= "GBP"
+	notice 					:= "4"
+	noticeUnit 				:= "weeks"
+	jobType 				:= "permenant"
+	company 				:= "recii"
+	summary 				:= "great guy"
 
 
 	dataJSON := `{
@@ -75,6 +86,7 @@ func TestToElectiveCandidateStruct(t *testing.T) {
 "SecondaryLanguage":"` + secondaryLanguage + `",
 "TertiaryLanguage":"` + tertiaryLanguage + `",
 "CvText":"` + cvText + `",
+"Title":"` + title + `",
 "AlternativePhoneNumber":"` + alternativePhoneNumber + `",
 "Dob":"` + dob + `",
 "VendorId":"` + vendorId + `",
@@ -87,7 +99,17 @@ func TestToElectiveCandidateStruct(t *testing.T) {
 "City":"` + city + `",
 "Postcode":"` + postcode + `",
 "Country":"` + country + `",
-"County":"` + county + `"
+"County":"` + county + `",
+"JobTitle":"` + jobTitle + `",
+"Location":"` + location + `",
+"WillRelocate":"` + willRelocate + `",
+"ExpectedSalary":"` + expectedSalary + `",
+"SalaryCurrency":"` + salaryCurrency + `",
+"Notice":"` + notice + `",
+"NoticeUnit":"` + noticeUnit + `",
+"JobType":"` + jobType + `",
+"Company":"` + company + `",
+"Summary":"` + summary + `"
 }`
 
 	ret := formatResponse(fieldMapJSON, dataJSON)
@@ -112,12 +134,24 @@ func TestToElectiveCandidateStruct(t *testing.T) {
 	rep.VendorSource 			= vendorSource
 	rep.Gender 					= gender
 	rep.Status 					= status
+
 	rep.CandidateAddress.AddressLine1 					= address1
 	rep.CandidateAddress.AddressLine2 					= address2
 	rep.CandidateAddress.City 							= city
 	rep.CandidateAddress.Postcode 						= postcode
 	rep.CandidateAddress.Country 						= country
 	rep.CandidateAddress.County 						= county
+
+	rep.CandidateJob.JobTitle 							= jobTitle
+	rep.CandidateJob.Location 							= location
+	rep.CandidateJob.WillRelocate 						= willRelocate
+	rep.CandidateJob.ExpectedSalary 					= expectedSalary
+	rep.CandidateJob.SalaryCurrency 					= salaryCurrency
+	rep.CandidateJob.Notice 							= notice
+	rep.CandidateJob.NoticeUnit 						= noticeUnit
+	rep.CandidateJob.JobType 							= jobType
+	rep.CandidateJob.Company 							= company
+	rep.CandidateJob.Summary 							= summary
 
 	assert.Equal(t, rep, ret.TransformedData)
 }

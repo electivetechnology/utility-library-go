@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func formatResponse (dataJSON string, fieldMapJSON string) ElectiveResponse {
+func formatResponse (fieldMapJSON string, dataJSON string) ElectiveResponse {
 	rawData := json.RawMessage(dataJSON)
 	data, err := rawData.MarshalJSON()
 	if err != nil {
@@ -23,18 +23,21 @@ func formatResponse (dataJSON string, fieldMapJSON string) ElectiveResponse {
 }
 
 func TestToElectiveCandidateStruct(t *testing.T) {
-	fieldMapJSON := `{"candidate":{"Dob":{"type":"string","field":"VendorDob","DisplayName":"Date of Birth"},"Email":{"type":"string","field":"VendorEmail","DisplayName":"Email"}}}`
+	fieldMapJSON := `{"candidate":{
+"Email":{"type":"string","field":"Email","DisplayName":"Email"},
+"Dob":{"type":"string","field":"Dob","DisplayName":"Date of Birth"}
+}}`
 
 
 	email := "dixon@awesome.co.uk"
-	//firstName 				:= "chris"
-	//lastName 				:= "dixon"
-	//phone 					:= "+442314124124"
-	//primaryLanguage 		:= "english"
-	//secondaryLanguage 		:= "german"
-	//tertiaryLanguage 		:= "spanish"
-	//cvText 					:= "Some cv text"
-	//alternativePhoneNumber 	:= "+44231412423123"
+	firstName 				:= "chris"
+	lastName 				:= "dixon"
+	phone 					:= "+442314124124"
+	primaryLanguage 		:= "english"
+	secondaryLanguage 		:= "german"
+	tertiaryLanguage 		:= "spanish"
+	cvText 					:= "Some cv text"
+	alternativePhoneNumber 	:= "+44231412423123"
 	dob 					:= "11/12/13"
 	//vendorId 				:= "some Id"
 	//vendorStatus 			:= "soem status"
@@ -61,7 +64,18 @@ func TestToElectiveCandidateStruct(t *testing.T) {
 	//summary 				:= "great guy"
 
 
-	dataJSON := `{"VendorDob":"` + dob + `","VendorEmail":"` + email + `"}`
+	dataJSON := `{
+"Email":"` + email + `",
+"FirstName":"` + firstName + `",
+"LastName":"` + lastName + `",
+"Phone":"` + phone + `",
+"PrimaryLanguage":"` + primaryLanguage + `",
+"SecondaryLanguage":"` + secondaryLanguage + `",
+"TertiaryLanguage":"` + tertiaryLanguage + `",
+"CvText":"` + cvText + `",
+"AlternativePhoneNumber":"` + alternativePhoneNumber + `",
+"Dob":"` + dob + `"
+}`
 
 	ret := formatResponse(fieldMapJSON, dataJSON)
 
@@ -71,6 +85,14 @@ func TestToElectiveCandidateStruct(t *testing.T) {
 
 	rep 						:= CandidateResponse{}
 	rep.Email = email
+	//rep.FirstName = email
+	//rep.LastName = email
+	//rep.Phone = email
+	//rep.PrimaryLanguage = primaryLanguage
+	//rep.SecondaryLanguage = secondaryLanguage
+	//rep.TertiaryLanguage = tertiaryLanguage
+	//rep.CvText = cvText
+	//rep.AlternativePhoneNumber = alternativePhoneNumber
 	rep.Dob = dob
 
 

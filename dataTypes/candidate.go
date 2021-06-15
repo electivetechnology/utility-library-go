@@ -72,7 +72,7 @@ type CandidateResponse struct {
 	TertiaryLanguage    	string     					`json:"tertiaryLanguage"`
 	CvText    				string     					`json:"cvText"`
 	AlternativePhoneNumber  string     					`json:"alternativePhoneNumber"`
-	Dob    					time.Time     					`json:"dob"`
+	Dob    					time.Time     				`json:"dob"`
 	VendorId    			string     					`json:"vendorId"`
 	VendorStatus    		string     					`json:"vendorStatus"`
 	VendorSource    		string     					`json:"vendorSource"`

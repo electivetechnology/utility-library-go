@@ -89,5 +89,60 @@ func (client *OAuthClient) GetToken(auth oauth.Authorization) (oauth.Token, erro
 
 	// If we got here there was some kind of error with exchange
 
-	return &Token{}, errors.New("error exchanging Authorization for Access token")
+	return Token{}, errors.New("error exchanging Authorization for Access token")
+}
+
+func (client *OAuthClient) Refresh(refreshToken string) (oauth.Token, error) {
+	// If we got here there was some kind of error with exchange
+
+	return Token{}, errors.New("error exchanging Refresh Token for Access token")
+}
+
+func (client *OAuthClient) RefreshToken(token oauth.Token, clientId string, clientSecret string) (oauth.Token, error) {
+	// If we got here there was some kind of error with exchange
+	// Transform Token struct to RefreshToken payload
+	// Set URL parameters on declaration
+	values := url.Values{
+		"grant_type":    []string{oauth.GRANT_TYPE_REFRESH_TOKEN},
+		"refresh_token": []string{token.GetRefreshToken()},
+		"client_id":     []string{clientId},
+		"client_secret": []string{clientSecret},
+	}
+
+	log.Printf("Sending following data to bullhorn for refresh: %v", values)
+
+	// Perform Request
+	res, err := http.PostForm(client.BaseUrl+AUTH_TOKEN_URL, values)
+
+	// Check for errors, default evaluation is false
+	if err != nil {
+		log.Printf("Error exchanging Authorization for Access token: %v\n", err)
+		return &Token{}, errors.New("error exchanging Authorization for Access token")
+	}
+
+	// read all response body
+	data, _ := ioutil.ReadAll(res.Body)
+
+	// defer closing response body
+	defer res.Body.Close()
+
+	// print `data` as a string
+	log.Printf("%s", data)
+
+	// Success, populate token
+	if res.StatusCode == http.StatusOK {
+		token := Token{}
+		json.Unmarshal(data, &token)
+
+		// Set ExpiresAt
+		t := time.Now().Add(time.Second * time.Duration(token.ExpiresIn))
+		token.ExpiresAt = &t
+
+		// Return token
+		return token, nil
+	}
+
+	// If we got here there was some kind of error with exchange
+
+	return Token{}, errors.New("error exchanging Token for Access token")
 }

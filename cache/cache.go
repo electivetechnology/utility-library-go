@@ -7,11 +7,6 @@ import (
 	r "github.com/go-redis/redis/v7"
 )
 
-const (
-	MAX_ATTEMPTS = 5               // Default number of attempts to connect to db
-	INTERVAL     = 3 * time.Second // Time between attempts
-)
-
 var log logger.Logging
 
 func init() {
@@ -26,21 +21,16 @@ type DataCache interface {
 }
 
 type Cache struct {
-	IsConnected bool
-	Logger      logger.Logging
-	MaxAttempts int
-	Interval    time.Duration
-	Adapter     Adapter
+	Logger   logger.Logging
+	Interval time.Duration
+	Adapter  Adapter
 }
 
 func NewCache(adapter *RedisAdapter) *Cache {
 	// Setup Model
 	c := Cache{
-		IsConnected: false,
-		Logger:      log,
-		MaxAttempts: MAX_ATTEMPTS,
-		Interval:    INTERVAL,
-		Adapter:     adapter,
+		Logger:  log,
+		Adapter: adapter,
 	}
 
 	return &c

@@ -42,6 +42,11 @@ func (cache *Cache) Set(key string, data []byte) {
 	cache.Adapter.getClient().Set(cache.Adapter.getKey(key), data, ttl)
 }
 
+func (cache *Cache) SetWithTtl(key string, data []byte, ttl int) {
+	log.Printf("Setting key %s with value %v and ttl %d", key, data, ttl)
+	cache.Adapter.getClient().Set(cache.Adapter.getKey(key), data, time.Duration(ttl)*time.Second)
+}
+
 func (cache *Cache) Get(key string) []byte {
 	log.Printf("Getting key %s", key)
 	val, err := cache.Adapter.getClient().Get(cache.Adapter.getKey(key)).Result()

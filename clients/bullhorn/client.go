@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/electivetechnology/utility-library-go/clients/oauth"
@@ -16,12 +17,19 @@ import (
 const (
 	AUTH_AUTHORIZATION_URL = "/oauth/authorize"
 	AUTH_TOKEN_URL         = "/oauth/token"
+	REST_LOGIN_URL         = "/rest-services/login"
 )
 
 var log logger.Logging
 
 type OAuthClient struct {
 	BaseUrl string
+}
+
+type RestClient struct {
+	BaseUrl    string
+	Ttl        int
+	ApiVersion string
 }
 
 func init() {
@@ -38,6 +46,22 @@ func NewOAuthClient() *OAuthClient {
 	}
 
 	return &OAuthClient{BaseUrl: url}
+}
+
+func NewRestClient() *RestClient {
+	// Get Base URL
+	url := os.Getenv("BULLHORN_REST_BASE_URL")
+	if url == "" {
+		url = "https://rest.bullhornstaffing.com"
+	}
+
+	// Default BHRestToken TTL is seconds
+	ttl, _ := strconv.Atoi(os.Getenv("BULLHORN_OAUTH_TTL"))
+	if ttl == 0 {
+		ttl = 86400 // Default token TTL is set to 24 hours
+	}
+
+	return &RestClient{BaseUrl: url, Ttl: ttl, ApiVersion: "*"}
 }
 
 func (client *OAuthClient) GetToken(auth oauth.Authorization) (oauth.Token, error) {
@@ -145,4 +169,59 @@ func (client *OAuthClient) RefreshToken(token oauth.Token, clientId string, clie
 	// If we got here there was some kind of error with exchange
 
 	return Token{}, errors.New("error exchanging Token for Access token")
+}
+
+func (client *RestClient) GetBhRestToken(accessToken string) (*RestToken, error) {
+	return client.Login(accessToken)
+}
+
+func (client *RestClient) Login(accessToken string) (*RestToken, error) {
+	log.Printf("Will login to Bullhorn and get BhRestToken")
+
+	// Transform Authorization struct to Grant payload
+	// Set URL parameters on declaration
+	values := url.Values{
+		"version":      []string{client.ApiVersion},
+		"access_token": []string{accessToken},
+		"ttl":          []string{strconv.Itoa(client.Ttl / 60)}, // We need to covert seconds to minutes
+	}
+
+	log.Printf("Sending following data to bullhorn for login: %v", values)
+
+	// Perform Request
+	res, err := http.PostForm(client.BaseUrl+REST_LOGIN_URL, values)
+
+	// Check for errors, default evaluation is false
+	if err != nil {
+		log.Printf("Error logging in to Bullhorn rest-services: %v", err)
+		return &RestToken{}, errors.New("error exchanging Authorization for Access token")
+	}
+
+	// read all response body
+	data, _ := ioutil.ReadAll(res.Body)
+
+	// defer closing response body
+	defer res.Body.Close()
+
+	// print `data` as a string
+	log.Printf("%s", data)
+
+	// Success, populate token
+	if res.StatusCode == http.StatusOK {
+		token := RestToken{}
+		json.Unmarshal(data, &token)
+
+		// Set ExpiresAt
+		t := time.Now().Add(time.Duration(client.Ttl))
+		token.ExpiresAt = &t
+
+		token.Ttl = client.Ttl
+
+		// Return token
+		return &token, nil
+	}
+
+	// If we got here there was some kind of error with exchange
+
+	return &RestToken{}, errors.New("error exchanging Access token for BH Rest Token")
 }

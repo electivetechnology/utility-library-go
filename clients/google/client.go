@@ -64,7 +64,6 @@ func (client *OAuthClient) GetToken(auth oauth.Authorization) (oauth.Token, erro
 	r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	r.Header.Add("Content-Length", strconv.Itoa(len(values.Encode())))
 
-	//res, err := http.PostForm(client.BaseUrl+AUTH_TOKEN_URL, values)
 	res, err := c.Do(r)
 
 	// Check for errors, default evaluation is false

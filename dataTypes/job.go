@@ -24,6 +24,7 @@ type Job struct {
 	Status Field
 	Headline Field
 	Notes Field
+	Client Client
 }
 
 type JobResponse struct {
@@ -45,6 +46,7 @@ type JobResponse struct {
 	Status    				string     `json:"status"`
 	Headline    			string     `json:"headline"`
 	Notes    				string     `json:"notes"`
+	Client    				Client     `json:"client"`
 }
 
 func CreateJob(job Job, data map[string] string) JobResponse {

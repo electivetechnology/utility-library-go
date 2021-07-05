@@ -1,23 +1,11 @@
 package sanitise
 
 import (
-	"fmt"
-	"log"
 	"regexp"
 	"strings"
 )
 
-//type Regex struct {
-//	Pattern regexp.Regexp
-//}
-type Regex struct {
-	Pattern string
-}
-type Code struct {
-	Country Regex
-}
-
-func Phone(input string) string {
+func Phone(input string, defaultCountry string) string {
 	output := strings.TrimSpace(input)
 
 	splitString := strings.FieldsFunc(output, SplitBySlash)
@@ -26,35 +14,47 @@ func Phone(input string) string {
 	reg, err := regexp.Compile("[^0-9]+")
 
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("fatal error", err)
 	}
 
 	output = reg.ReplaceAllString(output, "")
 
 	output = strings.TrimLeftFunc(output, TrimByZero)
 
-	return output
-}
-
-func PhoneCode(input string) string {
-	output := input
-	var codes map[int]string
-
-	codes[998] = "/^\\971[1-7,9][0-9]{7,8}$/"
-	codes[998] = "/^\\971[1-7,9][0-9]{7,8}$/"
-
-	for code, regex := range codes {
-		reg, err := regexp.Compile(regex)
-
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		find := reg.FindString(input)
-		fmt.Println(code)
-		fmt.Println(find)
-		//if reg.FindString(input){}
+	if !HasCountryCode(output) && defaultCountry != "" {
+		output = defaultCountry + output
 	}
 
 	return output
+}
+
+func HasCountryCode(input string) bool {
+
+	codeList := CodeList()
+
+	for _, regex := range codeList {
+		reg, err := regexp.Compile(regex)
+
+		if err != nil {
+			log.Fatalf("fatal error", err)
+		}
+
+		find := reg.MatchString(input)
+
+		if find {
+			return true
+		}
+	}
+
+	return false
+}
+
+func CodeList() map[int]string {
+	codes := make(map[int]string)
+
+	codes[971] = "^971[1-7,9][0-9]{7,8}$"
+	codes[998] = "^998[1-7,9][0-9]{7,8}$"
+	codes[44] = "^44[1-9][0-9]{6,10}$"
+
+	return codes
 }

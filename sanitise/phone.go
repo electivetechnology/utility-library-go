@@ -21,8 +21,9 @@ func Phone(input string, defaultCountry string) string {
 
 	output = strings.TrimLeftFunc(output, TrimByZero)
 
-	if !HasCountryCode(output) && defaultCountry != "" {
-		output = defaultCountry + output
+	withDefault := defaultCountry + output
+	if !HasCountryCode(output) && defaultCountry != "" && HasCountryCode(withDefault) {
+		output = withDefault
 	}
 
 	return output

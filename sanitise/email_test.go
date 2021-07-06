@@ -10,7 +10,7 @@ var email = "m/y@email.com"
 func TestToCommaSanitise(t *testing.T) {
 	input	:= email + ",2@email.com /2@email.com 2@email.com"
 
-	ret := SanitiseEmail(input)
+	ret := Email(input)
 
 	assert.Equal(t, email, ret)
 }
@@ -18,7 +18,7 @@ func TestToCommaSanitise(t *testing.T) {
 func TestToSpaceSanitise(t *testing.T) {
 	input	:= email + " 2@email.com /2@email.com, 2@email.com"
 
-	ret := SanitiseEmail(input)
+	ret := Email(input)
 
 	assert.Equal(t, email, ret)
 }
@@ -27,7 +27,7 @@ func TestToSpaceSanitise(t *testing.T) {
 func TestToSlashSanitise(t *testing.T) {
 	input	:= email + "/2@email.com /2@email.com, 2@email.com"
 
-	ret := SanitiseEmail(input)
+	ret := Email(input)
 
 	assert.Equal(t, email, ret)
 }
@@ -35,7 +35,7 @@ func TestToSlashSanitise(t *testing.T) {
 func TestToAllSanitise(t *testing.T) {
 	input	:= email + " /,  2@email.com /2@email.com, 2@email.com"
 
-	ret := SanitiseEmail(input)
+	ret := Email(input)
 
 	assert.Equal(t, email, ret)
 }

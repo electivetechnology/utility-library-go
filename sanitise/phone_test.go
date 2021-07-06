@@ -1,7 +1,10 @@
 package sanitise
 
 import (
+	"encoding/csv"
 	"github.com/stretchr/testify/assert"
+	"io"
+	"os"
 	"testing"
 )
 
@@ -22,4 +25,32 @@ func TestToSanitiseWithCountry(t *testing.T) {
 	ret := Phone(input, country)
 
 	assert.Equal(t, country+phone, ret)
+}
+
+func TestToCSV(t *testing.T) {
+
+	f, err := os.Open("./correct_numbers.csv")
+
+	if err != nil {
+		log.Printf("err: %v", err)
+	}
+
+	r := csv.NewReader(f)
+
+	for {
+		record, err := r.Read()
+
+		if err == io.EOF {
+			break
+		}
+
+		if err != nil {
+			log.Printf("err: %v", err)
+		}
+
+		for value := range record {
+			ret := Phone(record[value], "")
+			assert.Equal(t, record[value], ret)
+		}
+	}
 }

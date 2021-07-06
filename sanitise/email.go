@@ -5,13 +5,18 @@ import (
 )
 
 func Email(input string) string {
-	trimmed := strings.TrimSpace(input)
+	log.Printf("Input: %v", input)
 
-	splitString := strings.FieldsFunc(trimmed, SplitByCommaSpace)
-	output := buildOutput(splitString, false)
+	output := strings.TrimSpace(input)
+	log.Printf("Output after TrimSpace: %v", output)
+
+	splitString := strings.FieldsFunc(output, SplitByCommaSpace)
+	output = buildOutput(splitString, false)
+	log.Printf("Output after SplitByCommaSpace and buildOutput: %v", output)
 
 	splitString = strings.FieldsFunc(output, SplitBySlash)
 	output = buildOutput(splitString, true)
+	log.Printf("Output after SplitBySlash and buildOutput: %v", output)
 
 	return output
 }

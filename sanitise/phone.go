@@ -6,25 +6,33 @@ import (
 )
 
 func Phone(input string, defaultCountry string) string {
+	log.Printf("Input: %v , DefaultCountry: %v", input, defaultCountry)
+
 	output := strings.TrimSpace(input)
+	log.Printf("Output after TrimSpace: %v", output)
 
 	splitString := strings.FieldsFunc(output, SplitBySlash)
 	output = splitString[0]
+	log.Printf("Output after SplitBySlash: %v", output)
 
 	reg, err := regexp.Compile("[^0-9]+")
 
 	if err != nil {
-		log.Fatalf("fatal error", err)
+		log.Fatalf("Output after error", err)
 	}
 
 	output = reg.ReplaceAllString(output, "")
+	log.Printf("Output after ReplaceAllString: %v", output)
 
 	output = strings.TrimLeftFunc(output, TrimByZero)
+	log.Printf("Output after TrimLeftFunc: %v", output)
 
 	withDefault := defaultCountry + output
 	if !HasCountryCode(output) && defaultCountry != "" && HasCountryCode(withDefault) {
 		output = withDefault
 	}
+
+	log.Printf("Output after HasCountryCode: %v", output)
 
 	return output
 }

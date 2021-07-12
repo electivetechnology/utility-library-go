@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/electivetechnology/utility-library-go/clients/oauth"
@@ -18,6 +19,7 @@ const (
 	AUTH_AUTHORIZATION_URL = "/oauth/authorize"
 	AUTH_TOKEN_URL         = "/oauth/token"
 	REST_LOGIN_URL         = "/rest-services/login"
+	REST_PUT_SUBSCRIPTION  = "event/subscription/"
 )
 
 var log logger.Logging
@@ -30,6 +32,7 @@ type RestClient struct {
 	BaseUrl    string
 	Ttl        int
 	ApiVersion string
+	RestToken  string
 }
 
 func init() {
@@ -62,6 +65,13 @@ func NewRestClient() *RestClient {
 	}
 
 	return &RestClient{BaseUrl: url, Ttl: ttl, ApiVersion: "*"}
+}
+
+func (client *RestClient) AddRestToken(token *RestToken) *RestClient {
+	client.BaseUrl = token.RestUrl
+	client.RestToken = token.BhRestToken
+
+	return client
 }
 
 func (client *OAuthClient) GetToken(auth oauth.Authorization) (oauth.Token, error) {
@@ -224,4 +234,78 @@ func (client *RestClient) Login(accessToken string) (*RestToken, error) {
 	// If we got here there was some kind of error with exchange
 
 	return &RestToken{}, errors.New("error exchanging Access token for BH Rest Token")
+}
+
+func (client *RestClient) CreateEntitySubscription(name string, entity string, action string) (*EventsSubscription, error) {
+	var entities []string
+	var actions []string
+
+	// Add entity
+	entities = append(entities, entity)
+
+	// Add actions
+	actions = append(actions, action)
+
+	// Forward request to multi entity/action handler
+	return client.CreateSubscription(name, "entity", entities, actions)
+}
+
+func (client *RestClient) CreateSubscription(name string, subType string, entities []string, actions []string) (*EventsSubscription, error) {
+	log.Printf("Will CreateSubscription subscription for the following entities %s", strings.Join(entities, ","))
+
+	// Transform Authorization struct to Grant payload
+	// Set URL parameters on declaration
+	values := url.Values{
+		"type":        []string{"entity"},
+		"names":       entities,
+		"eventTypes":  actions,
+		"BhRestToken": []string{client.RestToken},
+	}
+
+	log.Printf("Sending following data to bullhorn for new subscription: %v", values)
+
+	// generate URL for request
+	requestUrl, err := GenerateURL(client.BaseUrl, REST_PUT_SUBSCRIPTION+name, values)
+	if err != nil {
+		log.Printf("Error generating URL for request: %v", err)
+		return &EventsSubscription{}, errors.New("error creating new subscription")
+	}
+
+	// Perform Request
+	c := &http.Client{}
+	r, _ := http.NewRequest(http.MethodPut, requestUrl, nil) // URL-encoded payload
+
+	log.Printf("Adding Header for bullhorn authorization %s", client.RestToken)
+
+	// Print request details
+	log.Printf("Request details: %v", r)
+	res, err := c.Do(r)
+
+	// Check for errors, default evaluation is false
+	if err != nil {
+		log.Printf("Error logging in to Bullhorn rest-services: %v", err)
+		return &EventsSubscription{}, errors.New("error creating new subscription")
+	}
+
+	// read all response body
+	data, _ := ioutil.ReadAll(res.Body)
+
+	// defer closing response body
+	defer res.Body.Close()
+
+	// print `data` as a string
+	log.Printf("%s", data)
+
+	// Success, populate token
+	if res.StatusCode == http.StatusOK {
+		subscription := EventsSubscription{}
+		json.Unmarshal(data, &subscription)
+
+		// Return token
+		return &subscription, nil
+	}
+
+	// If we got here there was some kind of error with exchange
+
+	return &EventsSubscription{}, errors.New("error sending request to bullhorn")
 }

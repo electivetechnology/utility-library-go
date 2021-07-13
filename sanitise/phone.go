@@ -15,29 +15,60 @@ func Phone(input string, defaultCountry string) string {
 	output = splitString[0]
 	log.Printf("Output after SplitBySlash: %v", output)
 
-	reg, err := regexp.Compile("[^0-9]+")
+	// Check for plus or 00
+	hasExt := hasExt(output)
+	log.Printf("Output hasExt: %v", hasExt)
 
-	if err != nil {
-		log.Fatalf("Output after error", err)
-	}
-
-	output = reg.ReplaceAllString(output, "")
-	log.Printf("Output after ReplaceAllString: %v", output)
+	output = removeCharacters(output)
 
 	output = strings.TrimLeftFunc(output, TrimByZero)
 	log.Printf("Output after TrimLeftFunc: %v", output)
 
 	withDefault := defaultCountry + output
-	if !HasCountryCode(output) && defaultCountry != "" && HasCountryCode(withDefault) {
-		output = withDefault
+
+	if hasExt && hasCountryCode(output) {
+		log.Printf("return hasExt && hasCountryCode: %v", output)
+		return output
 	}
 
-	log.Printf("Output after HasCountryCode: %v", output)
+	if defaultCountry != "" && hasCountryCode(withDefault) {
+		log.Printf("return defaultCountry && hasCountryCode: %v", withDefault)
+		return withDefault
+	}
 
 	return output
 }
 
-func HasCountryCode(input string) bool {
+func removeCharacters(input string) string {
+	reg, err := regexp.Compile("[^0-9]+")
+
+	if err != nil {
+		log.Fatalf("Output after error", err)
+		return input
+	}
+
+	output := reg.ReplaceAllString(input, "")
+	log.Printf("Output after ReplaceAllString: %v", output)
+
+	return output
+}
+
+func hasExt(input string) bool {
+	reg, err := regexp.Compile("^(\\+|00)")
+
+	if err != nil {
+		log.Fatalf("fatal error", err)
+	}
+
+	find := reg.MatchString(input)
+
+	if find {
+		return true
+	}
+	return false
+}
+
+func hasCountryCode(input string) bool {
 
 	codeList := CodeList()
 

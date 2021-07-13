@@ -24,11 +24,12 @@ func Email(input string) string {
 func buildOutput(seperatedString []string, hasSlash bool) string {
 	output := ""
 
-	for _, element := range seperatedString {
+	// build output string, ignore everything after element with @
+	for index, element := range seperatedString {
 		output += element
 		if strings.Contains(element, "@") {
 			break
-		} else if hasSlash {
+		} else if hasSlash && index != 0 {
 			output += "/"
 		}
 	}

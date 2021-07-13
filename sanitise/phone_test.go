@@ -5,6 +5,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"io"
 	"os"
+	"regexp"
+	"strconv"
+	"strings"
 	"testing"
 )
 
@@ -35,10 +38,11 @@ func TestToCSV(t *testing.T) {
 		log.Printf("err: %v", err)
 	}
 
-	r := csv.NewReader(f)
+	csvr := csv.NewReader(f)
+	csvr.FieldsPerRecord = -1
 
 	for {
-		record, err := r.Read()
+		record, err := csvr.Read()
 
 		if err == io.EOF {
 			break
@@ -49,8 +53,40 @@ func TestToCSV(t *testing.T) {
 		}
 
 		for value := range record {
-			ret := Phone(record[value], "")
-			assert.Equal(t, record[value], ret)
+			code := FindCountryCode(record[value])
+
+			if code != 0 {
+				codeString := strconv.FormatInt(int64(code), 10)
+
+				res := strings.Replace(record[value], codeString, "", 1)
+				ret := Phone(res, codeString)
+
+				assert.Equal(t, record[value], ret)
+
+			} else {
+				log.Fatalf("fatal error", code)
+			}
 		}
 	}
+}
+
+func FindCountryCode(input string) int {
+
+	codeList := CodeList()
+
+	for code, regex := range codeList {
+		reg, err := regexp.Compile(regex)
+
+		if err != nil {
+			log.Fatalf("fatal error", err)
+		}
+
+		find := reg.MatchString(input)
+
+		if find {
+			return code
+		}
+	}
+
+	return 0
 }

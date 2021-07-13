@@ -70,6 +70,36 @@ func TestToCSV(t *testing.T) {
 	}
 }
 
+func TestToIncorrect(t *testing.T) {
+
+	f, err := os.Open("./incorrect_numbers.csv")
+
+	if err != nil {
+		log.Printf("err: %v", err)
+	}
+
+	csvr := csv.NewReader(f)
+	csvr.FieldsPerRecord = -1
+
+	for {
+		record, err := csvr.Read()
+
+		if err == io.EOF {
+			break
+		}
+
+		if err != nil {
+			log.Printf("err: %v", err)
+		}
+
+		for value := range record {
+			code := FindCountryCode(record[value])
+
+			assert.Equal(t, code, 0)
+		}
+	}
+}
+
 func FindCountryCode(input string) int {
 
 	codeList := CodeList()

@@ -25,11 +25,11 @@ func buildOutput(seperatedString []string, hasSlash bool) string {
 	output := ""
 
 	// build output string, ignore everything after element with @
-	for index, element := range seperatedString {
+	for _, element := range seperatedString {
 		output += element
 		if strings.Contains(element, "@") {
 			break
-		} else if hasSlash && index != 0 {
+		} else if hasSlash && len(seperatedString) != 1 {
 			output += "/"
 		}
 	}

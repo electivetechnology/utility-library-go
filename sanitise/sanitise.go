@@ -1,6 +1,8 @@
 package sanitise
 
-import "github.com/electivetechnology/utility-library-go/logger"
+import (
+	"github.com/electivetechnology/utility-library-go/logger"
+)
 
 var log logger.Logging
 

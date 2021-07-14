@@ -20,12 +20,18 @@ func Phone(input string, defaultCountry string) string {
 
 	withDefault := defaultCountry + output
 
-	if hasPrefix && hasCountryCode(output) {
+	outputHasCountryCode, outputCountryCode := hasCountryCode(output)
+	log.Printf("outputHasCountryCode: %v %s", outputHasCountryCode, outputCountryCode)
+
+	if hasPrefix && outputHasCountryCode {
 		log.Printf("return hasExt && hasCountryCode: %v", output)
 		return output
 	}
 
-	if defaultCountry != "" && hasCountryCode(withDefault) {
+	defaultHasCountryCode, defaultCountryCode := hasCountryCode(withDefault)
+	log.Printf("outputHasCountryCode: %v %s", defaultHasCountryCode, defaultCountryCode)
+
+	if defaultCountry != "" && defaultHasCountryCode {
 		log.Printf("return defaultCountry && hasCountryCode: %v", withDefault)
 		return withDefault
 	}
@@ -102,11 +108,11 @@ func hasPrefix(input string) bool {
 	return false
 }
 
-func hasCountryCode(input string) bool {
+func hasCountryCode(input string) (bool, int) {
 
 	codeList := CodeList()
 
-	for _, regex := range codeList {
+	for code, regex := range codeList {
 		reg, err := regexp.Compile(regex)
 
 		if err != nil {
@@ -116,11 +122,11 @@ func hasCountryCode(input string) bool {
 		find := reg.MatchString(input)
 
 		if find {
-			return true
+			return true, code
 		}
 	}
 
-	return false
+	return false, 0
 }
 
 func CodeList() map[int]string {
@@ -202,7 +208,7 @@ func CodeList() map[int]string {
 	codes[47] = "^47[2-3,5-9][0-9]{7,11}$"
 	codes[46] = "^46[1-9][0-9]{6,12}$"
 	codes[45] = "^45[1-9][0-9]{7}$"
-	codes[44] = "^44[1-9][0-9]{6,10}$"
+	codes[44] = "^44[0]?[1-9][0-9]{6,10}$"
 	codes[43] = "^43[1-7][0-9]{3,10}$"
 	codes[423] = "^423[1-7][0-9]{6}$"
 	codes[421] = "^421[1-7][0-9]{8}$"

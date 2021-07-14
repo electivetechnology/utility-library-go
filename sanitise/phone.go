@@ -2,6 +2,7 @@ package sanitise
 
 import (
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -21,15 +22,16 @@ func Phone(input string, defaultCountry string) string {
 	withDefault := defaultCountry + output
 
 	outputHasCountryCode, outputCountryCode := hasCountryCode(output)
-	log.Printf("outputHasCountryCode: %v %s", outputHasCountryCode, outputCountryCode)
+	log.Printf("outputHasCountryCode: %v %v ", outputHasCountryCode, outputCountryCode)
 
 	if hasPrefix && outputHasCountryCode {
+		output = trimZeroAfterCode(output, outputCountryCode)
 		log.Printf("return hasExt && hasCountryCode: %v", output)
 		return output
 	}
 
 	defaultHasCountryCode, defaultCountryCode := hasCountryCode(withDefault)
-	log.Printf("outputHasCountryCode: %v %s", defaultHasCountryCode, defaultCountryCode)
+	log.Printf("outputHasCountryCode: %v %s", defaultHasCountryCode, string(defaultCountryCode))
 
 	if defaultCountry != "" && defaultHasCountryCode {
 		log.Printf("return defaultCountry && hasCountryCode: %v", withDefault)
@@ -37,6 +39,15 @@ func Phone(input string, defaultCountry string) string {
 	}
 
 	log.Printf("return: %v", output)
+
+	return output
+}
+
+func trimZeroAfterCode(input string, code int) string {
+	codeString := strconv.FormatInt(int64(code), 10)
+	withoutCode := strings.Replace(input, codeString, "", 1)
+	log.Printf("Output after withoutCode: %v", withoutCode)
+	output := codeString + trimZeroLeft(withoutCode)
 
 	return output
 }

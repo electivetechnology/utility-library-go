@@ -8,25 +8,19 @@ import (
 func Phone(input string, defaultCountry string) string {
 	log.Printf("Input: %v , DefaultCountry: %v", input, defaultCountry)
 
-	output := strings.TrimSpace(input)
-	log.Printf("Output after TrimSpace: %v", output)
+	output := removeAfterAlphaSlash(input)
 
-	splitString := strings.FieldsFunc(output, SplitBySlash)
-	output = splitString[0]
-	log.Printf("Output after SplitBySlash: %v", output)
+	output = trimSpace(output)
 
-	// Check for plus or 00
-	hasExt := hasExt(output)
-	log.Printf("Output hasExt: %v", hasExt)
+	hasPrefix := hasPrefix(output)
 
 	output = removeCharacters(output)
 
-	output = strings.TrimLeftFunc(output, TrimByZero)
-	log.Printf("Output after TrimLeftFunc: %v", output)
+	output = trimZeroLeft(output)
 
 	withDefault := defaultCountry + output
 
-	if hasExt && hasCountryCode(output) {
+	if hasPrefix && hasCountryCode(output) {
 		log.Printf("return hasExt && hasCountryCode: %v", output)
 		return output
 	}
@@ -39,11 +33,46 @@ func Phone(input string, defaultCountry string) string {
 	return output
 }
 
+func trimSpace(input string) string {
+	output := strings.TrimSpace(input)
+	log.Printf("Output after trimSpace: %v", output)
+
+	return output
+}
+
+func trimZeroLeft(input string) string {
+	output := strings.TrimLeftFunc(input, TrimByZero)
+	log.Printf("Output after trimZeroLeft: %v", output)
+
+	return output
+}
+
+func removeAfterAlphaSlash(input string) string {
+	reg, err := regexp.Compile("[A-Za-z//]")
+
+	if err != nil {
+		log.Fatalf("removeAfterAlphaSlash error", err)
+		return input
+	}
+
+	for i, r := range input {
+
+		find := reg.MatchString(string(r))
+
+		if find {
+			log.Printf("Output after removeAfterAlphaSlash: %v", input[:i])
+			return input[:i]
+		}
+	}
+	log.Printf("Output after removeAfterAlphaSlash: %v", input)
+	return input
+}
+
 func removeCharacters(input string) string {
 	reg, err := regexp.Compile("[^0-9]+")
 
 	if err != nil {
-		log.Fatalf("Output after error", err)
+		log.Fatalf("removeCharacters error", err)
 		return input
 	}
 
@@ -53,18 +82,21 @@ func removeCharacters(input string) string {
 	return output
 }
 
-func hasExt(input string) bool {
+func hasPrefix(input string) bool {
+	// Check for plus or 00
 	reg, err := regexp.Compile("^(\\+|00)")
 
 	if err != nil {
-		log.Fatalf("fatal error", err)
+		log.Fatalf("hasPrefix error", err)
 	}
 
 	find := reg.MatchString(input)
 
 	if find {
+		log.Printf("Output has prefix")
 		return true
 	}
+	log.Printf("Output has no prefix")
 	return false
 }
 
@@ -76,7 +108,7 @@ func hasCountryCode(input string) bool {
 		reg, err := regexp.Compile(regex)
 
 		if err != nil {
-			log.Fatalf("fatal error", err)
+			log.Fatalf("hasCountryCode error", err)
 		}
 
 		find := reg.MatchString(input)

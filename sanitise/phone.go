@@ -30,6 +30,8 @@ func Phone(input string, defaultCountry string) string {
 		return withDefault
 	}
 
+	log.Printf("return: %v", output)
+
 	return output
 }
 

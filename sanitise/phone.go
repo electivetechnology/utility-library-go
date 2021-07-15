@@ -17,8 +17,6 @@ func Phone(input string, defaultCountry string) string {
 
 	output = removeCharacters(output)
 
-	output = trimZeroLeft(output)
-
 	outputCountryCode, outputAllowZero := hasCountryCode(output)
 	log.Printf("Output country code: %v %v ", outputCountryCode, outputAllowZero)
 
@@ -28,16 +26,24 @@ func Phone(input string, defaultCountry string) string {
 		return output
 	}
 
-	withDefault := defaultCountry + output
+	outputAndDefault := defaultCountry + output
 
-	defaultCountryCode, defaultAllowZero := hasCountryCode(withDefault)
-	log.Printf("Output with default country code: %v %s", defaultCountryCode, defaultAllowZero)
+	defaultCountryCode, defaultAllowZero := hasCountryCode(outputAndDefault)
+	log.Printf("Output with default country code: %v %v", defaultCountryCode, defaultAllowZero)
 
 	if defaultCountry != "" && defaultCountryCode != 0 {
-		log.Printf("Return defaultCountry && hasCountryCode: %v", withDefault)
-		return withDefault
+		output = trimZeroAfterCode(outputAndDefault, defaultCountryCode, defaultAllowZero)
+		log.Printf("Return defaultCountry && hasCountryCode: %v", outputAndDefault)
+		return outputAndDefault
 	}
 
+	if outputCountryCode != 0 {
+		output = trimZeroAfterCode(output, outputCountryCode, outputAllowZero)
+		log.Printf("Return hasCountryCode: %v", output)
+		return output
+	}
+
+	output = trimZeroLeft(output)
 	log.Printf("Return: %v", output)
 
 	return output
@@ -47,10 +53,11 @@ func trimZeroAfterCode(input string, code int, allowZero bool) string {
 	if allowZero {
 		return input
 	}
+	output := trimZeroLeft(input)
 	codeString := strconv.FormatInt(int64(code), 10)
-	withoutCode := strings.Replace(input, codeString, "", 1)
+	withoutCode := strings.Replace(output, codeString, "", 1)
 	log.Printf("Output after withoutCode: %v", withoutCode)
-	output := codeString + trimZeroLeft(withoutCode)
+	output = codeString + trimZeroLeft(withoutCode)
 
 	return output
 }

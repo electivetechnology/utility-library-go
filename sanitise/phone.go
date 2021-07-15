@@ -43,7 +43,7 @@ func Phone(input string, defaultCountry string) string {
 		return output
 	}
 
-	output = trimZeroLeft(input)
+	output = trimZeroLeft(output)
 	log.Printf("Return: %v", output)
 
 	return output

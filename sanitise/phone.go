@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+//var allowZeroCountryCodes [4]int
+
 func Phone(input string, defaultCountry string) string {
 	log.Printf("Input: %v , DefaultCountry: %v", input, defaultCountry)
 
@@ -19,21 +21,21 @@ func Phone(input string, defaultCountry string) string {
 
 	output = trimZeroLeft(output)
 
-	withDefault := defaultCountry + output
+	outputCountryCode, outputAllowZero := hasCountryCode(output)
+	log.Printf("outputHasCountryCode: %v %v ", outputCountryCode, outputAllowZero)
 
-	outputHasCountryCode, outputCountryCode := hasCountryCode(output)
-	log.Printf("outputHasCountryCode: %v %v ", outputHasCountryCode, outputCountryCode)
-
-	if hasPrefix && outputHasCountryCode {
-		output = trimZeroAfterCode(output, outputCountryCode)
+	if hasPrefix && outputCountryCode != 0 {
+		output = trimZeroAfterCode(output, outputCountryCode, outputAllowZero)
 		log.Printf("return hasExt && hasCountryCode: %v", output)
 		return output
 	}
 
-	defaultHasCountryCode, defaultCountryCode := hasCountryCode(withDefault)
-	log.Printf("outputHasCountryCode: %v %s", defaultHasCountryCode, string(defaultCountryCode))
+	withDefault := defaultCountry + output
 
-	if defaultCountry != "" && defaultHasCountryCode {
+	defaultCountryCode, defaultAllowZero := hasCountryCode(withDefault)
+	log.Printf("outputHasCountryCode: %v %s", defaultCountryCode, defaultAllowZero)
+
+	if defaultCountry != "" && defaultCountryCode != 0 {
 		log.Printf("return defaultCountry && hasCountryCode: %v", withDefault)
 		return withDefault
 	}
@@ -43,7 +45,10 @@ func Phone(input string, defaultCountry string) string {
 	return output
 }
 
-func trimZeroAfterCode(input string, code int) string {
+func trimZeroAfterCode(input string, code int, allowZero bool) string {
+	if allowZero {
+		return input
+	}
 	codeString := strconv.FormatInt(int64(code), 10)
 	withoutCode := strings.Replace(input, codeString, "", 1)
 	log.Printf("Output after withoutCode: %v", withoutCode)
@@ -119,7 +124,7 @@ func hasPrefix(input string) bool {
 	return false
 }
 
-func hasCountryCode(input string) (bool, int) {
+func hasCountryCode(input string) (int, bool) {
 
 	codeList := CodeList()
 
@@ -133,11 +138,16 @@ func hasCountryCode(input string) (bool, int) {
 		find := reg.MatchString(input)
 
 		if find {
-			return true, code
+			allowZero := false
+			if !strings.Contains(regex, "[0]?") {
+				allowZero = true
+				log.Printf("find: %v", regex)
+			}
+			return code, allowZero
 		}
 	}
 
-	return false, 0
+	return 0, false
 }
 
 func CodeList() map[int]string {
@@ -257,3 +267,14 @@ func CodeList() map[int]string {
 
 	return codes
 }
+
+//func filterByZero(codes map[int]string) map[int]string {
+//	for i, r := range codes {
+//
+//		if !strings.Contains(r, "[0]?") {
+//			log.Printf("find: %v", i)
+//		}
+//	}
+//	//log.Printf("Output after removeAfterAlphaSlash: %v", codes)
+//	return codes
+//}

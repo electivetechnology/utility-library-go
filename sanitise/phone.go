@@ -6,8 +6,6 @@ import (
 	"strings"
 )
 
-//var allowZeroCountryCodes [4]int
-
 func Phone(input string, defaultCountry string) string {
 	log.Printf("Input: %v , DefaultCountry: %v", input, defaultCountry)
 
@@ -22,25 +20,25 @@ func Phone(input string, defaultCountry string) string {
 	output = trimZeroLeft(output)
 
 	outputCountryCode, outputAllowZero := hasCountryCode(output)
-	log.Printf("outputHasCountryCode: %v %v ", outputCountryCode, outputAllowZero)
+	log.Printf("Output country code: %v %v ", outputCountryCode, outputAllowZero)
 
 	if hasPrefix && outputCountryCode != 0 {
 		output = trimZeroAfterCode(output, outputCountryCode, outputAllowZero)
-		log.Printf("return hasExt && hasCountryCode: %v", output)
+		log.Printf("Return hasExt && hasCountryCode: %v", output)
 		return output
 	}
 
 	withDefault := defaultCountry + output
 
 	defaultCountryCode, defaultAllowZero := hasCountryCode(withDefault)
-	log.Printf("outputHasCountryCode: %v %s", defaultCountryCode, defaultAllowZero)
+	log.Printf("Output with default country code: %v %s", defaultCountryCode, defaultAllowZero)
 
 	if defaultCountry != "" && defaultCountryCode != 0 {
-		log.Printf("return defaultCountry && hasCountryCode: %v", withDefault)
+		log.Printf("Return defaultCountry && hasCountryCode: %v", withDefault)
 		return withDefault
 	}
 
-	log.Printf("return: %v", output)
+	log.Printf("Return: %v", output)
 
 	return output
 }
@@ -75,7 +73,7 @@ func removeAfterAlphaSlash(input string) string {
 	reg, err := regexp.Compile("[A-Za-z//]")
 
 	if err != nil {
-		log.Fatalf("removeAfterAlphaSlash error", err)
+		log.Fatalf("Error removeAfterAlphaSlash: ", err)
 		return input
 	}
 
@@ -96,7 +94,7 @@ func removeCharacters(input string) string {
 	reg, err := regexp.Compile("[^0-9]+")
 
 	if err != nil {
-		log.Fatalf("removeCharacters error", err)
+		log.Fatalf("Error removeCharacters: ", err)
 		return input
 	}
 
@@ -111,7 +109,7 @@ func hasPrefix(input string) bool {
 	reg, err := regexp.Compile("^(\\+|00)")
 
 	if err != nil {
-		log.Fatalf("hasPrefix error", err)
+		log.Fatalf("Error hasPrefix: ", err)
 	}
 
 	find := reg.MatchString(input)
@@ -132,18 +130,13 @@ func hasCountryCode(input string) (int, bool) {
 		reg, err := regexp.Compile(regex)
 
 		if err != nil {
-			log.Fatalf("hasCountryCode error", err)
+			log.Fatalf("Error hasCountryCode: ", err)
 		}
 
 		find := reg.MatchString(input)
 
 		if find {
-			allowZero := false
-			if !strings.Contains(regex, "[0]?") {
-				allowZero = true
-				log.Printf("find: %v", regex)
-			}
-			return code, allowZero
+			return code, !strings.Contains(regex, "[0]?")
 		}
 	}
 
@@ -267,14 +260,3 @@ func CodeList() map[int]string {
 
 	return codes
 }
-
-//func filterByZero(codes map[int]string) map[int]string {
-//	for i, r := range codes {
-//
-//		if !strings.Contains(r, "[0]?") {
-//			log.Printf("find: %v", i)
-//		}
-//	}
-//	//log.Printf("Output after removeAfterAlphaSlash: %v", codes)
-//	return codes
-//}

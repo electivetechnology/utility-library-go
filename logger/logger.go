@@ -17,6 +17,14 @@ type Logging interface {
 	Printf(format string, v ...interface{})
 }
 
+type AdvancedLogging interface {
+	Logging
+	InfoF(format string, v ...interface{})
+	NoticeF(format string, v ...interface{})
+	WarningF(format string, v ...interface{})
+	ErrorF(format string, v ...interface{})
+}
+
 type Logger struct {
 	Mode   string
 	Logger *log.Logger

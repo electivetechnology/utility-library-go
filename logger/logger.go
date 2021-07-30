@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"context"
 	"os"
 
 	log "github.com/apsdehal/go-logger"
@@ -9,6 +10,13 @@ import (
 const (
 	PROD = "prod"
 	DEV  = "dev"
+)
+
+type correlationIdType int
+
+const (
+	requestIdKey correlationIdType = iota
+	sessionIdKey
 )
 
 type Logging interface {
@@ -23,6 +31,16 @@ type AdvancedLogging interface {
 	NoticeF(format string, v ...interface{})
 	WarningF(format string, v ...interface{})
 	ErrorF(format string, v ...interface{})
+}
+
+// WithRqId returns a context which knows its request ID
+func WithRqId(ctx context.Context, rqId string) context.Context {
+	return context.WithValue(ctx, requestIdKey, requestId)
+}
+
+// WithSessionId returns a context which knows its session ID
+func WithSessionId(ctx context.Context, sessionId string) context.Context {
+	return context.WithValue(ctx, sessionIdKey, sessionId)
 }
 
 type Logger struct {
@@ -43,6 +61,12 @@ func NewLogger(module string) *Logger {
 		Mode:   mode,
 		Logger: log,
 	}
+}
+
+func ContextLogger(module string, ctx context.Context) *Logger {
+	logger := NewLogger(module)
+
+	return logger
 }
 
 func (l *Logger) Fatalf(format string, err ...interface{}) {

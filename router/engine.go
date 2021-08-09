@@ -8,12 +8,16 @@ import (
 )
 
 // SetupEngine sets up router and returns its instance of the gin.Engine.
-func SetupEngine() *gin.Engine {
+func SetupEngine(handlers []gin.HandlerFunc) *gin.Engine {
 	// Force log's color
 	gin.ForceConsoleColor()
 
 	gin.SetMode(os.Getenv("GIN_MODE"))
 	engine := gin.Default()
+
+	for _, handler := range handlers {
+		engine.Use(handler)
+	}
 	engine.Use(gin.Recovery())
 
 	// Add Cors

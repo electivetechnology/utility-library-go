@@ -21,7 +21,7 @@ type Router struct {
 var log logger.Logging
 
 // NewRouter returns a new blank Router instance.
-func NewRouter() *Router {
+func NewRouter(handlers ...gin.HandlerFunc) *Router {
 	// Add generic logger
 	log = logger.NewLogger("router")
 
@@ -39,7 +39,7 @@ func NewRouter() *Router {
 	// Setup Router
 	r := Router{
 		Logger: log,
-		Engine: SetupEngine(),
+		Engine: SetupEngine(handlers),
 		Port:   port,
 	}
 

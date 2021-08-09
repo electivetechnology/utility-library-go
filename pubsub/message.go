@@ -5,7 +5,6 @@ import "cloud.google.com/go/pubsub"
 type Message interface {
 	GetData() ([]byte, error)
 	GetAttributes() (map[string]string, error)
-	GetId() (string, error)
 }
 
 type PubSubMessage struct {

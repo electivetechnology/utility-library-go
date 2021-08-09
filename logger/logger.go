@@ -38,6 +38,8 @@ type Logger struct {
 type ContextLogging interface {
 	AdvancedLogging
 	WithRequestContext(ctx context.Context, format string, v ...interface{})
+	StartRequestContext(requestId string)
+	EndRequestContext(requestId string)
 }
 
 const RequestIdKey = "requestId"
@@ -45,6 +47,19 @@ const RequestIdKey = "requestId"
 var startTime time.Time
 
 func (l *Logger) LoggerRequestHandler() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		requestId := hash.GenerateHash(12)
+		l.StartRequestContext(requestId)
+
+		c.Set(RequestIdKey, requestId)
+
+		c.Writer.Header().Set("X-Log-Id", requestId)
+		c.Next()
+		l.EndRequestContext(requestId)
+	}
+}
+
+func (l *Logger) LoggerWorkerHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		requestId := hash.GenerateHash(12)
 		l.StartRequestContext(requestId)
@@ -75,6 +90,11 @@ func NewLogger(module string) *Logger {
 }
 
 func (l *Logger) WithRequestContext(ctx context.Context, format string, err ...interface{}) {
+	withContext := fmt.Sprintf("[%v] %v ", ctx.Value(RequestIdKey), format)
+	l.Printf(withContext, err...)
+}
+
+func (l *Logger) WithWorkerContext(ctx context.Context, format string, err ...interface{}) {
 	withContext := fmt.Sprintf("[%v] %v ", ctx.Value(RequestIdKey), format)
 	l.Printf(withContext, err...)
 }

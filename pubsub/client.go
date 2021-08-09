@@ -14,7 +14,7 @@ const (
 	SYNCHRONOUS  = false
 )
 
-var log logger.Logging
+var log logger.ContextLogging
 
 type Client struct {
 	projectID    string

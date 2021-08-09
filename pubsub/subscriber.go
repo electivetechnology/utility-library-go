@@ -5,7 +5,7 @@ import (
 	"context"
 )
 
-func (psClient *Client) Pull(subscription string, handler func(message Message) bool) error {
+func (psClient *Client) Pull(subscription string, handler func(message MessageReceived) bool) error {
 	log.Printf("Starting subscription %s", subscription)
 
 	// Set Subscription

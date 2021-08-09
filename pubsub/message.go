@@ -7,11 +7,16 @@ type Message interface {
 	GetAttributes() (map[string]string, error)
 }
 
+type MessageReceived interface {
+	Message
+	GetId() (string, error)
+}
+
 type PubSubMessage struct {
 	Message *pubsub.Message
 }
 
-func NewPubSubMessage(msg *pubsub.Message) Message {
+func NewPubSubMessage(msg *pubsub.Message) MessageReceived {
 	return &PubSubMessage{Message: msg}
 }
 

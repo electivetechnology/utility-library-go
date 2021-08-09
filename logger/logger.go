@@ -38,6 +38,7 @@ type Logger struct {
 type ContextLogging interface {
 	AdvancedLogging
 	WithRequestContext(ctx context.Context, format string, v ...interface{})
+	WithRequestId(string, format string, v ...interface{})
 	StartRequestContext(requestId string)
 	EndRequestContext(requestId string)
 }
@@ -92,6 +93,11 @@ func NewLogger(module string) *Logger {
 func (l *Logger) WithRequestContext(ctx context.Context, format string, err ...interface{}) {
 	withContext := fmt.Sprintf("[%v] %v ", ctx.Value(RequestIdKey), format)
 	l.Printf(withContext, err...)
+}
+
+func (l *Logger) WithRequestId(requestId string, format string, err ...interface{}) {
+	withId := fmt.Sprintf("[%v] %v ", requestId, format)
+	l.Printf(withId, err...)
 }
 
 func (l *Logger) WithWorkerContext(ctx context.Context, format string, err ...interface{}) {

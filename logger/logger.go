@@ -49,19 +49,7 @@ var startTime time.Time
 
 func (l *Logger) LoggerRequestHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		requestId := hash.GenerateHash(12)
-		l.StartRequestContext(requestId)
-
-		c.Set(RequestIdKey, requestId)
-
-		c.Writer.Header().Set("X-Log-Id", requestId)
-		c.Next()
-		l.EndRequestContext(requestId)
-	}
-}
-
-func (l *Logger) LoggerWorkerHandler() gin.HandlerFunc {
-	return func(c *gin.Context) {
+		startTime = time.Now()
 		requestId := hash.GenerateHash(12)
 		l.StartRequestContext(requestId)
 
@@ -76,8 +64,6 @@ func (l *Logger) LoggerWorkerHandler() gin.HandlerFunc {
 func NewLogger(module string) *Logger {
 	log, _ := log.New(module, 1)
 	log.SetFormat("#%{id} %{time} ▶ [%{module}][%{level}]: %{message}")
-
-	startTime = time.Now()
 
 	mode := os.Getenv("LOGGER_MODE")
 	if mode != PROD {

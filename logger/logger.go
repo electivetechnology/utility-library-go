@@ -49,7 +49,6 @@ var startTime time.Time
 
 func (l *Logger) LoggerRequestHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		startTime = time.Now()
 		requestId := hash.GenerateHash(12)
 		l.StartRequestContext(requestId)
 
@@ -92,6 +91,7 @@ func (l *Logger) WithWorkerContext(ctx context.Context, format string, err ...in
 }
 
 func (l *Logger) StartRequestContext(requestId string) {
+	startTime = time.Now()
 	withContext := fmt.Sprintf("[%v] %v ", requestId, "Request Started")
 	l.Printf(withContext)
 }

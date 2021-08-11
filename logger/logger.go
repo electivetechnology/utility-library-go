@@ -1,8 +1,6 @@
 package logger
 
 import (
-	"context"
-	"fmt"
 	log "github.com/apsdehal/go-logger"
 	"os"
 )
@@ -11,35 +9,6 @@ const (
 	PROD = "prod"
 	DEV  = "dev"
 )
-const RequestIdKey = "requestId"
-
-type Mode string
-
-const (
-	PRINT  Mode = "printF"
-	NOTICE Mode = "noticeF"
-)
-
-func (l *Logger) PrintContext(ctx context.Context, mode Mode, format string, err ...interface{}) {
-	formatWithContext := fmt.Sprintf("[%v] %v ", ctx.Value(RequestIdKey), format)
-	l.PrintOnMode(mode, formatWithContext, err...)
-}
-
-func (l *Logger) PrintRequestId(requestId string, mode Mode, format string, err ...interface{}) {
-	formatWithContext := fmt.Sprintf("[%v] %v ", requestId, format)
-	l.PrintOnMode(mode, formatWithContext, err...)
-}
-
-func (l *Logger) PrintOnMode(mode Mode, format string, err ...interface{}) {
-	switch mode {
-	case PRINT:
-		l.Panicf(format, err...)
-	case NOTICE:
-		l.NoticeF(format, err...)
-	default:
-		l.Printf(format, err...)
-	}
-}
 
 type Logging interface {
 	Fatalf(format string, v ...interface{})
@@ -58,12 +27,6 @@ type AdvancedLogging interface {
 type Logger struct {
 	Mode   string
 	Logger *log.Logger
-}
-
-type ContextLogging interface {
-	AdvancedLogging
-	PrintContext(ctx context.Context, mode Mode, format string, v ...interface{})
-	PrintRequestId(requestId string, mode Mode, format string, err ...interface{})
 }
 
 func NewLogger(module string) *Logger {

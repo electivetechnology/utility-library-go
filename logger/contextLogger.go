@@ -14,6 +14,7 @@ var startTime time.Time
 
 type ContextLogging interface {
 	AdvancedLogging
+	LoggerRequestHandler() gin.HandlerFunc
 	PrintFContext(ctx context.Context, format string, v ...interface{})
 	CriticalFContext(ctx context.Context, format string, v ...interface{})
 	WarningFContext(ctx context.Context, format string, v ...interface{})

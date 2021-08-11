@@ -9,14 +9,14 @@ const RequestIdKey = "requestId"
 
 type ContextLogging interface {
 	AdvancedLogging
-	PrintfContext(ctx context.Context, format string, v ...interface{})
+	PrintFContext(ctx context.Context, format string, v ...interface{})
 	CriticalFContext(ctx context.Context, format string, v ...interface{})
 	WarningFContext(ctx context.Context, format string, v ...interface{})
 	ErrorFContext(ctx context.Context, format string, v ...interface{})
 	NoticeFContext(ctx context.Context, format string, v ...interface{})
 	InfoFContext(ctx context.Context, format string, v ...interface{})
 	DebugFContext(ctx context.Context, format string, v ...interface{})
-	PrintfRequest(requestId string, format string, v ...interface{})
+	PrintFRequest(requestId string, format string, v ...interface{})
 	CriticalFRequest(requestId string, format string, v ...interface{})
 	WarningFRequest(requestId string, format string, v ...interface{})
 	ErrorFRequest(requestId string, format string, v ...interface{})
@@ -33,12 +33,12 @@ func requestFormat(requestId string, format string) string {
 	return fmt.Sprintf("[%v] %v ", requestId, format)
 }
 
-func (l *Logger) PrintfContext(ctx context.Context, format string, err ...interface{}) {
+func (l *Logger) PrintFContext(ctx context.Context, format string, err ...interface{}) {
 	l.Printf(contextFormat(ctx, format), err)
 }
 
 func (l *Logger) CriticalFContext(ctx context.Context, format string, err ...interface{}) {
-	l.Printf(contextFormat(ctx, format), err)
+	l.CriticalF(contextFormat(ctx, format), err)
 }
 
 func (l *Logger) WarningFContext(ctx context.Context, format string, err ...interface{}) {
@@ -61,12 +61,12 @@ func (l *Logger) DebugFContext(ctx context.Context, format string, err ...interf
 	l.DebugF(contextFormat(ctx, format), err)
 }
 
-func (l *Logger) PrintfRequest(requestId string, format string, err ...interface{}) {
+func (l *Logger) PrintFRequest(requestId string, format string, err ...interface{}) {
 	l.Printf(requestFormat(requestId, format), err)
 }
 
 func (l *Logger) CriticalFRequest(requestId string, format string, err ...interface{}) {
-	l.Printf(requestFormat(requestId, format), err)
+	l.CriticalF(requestFormat(requestId, format), err)
 }
 
 func (l *Logger) WarningFRequest(requestId string, format string, err ...interface{}) {

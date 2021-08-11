@@ -35,15 +35,16 @@ type Logger struct {
 	Logger *log.Logger
 }
 
+const RequestIdKey = "requestId"
+
 type ContextLogging interface {
 	AdvancedLogging
 	WithRequestContext(ctx context.Context, format string, v ...interface{})
 	WithRequestId(string, format string, v ...interface{})
 	StartRequestContext(requestId string)
 	EndRequestContext(requestId string)
+	LoggerRequestHandler() gin.HandlerFunc
 }
-
-const RequestIdKey = "requestId"
 
 var startTime time.Time
 

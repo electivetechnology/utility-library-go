@@ -16,6 +16,34 @@ const (
 	DEV  = "dev"
 )
 
+type Mode string
+
+const (
+	PRINT  Mode = "printF"
+	NOTICE Mode = "noticeF"
+)
+
+func (l *Logger) PrintContext(ctx context.Context, mode Mode, format string, err ...interface{}) {
+	formatWithContext := fmt.Sprintf("[%v] %v ", ctx.Value(RequestIdKey), format)
+	l.PrintOnMode(mode, formatWithContext, err...)
+}
+
+func (l *Logger) PrintRequestId(requestId string, mode Mode, format string, err ...interface{}) {
+	formatWithContext := fmt.Sprintf("[%v] %v ", requestId, format)
+	l.PrintOnMode(mode, formatWithContext, err...)
+}
+
+func (l *Logger) PrintOnMode(mode Mode, format string, err ...interface{}) {
+	switch mode {
+	case PRINT:
+		l.Panicf(format, err...)
+	case NOTICE:
+		l.NoticeF(format, err...)
+	default:
+		l.Printf(format, err...)
+	}
+}
+
 type Logging interface {
 	Fatalf(format string, v ...interface{})
 	Panicf(format string, v ...interface{})
@@ -39,8 +67,8 @@ const RequestIdKey = "requestId"
 
 type ContextLogging interface {
 	AdvancedLogging
-	WithRequestContext(ctx context.Context, format string, v ...interface{})
-	WithRequestId(string, format string, v ...interface{})
+	PrintContext(ctx context.Context, mode Mode, format string, v ...interface{})
+	PrintRequestId(requestId string, mode Mode, format string, err ...interface{})
 	StartRequestContext(requestId string)
 	EndRequestContext(requestId string)
 	LoggerRequestHandler() gin.HandlerFunc

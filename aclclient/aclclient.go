@@ -31,7 +31,7 @@ type AuthorisedResponse struct {
 	Checks  []string
 }
 
-var log logger.Logging
+var log logger.ContextLogging
 
 func init() {
 	// Add generic logger
@@ -67,6 +67,7 @@ func (client AclClient) IsTokenAuthorised(token string, aclCheck *AclCheck) bool
 	jsonValue, _ := json.Marshal(aclCheck)
 	request, _ := http.NewRequest(http.MethodPost, client.AclHost+AUTH_URL, bytes.NewBuffer(jsonValue))
 	log.Printf("Checking if user have %s permissions on subject %s", aclCheck.Permission, aclCheck.Subject)
+	log.PrintRequestId("someId", logger.NOTICE, "Checking if user have %s permissions on subject %s", aclCheck.Permission, aclCheck.Subject)
 
 	// Set Headers for this request
 	request.Header.Set("Authorization", "Bearer "+token)

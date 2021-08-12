@@ -3,12 +3,18 @@ package logger
 import (
 	"context"
 	"fmt"
+	"github.com/electivetechnology/utility-library-go/hash"
+	"github.com/gin-gonic/gin"
+	"time"
 )
 
 const RequestIdKey = "requestId"
 
+var startTime time.Time
+
 type ContextLogging interface {
 	AdvancedLogging
+	LoggerRequestHandler() gin.HandlerFunc
 	PrintFContext(ctx context.Context, format string, v ...interface{})
 	CriticalFContext(ctx context.Context, format string, v ...interface{})
 	WarningFContext(ctx context.Context, format string, v ...interface{})
@@ -23,6 +29,19 @@ type ContextLogging interface {
 	NoticeFRequest(requestId string, format string, v ...interface{})
 	InfoFRequest(requestId string, format string, v ...interface{})
 	DebugFRequest(requestId string, format string, v ...interface{})
+}
+
+func (l *Logger) LoggerRequestHandler() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		requestId := hash.GenerateHash(12)
+		l.StartContext(requestId)
+
+		c.Set(RequestIdKey, requestId)
+
+		c.Writer.Header().Set("X-Log-Id", requestId)
+		c.Next()
+		l.EndContext(requestId)
+	}
 }
 
 func contextFormat(ctx context.Context, format string) string {
@@ -87,4 +106,17 @@ func (l *Logger) InfoFRequest(requestId string, format string, err ...interface{
 
 func (l *Logger) DebugFRequest(requestId string, format string, err ...interface{}) {
 	l.DebugF(requestFormat(requestId, format), err)
+}
+
+func (l *Logger) StartContext(requestId string) {
+	startTime = time.Now()
+	withContext := fmt.Sprintf("[%v] %v ", requestId, "Request Started")
+	l.Printf(withContext)
+}
+
+func (l *Logger) EndContext(requestId string) {
+	currentTime := time.Now()
+	diff := currentTime.Sub(startTime).Milliseconds()
+	withContext := fmt.Sprintf("[%v] Request Completed after %v ms", requestId, diff)
+	l.Printf(withContext)
 }

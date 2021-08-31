@@ -1,12 +1,11 @@
 package pubsub
 
 import (
-	"context"
-
 	"cloud.google.com/go/pubsub"
+	"context"
 )
 
-func (psClient *Client) Pull(subscription string, handler func(message Message) bool) error {
+func (psClient *Client) Pull(subscription string, handler func(message MessageReceived) bool) error {
 	log.Printf("Starting subscription %s", subscription)
 
 	// Set Subscription
@@ -18,6 +17,8 @@ func (psClient *Client) Pull(subscription string, handler func(message Message) 
 
 	// Receive and handle messages
 	err := sub.Receive(psClient.Ctx, func(ctx context.Context, msg *pubsub.Message) {
+		log.StartRequestContext(msg.ID)
+
 		log.Printf("Got message: %q\n", string(msg.Data))
 
 		// Create new Message from PubSub Message
@@ -33,6 +34,7 @@ func (psClient *Client) Pull(subscription string, handler func(message Message) 
 			log.Printf("Failed to process message: %s\n", msg.ID)
 			msg.Nack()
 		}
+		log.EndRequestContext(msg.ID)
 	})
 
 	if err != nil {

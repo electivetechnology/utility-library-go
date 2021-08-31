@@ -1,9 +1,8 @@
 package logger
 
 import (
-	"os"
-
 	log "github.com/apsdehal/go-logger"
+	"os"
 )
 
 const (

@@ -12,8 +12,7 @@ import (
 )
 
 const (
-	AUTH_URL           = "/v1/authorise"
-	TOKEN_EXCHANGE_URL = "/v1/token/exchange"
+	AUTH_URL = "/v1/authorise"
 )
 
 type AclClient struct {

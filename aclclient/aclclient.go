@@ -68,7 +68,7 @@ func (client AclClient) IsTokenAuthorised(token string, aclCheck *AclCheck) bool
 
 	// Transform AclCheck struct to json payload
 	jsonValue, _ := json.Marshal(aclCheck)
-	request, _ := http.NewRequest(http.MethodPost, client.AclHost+TOKEN_EXCHANGE_URL, bytes.NewBuffer(jsonValue))
+	request, _ := http.NewRequest(http.MethodPost, client.AclHost+AUTH_URL, bytes.NewBuffer(jsonValue))
 	log.Printf("Checking if user have %s permissions on subject %s", aclCheck.Permission, aclCheck.Subject)
 
 	// Set Headers for this request
@@ -106,7 +106,7 @@ func (client AclClient) ExchangeToken(payload *ExchangePaylod) (ExchangeResponse
 
 	// Transform Token struct to json payload
 	jsonValue, _ := json.Marshal(payload)
-	request, _ := http.NewRequest(http.MethodPost, client.AclHost+AUTH_URL, bytes.NewBuffer(jsonValue))
+	request, _ := http.NewRequest(http.MethodPost, client.AclHost+TOKEN_EXCHANGE_URL, bytes.NewBuffer(jsonValue))
 	log.Printf("Exchanging token for organisation %s", payload.Organisation)
 
 	// Set Headers for this request

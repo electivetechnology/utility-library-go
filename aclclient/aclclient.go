@@ -3,8 +3,6 @@ package aclclient
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
-	"io/ioutil"
 	"net/http"
 	"os"
 
@@ -98,44 +96,4 @@ func (client AclClient) IsRequestAuthorized(ctx *gin.Context, aclCheck *AclCheck
 	aclCheck.Organisation = token.GetOrganisation()
 
 	return client.IsTokenAuthorised(token.GetRawToken(), aclCheck)
-}
-
-func (client AclClient) ExchangeToken(payload *ExchangePaylod) (ExchangeResponse, error) {
-	// Create new Http Client
-	c := &http.Client{}
-
-	// Transform Token struct to json payload
-	jsonValue, _ := json.Marshal(payload)
-	request, _ := http.NewRequest(http.MethodPost, client.AclHost+TOKEN_EXCHANGE_URL, bytes.NewBuffer(jsonValue))
-	log.Printf("Exchanging token for organisation %s", payload.Organisation)
-
-	// Set Headers for this request
-	request.Header.Set("Authorization", "Bearer "+payload.Token)
-	request.Header.Add("Content-Type", "application/json")
-
-	// Perform Request
-	res, err := c.Do(request)
-
-	// Check for errors, default evaluation is false
-	if err != nil {
-		log.Printf("Error processing Token exchange: %v\n", err)
-		return ExchangeResponse{}, err
-	}
-
-	// read all response body
-	data, _ := ioutil.ReadAll(res.Body)
-
-	// print `data` as a string
-	log.Printf("%s\n", data)
-
-	// Success, populate token
-	if res.StatusCode == http.StatusOK {
-		result := ExchangeResponse{}
-		json.Unmarshal(data, &result)
-
-		// Return token
-		return result, nil
-	}
-
-	return ExchangeResponse{}, errors.New("error exchanging Token for new organisation")
 }

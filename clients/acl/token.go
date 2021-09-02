@@ -1,6 +1,6 @@
-package aclclient
+package acl
 
-type ExchangePaylod struct {
+type ExchangePayload struct {
 	Organisation string `json:"organisation"`
 	Token        string `json:"token"`
 }

@@ -2,7 +2,7 @@ package aclclient
 
 type ExchangePaylod struct {
 	Organisation string `json:"organisation"`
-	Token        string `json:"organisation"`
+	Token        string `json:"token"`
 }
 
 type ExchangeResponse struct {

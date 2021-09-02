@@ -8,7 +8,10 @@ import (
 	"github.com/electivetechnology/utility-library-go/logger"
 )
 
-const TOKEN_EXCHANGE_URL = "/v1/token/exchange"
+const (
+	ACL_CLIENT_NAME    = "Elective:UtilityLibrary:ACL:0.*"
+	TOKEN_EXCHANGE_URL = "/v1/token/exchange"
+)
 
 var log logger.Logging
 
@@ -25,6 +28,8 @@ type Client struct {
 	BaseUrl   string
 	Jwt       string
 	IsEnabled bool
+	Name      string
+	Id        string
 }
 
 func NewClient() *Client {
@@ -43,7 +48,7 @@ func NewClient() *Client {
 		isEnabled = false
 	}
 
-	return &Client{BaseUrl: url, IsEnabled: isEnabled}
+	return &Client{BaseUrl: url, IsEnabled: isEnabled, Name: ACL_CLIENT_NAME}
 }
 
 // HandleRequest takes instance of the http.Request and performs request if client is enabled

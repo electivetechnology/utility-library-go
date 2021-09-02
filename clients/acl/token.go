@@ -26,6 +26,7 @@ func (client Client) ExchangeToken(payload *ExchangePayload) (ExchangeResponse, 
 	// Set Headers for this request
 	request.Header.Set("Authorization", "Bearer "+payload.Token)
 	request.Header.Add("Content-Type", "application/json")
+	request.Header.Set("User-Agent", client.Name)
 
 	// Perform Request
 	res, wasRequested, err := client.HandleRequest(request)

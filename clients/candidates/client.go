@@ -19,7 +19,7 @@ var log logger.Logging
 
 func init() {
 	// Add generic logger
-	log = logger.NewLogger("clients/acl")
+	log = logger.NewLogger("clients/candidates")
 }
 
 type CandidatesClient interface {

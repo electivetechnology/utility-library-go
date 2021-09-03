@@ -59,12 +59,16 @@ func (client Client) GetCandidateByVendor(vendor string, vendorId string, token 
 	log.Printf("%s\n", data)
 
 	// Success, populate token
-	if res.StatusCode == http.StatusOK {
+	switch res.StatusCode {
+	case http.StatusOK:
 		result := CandidateResponse{}
 		json.Unmarshal(data, &result)
 
 		// Return token
 		return result, nil
+
+	case http.StatusNotFound:
+		return CandidateResponse{}, errors.New("candidate not found")
 	}
 
 	return CandidateResponse{}, errors.New("error getting candidate for given vendor")

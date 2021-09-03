@@ -26,7 +26,7 @@ func (client Client) GetCandidateByVendor(vendor string, vendorId string, token 
 	log.Printf("Will request candidate details for vendor %s and id %s", vendor, vendorId)
 
 	// Generate new path replacer
-	r := strings.NewReplacer(":vendor", vendor, ":vendorId", vendorId)
+	r := strings.NewReplacer(":vendorName", vendor, ":vendorId", vendorId)
 	path := r.Replace(GET_CANDIDATE_FOR_VENDOR_URL)
 	log.Printf("New path generated for request %s", path)
 

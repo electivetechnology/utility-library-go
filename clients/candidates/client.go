@@ -12,7 +12,7 @@ import (
 const (
 	ACL_CLIENT_NAME              = "Elective:UtilityLibrary:Candidates:0.*"
 	GET_CANDIDATE_URL            = "/v1/candidates/:candidate"
-	GET_CANDIDATE_FOR_VENDOR_URL = "/v1/candidates/:vendor/:vendorId"
+	GET_CANDIDATE_FOR_VENDOR_URL = "/v1/candidates/vendor/:vendorName/:vendorId"
 )
 
 var log logger.Logging

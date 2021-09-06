@@ -24,7 +24,7 @@ type CandidateResponse struct {
 	Gender            string `json:"gender"`
 }
 
-func (client Client) GetCandidateByVendor(vendor string, vendorId string, token string) (CandidateResponse, error) {
+func (client connect.Client) GetCandidateByVendor(vendor string, vendorId string, token string) (CandidateResponse, error) {
 	log.Printf("Will request candidate details for vendor %s and id %s", vendor, vendorId)
 
 	// Generate new path replacer

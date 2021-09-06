@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+
+	"github.com/electivetechnology/utility-library-go/clients/connect"
 )
 
 type CandidateResponse struct {
@@ -42,7 +44,7 @@ func (client Client) GetCandidateByVendor(vendor string, vendorId string, token 
 	// Check for errors, default evaluation is false
 	if err != nil {
 		log.Printf("Error getting Candidate details: %v", err)
-		return CandidateResponse{}, err
+		return CandidateResponse{}, connect.NewInternalError(err.Error())
 	}
 
 	// Check if the request was actually made
@@ -68,7 +70,10 @@ func (client Client) GetCandidateByVendor(vendor string, vendorId string, token 
 		return result, nil
 
 	case http.StatusNotFound:
-		return CandidateResponse{}, errors.New("candidate not found")
+		// Return 404
+		e := connect.NewApiError("candidate not found")
+		e.Status = 404
+		return CandidateResponse{}, e
 	}
 
 	return CandidateResponse{}, errors.New("error getting candidate for given vendor")

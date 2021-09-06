@@ -4,6 +4,7 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/electivetechnology/utility-library-go/clients/connect"
 	"github.com/electivetechnology/utility-library-go/hash"
 	"github.com/electivetechnology/utility-library-go/logger"
 )
@@ -22,19 +23,14 @@ func init() {
 }
 
 type CandidatesClient interface {
+	GetCandidateByVendor(vendor string, vendorId string, token string) (CandidateResponse, error)
 }
 
 type Client struct {
-	BaseUrl        string
-	Jwt            string
-	IsEnabled      bool
-	Name           string
-	Id             string
-	RedisTTL       int
-	IsCacheEnabled bool
+	ApiClient connect.ApiClient
 }
 
-func NewClient() *Client {
+func NewClient() CandidatesClient {
 	// Get Base URL
 	url := os.Getenv("CANDIDATES_HOST")
 
@@ -64,12 +60,17 @@ func NewClient() *Client {
 		isCacheEnabled = true
 	}
 
-	return &Client{
-		BaseUrl:        url,
-		IsEnabled:      isEnabled,
-		Name:           ACL_CLIENT_NAME,
-		Id:             hash.GenerateHash(12),
-		IsCacheEnabled: isCacheEnabled,
-		RedisTTL:       ttl,
+	apiClient := connect.Client{
+		BaseUrl:      url,
+		Enabled:      isEnabled,
+		Name:         ACL_CLIENT_NAME,
+		Id:           hash.GenerateHash(12),
+		CacheEnabled: isCacheEnabled,
+		RedisTTL:     ttl,
 	}
+
+	// Create new Candidate Client
+	c := Client{ApiClient: apiClient}
+
+	return c
 }

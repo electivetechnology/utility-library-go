@@ -3,7 +3,6 @@ package candidates
 import (
 	"encoding/json"
 	"errors"
-	"io/ioutil"
 	"net/http"
 	"strings"
 
@@ -55,7 +54,7 @@ func (client Client) GetCandidateByVendor(vendor string, vendorId string, token 
 	}
 
 	// read all response body
-	data, _ := ioutil.ReadAll(res.HttpResponse.Body)
+	data := res.HttpResponse.Body
 
 	// print `data` as a string
 	log.Printf("%s\n", data)

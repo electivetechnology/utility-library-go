@@ -45,6 +45,10 @@ func (adapter *RedisAdapter) getTtl() time.Duration {
 	return adapter.ttl
 }
 
+func (adapter *RedisAdapter) SetTtl(ttl int) {
+	adapter.ttl = time.Duration(ttl) * time.Second
+}
+
 func (adapter *RedisAdapter) getClient() *redis.Client {
 	return adapter.client
 }

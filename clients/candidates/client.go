@@ -1,4 +1,4 @@
-package acl
+package candidates
 
 import (
 	"os"
@@ -10,46 +10,47 @@ import (
 )
 
 const (
-	ACL_CLIENT_NAME    = "Elective:UtilityLibrary:ACL:0.*"
-	TOKEN_EXCHANGE_URL = "/v1/token/exchange"
+	ACL_CLIENT_NAME              = "Elective:UtilityLibrary:Candidates:0.*"
+	GET_CANDIDATE_URL            = "/v1/candidates/:candidate"
+	GET_CANDIDATE_FOR_VENDOR_URL = "/v1/candidates/vendor/:vendorName/:vendorId"
 )
 
 var log logger.Logging
 
 func init() {
 	// Add generic logger
-	log = logger.NewLogger("clients/acl")
+	log = logger.NewLogger("clients/candidates")
 }
 
-type AclClient interface {
-	ExchangeToken(payload *ExchangePayload) (ExchangeResponse, error)
+type CandidatesClient interface {
+	GetCandidateByVendor(vendor string, vendorId string, token string) (CandidateResponse, error)
 }
 
 type Client struct {
 	ApiClient connect.ApiClient
 }
 
-func NewClient() *Client {
+func NewClient() CandidatesClient {
 	// Get Base URL
-	url := os.Getenv("ACL_HOST")
+	url := os.Getenv("CANDIDATES_HOST")
 
 	if url == "" {
-		url = "http://acl-api"
+		url = "http://candidates-api"
 	}
 
 	// Check if client enabled
-	ret := os.Getenv("ACL_CLIENT_ENABLED")
+	ret := os.Getenv("CANDIDATES_CLIENT_ENABLED")
 	isEnabled, err := strconv.ParseBool(ret)
 	if err != nil {
-		log.Fatalf("Could not parse ACL_CLIENT_ENABLED as bool value")
+		log.Fatalf("Could not parse CANDIDATES_CLIENT_ENABLED as bool value")
 		isEnabled = false
 	}
 
 	// Check if redis caching is enabled
-	ret = os.Getenv("ACL_CLIENT_REDIS_TTL")
+	ret = os.Getenv("CANDIDATES_CLIENT_REDIS_TTL")
 	ttl, err := strconv.Atoi(ret)
 	if err != nil {
-		log.Fatalf("Could not parse ACL_CLIENT_REDIS_TTL as integer value")
+		log.Fatalf("Could not parse CANDIDATES_CLIENT_REDIS_TTL as integer value")
 		ttl = 0
 	}
 	log.Printf("Client TTL cache is configured to: %d", ttl)

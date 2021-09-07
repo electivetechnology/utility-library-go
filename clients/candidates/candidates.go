@@ -14,6 +14,11 @@ const (
 )
 
 type CandidateResponse struct {
+	ApiResponse *connect.ApiResponse
+	Candidate   *Candidate
+}
+
+type Candidate struct {
 	Id                string `json:"id"`
 	Email             string `json:"email"`
 	FirstName         string `json:"firstName"`
@@ -53,6 +58,9 @@ func (client Client) GetCandidateByVendor(vendor string, vendorId string, token 
 		return CandidateResponse{}, connect.NewInternalError(err.Error())
 	}
 
+	// Success, populate token
+	response := CandidateResponse{ApiResponse: res}
+
 	// Check if the request was actually made
 	if !res.WasRequested {
 		// No request was made, let's return fake response
@@ -66,11 +74,10 @@ func (client Client) GetCandidateByVendor(vendor string, vendorId string, token 
 	// print `data` as a string
 	log.Printf("%s\n", data)
 
-	// Success, populate token
 	switch res.HttpResponse.StatusCode {
 	case http.StatusOK:
-		result := CandidateResponse{}
-		json.Unmarshal(data, &result)
+		candidate := Candidate{}
+		json.Unmarshal(data, &candidate)
 
 		// Check if respose was from Cache
 		if !res.WasCached {
@@ -79,20 +86,19 @@ func (client Client) GetCandidateByVendor(vendor string, vendorId string, token 
 
 			// Generate tags for cache
 			var tags []string
-			tags = append(tags, CANDIDATE_TAG_PREFIX+result.Id)
+			tags = append(tags, CANDIDATE_TAG_PREFIX+candidate.Id)
 			tags = append(tags, key)
 			client.ApiClient.SaveToCache(key, res, tags)
 		}
 
-		// Return token
-		return result, nil
+		// Return response
+		response.Candidate = &candidate
 
-	case http.StatusNotFound:
-		// Return 404
-		e := connect.NewApiError("candidate not found")
-		e.Status = 404
-		return CandidateResponse{}, e
+		return response, nil
+
+	default:
+		return response, nil
 	}
 
-	return CandidateResponse{}, errors.New("error getting candidate for given vendor")
+	return response, errors.New("error getting candidate for given vendor")
 }

@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+
+	"github.com/electivetechnology/utility-library-go/cache"
 )
 
 func (client Client) SaveToCache(key string, response *ApiResponse, tags []string) error {
@@ -73,4 +75,34 @@ func (client Client) GenerateCacheKeyFromRequest(request *http.Request) string {
 	hash := h.Sum(nil)
 
 	return hex.EncodeToString(hash[:])
+}
+
+func (client Client) SetupAdapter(ttl int, c *Client) error {
+	log.Printf("Setting RediAdapter with TTL set to %d", ttl)
+	if ttl > 0 {
+		// Enable caching if ttl is grater than 0
+		// Now that redis is enabled we need to set up adapter
+		log.Printf("Trying Redis cache adapter")
+		adapter := cache.NewCacheAdapter()
+
+		// Set new TTL
+		adapter.SetTtl(ttl)
+		c.RedisTTL = ttl
+
+		cache := cache.NewCache(adapter)
+		err := cache.Ping()
+		if err == nil {
+			log.Printf("Client cache has been enabled")
+			// Adapter is available, let's configure it
+			c.Cache = cache
+
+			// Enable cache
+			c.CacheEnabled = true
+		} else {
+			log.Fatalf("Cache was enabled, however adapter is not available")
+			return errors.New("cache was enabled, however adapter is not available")
+		}
+	}
+
+	return nil
 }

@@ -80,6 +80,7 @@ func (client Client) GetCandidateByVendor(vendor string, vendorId string, token 
 			// Generate tags for cache
 			var tags []string
 			tags = append(tags, CANDIDATE_TAG_PREFIX+result.Id)
+			tags = append(tags, key)
 			client.ApiClient.SaveToCache(key, res, tags)
 		}
 

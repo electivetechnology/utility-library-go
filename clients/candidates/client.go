@@ -4,7 +4,6 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/electivetechnology/utility-library-go/cache"
 	"github.com/electivetechnology/utility-library-go/clients/connect"
 	"github.com/electivetechnology/utility-library-go/hash"
 	"github.com/electivetechnology/utility-library-go/logger"
@@ -54,6 +53,7 @@ func NewClient() CandidatesClient {
 		log.Fatalf("Could not parse CANDIDATES_CLIENT_REDIS_TTL as integer value")
 		ttl = 0
 	}
+	log.Printf("Client TTL cache is configured to: %d", ttl)
 
 	apiClient := connect.Client{
 		BaseUrl:      url,
@@ -63,29 +63,8 @@ func NewClient() CandidatesClient {
 		CacheEnabled: false,
 	}
 
-	if ttl > 0 {
-		// Enable caching if ttl is grater than 0
-		// Now that redis is enabled we need to set up adapter
-		log.Printf("Trying Redis cache adapter")
-		adapter := cache.NewCacheAdapter()
-
-		// Set new TTL
-		adapter.SetTtl(ttl)
-		apiClient.RedisTTL = ttl
-
-		cache := cache.NewCache(adapter)
-		err := cache.Ping()
-		if err == nil {
-			log.Printf("Client cache has been enabled")
-			// Adapter is available, let's configure it
-			apiClient.Cache = cache
-
-			// Enable cache
-			apiClient.CacheEnabled = true
-		} else {
-			log.Fatalf("Cache was enabled, however adapter is not available")
-		}
-	}
+	// Setup cache adapter
+	apiClient.SetupAdapter(ttl, &apiClient)
 
 	// Create new Candidate Client
 	c := Client{ApiClient: apiClient}

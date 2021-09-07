@@ -1,10 +1,11 @@
 package acl
 
 import (
-	"net/http"
 	"os"
 	"strconv"
 
+	"github.com/electivetechnology/utility-library-go/clients/connect"
+	"github.com/electivetechnology/utility-library-go/hash"
 	"github.com/electivetechnology/utility-library-go/logger"
 )
 
@@ -25,11 +26,7 @@ type AclClient interface {
 }
 
 type Client struct {
-	BaseUrl   string
-	Jwt       string
-	IsEnabled bool
-	Name      string
-	Id        string
+	ApiClient connect.ApiClient
 }
 
 func NewClient() *Client {
@@ -48,27 +45,28 @@ func NewClient() *Client {
 		isEnabled = false
 	}
 
-	return &Client{BaseUrl: url, IsEnabled: isEnabled, Name: ACL_CLIENT_NAME}
-}
-
-// HandleRequest takes instance of the http.Request and performs request if client is enabled
-// It returns instance of http.Response, bool (true if request was actually made, false if not)
-// and error should there be any
-func (client Client) HandleRequest(request *http.Request) (*http.Response, bool, error) {
-	// Create new Http Client
-	c := &http.Client{}
-
-	if !client.IsEnabled {
-		log.Printf("Client is disabled. No request will be made. Returning fake Response")
-		return &http.Response{Status: "200 OK", StatusCode: 200}, false, nil
-	}
-	res, err := c.Do(request)
-
-	// Check for errors, default evaluation is false
+	// Check if redis caching is enabled
+	ret = os.Getenv("ACL_CLIENT_REDIS_TTL")
+	ttl, err := strconv.Atoi(ret)
 	if err != nil {
-		log.Printf("Error handling request: %s %s %v", request.Method, request.URL, err)
-		return res, true, err
+		log.Fatalf("Could not parse ACL_CLIENT_REDIS_TTL as integer value")
+		ttl = 0
+	}
+	log.Printf("Client TTL cache is configured to: %d", ttl)
+
+	apiClient := connect.Client{
+		BaseUrl:      url,
+		Enabled:      isEnabled,
+		Name:         ACL_CLIENT_NAME,
+		Id:           hash.GenerateHash(12),
+		CacheEnabled: false,
 	}
 
-	return res, true, nil
+	// Setup cache adapter
+	apiClient.SetupAdapter(ttl, &apiClient)
+
+	// Create new Candidate Client
+	c := Client{ApiClient: apiClient}
+
+	return &c
 }

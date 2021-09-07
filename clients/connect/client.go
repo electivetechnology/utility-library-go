@@ -68,7 +68,7 @@ func (client Client) HandleRequest(request *http.Request, key string) (*ApiRespo
 		// Check for errors, default evaluation is false
 		if err != nil {
 			log.Printf("Error handling request: %s %s %v", request.Method, request.URL, err)
-			return &ApiResponse{HttpResponse: &HttpResponse{Status: ret.Status, StatusCode: ret.StatusCode}, WasRequested: true}, err
+			return &ApiResponse{HttpResponse: &HttpResponse{}, WasRequested: true}, err
 		}
 
 		// read all response body

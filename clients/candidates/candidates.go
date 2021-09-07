@@ -41,11 +41,11 @@ func (client Client) GetCandidateByVendor(vendor string, vendorId string, token 
 	request.Header.Set("Authorization", "Bearer "+token)
 	request.Header.Add("Content-Type", "application/json")
 
-	// Generate tags for cache
-	var tags []string
+	// Get key
+	key := client.ApiClient.GenerateKey("")
 
 	// Perform Request
-	res, err := client.ApiClient.HandleRequest(request, tags)
+	res, err := client.ApiClient.HandleRequest(request, key)
 
 	// Check for errors, default evaluation is false
 	if err != nil {
@@ -75,11 +75,12 @@ func (client Client) GetCandidateByVendor(vendor string, vendorId string, token 
 		// Check if respose was from Cache
 		if !res.WasCached {
 			// Save response to cache
-			log.Printf("Client provided fresh/uncached response. Saving response to cache")
+			log.Printf("Client provided fresh/uncached response. Saving response to cache with TTL %d", client.ApiClient.GetRedisTTL())
 
-			// Add Id to tags
+			// Generate tags for cache
+			var tags []string
 			tags = append(tags, CANDIDATE_TAG_PREFIX+result.Id)
-			client.ApiClient.SaveToCache(request, res, tags)
+			client.ApiClient.SaveToCache(key, res, tags)
 		}
 
 		// Return token

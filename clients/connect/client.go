@@ -1,10 +1,6 @@
 package connect
 
 import (
-	"crypto/md5"
-	"encoding/hex"
-	"encoding/json"
-	"errors"
 	"io/ioutil"
 	"net/http"
 
@@ -27,8 +23,9 @@ type ApiClient interface {
 	GetId() string
 	GetRedisTTL() int
 	IsCacheEnabled() bool
-	HandleRequest(request *http.Request, tags []string) (*ApiResponse, error)
-	SaveToCache(request *http.Request, response *ApiResponse, tags []string) error
+	HandleRequest(request *http.Request, key string) (*ApiResponse, error)
+	SaveToCache(key string, response *ApiResponse, tags []string) error
+	GenerateKey(key string) string
 }
 
 type Client struct {
@@ -43,9 +40,7 @@ type Client struct {
 }
 
 // HandleRequest takes instance of the http.Request and performs request if client is enabled
-// It returns instance of http.Response, bool (true if request was actually made, false if not)
-// and error should there be any
-func (client Client) HandleRequest(request *http.Request, tags []string) (*ApiResponse, error) {
+func (client Client) HandleRequest(request *http.Request, key string) (*ApiResponse, error) {
 	log.Printf("Handling request %s: %s", request.Method, request.RequestURI)
 	// Create new Http Client
 	c := &http.Client{}
@@ -64,7 +59,8 @@ func (client Client) HandleRequest(request *http.Request, tags []string) (*ApiRe
 
 	// Get cached
 	log.Printf("Checking cached response is available for this request")
-	res, err := client.GetCached(request)
+
+	res, err := client.GetCached(request, key)
 	if err != nil {
 		// Make request as no result available in cache
 		ret, err := c.Do(request)
@@ -88,62 +84,6 @@ func (client Client) HandleRequest(request *http.Request, tags []string) (*ApiRe
 	}
 
 	return res, nil
-}
-
-func (client Client) SaveToCache(request *http.Request, response *ApiResponse, tags []string) error {
-	if client.IsCacheEnabled() {
-		// Save  result to cache
-		log.Printf("Saving to cache result for request %s: %s", request.Method, request.RequestURI)
-
-		key := client.GetCacheKey(request)
-		log.Printf("Cache key for this request is: %s", key)
-
-		data, err := json.Marshal(response)
-		if err != nil {
-			log.Fatalf("Could not encode Response into JSON %v", err)
-			return err
-		}
-
-		client.Cache.SetWithTags(key, data, tags)
-	}
-
-	return nil
-}
-
-func (client Client) GetCached(request *http.Request) (*ApiResponse, error) {
-	if client.IsCacheEnabled() {
-		// Cache is enabled check if redis is available
-		log.Printf("Getting cached result for request %s: %s", request.Method, request.RequestURI)
-
-		key := client.GetCacheKey(request)
-		log.Printf("Cache key for this request is: %s", key)
-
-		data := client.Cache.Get(key)
-		var res ApiResponse
-
-		if err := json.Unmarshal(data, &res); err != nil {
-			log.Printf("Failed to decode cached data %v", err)
-
-			return &ApiResponse{}, errors.New("failed to decode cached data")
-		}
-
-		return &res, nil
-	}
-
-	log.Printf("Cache is disabled for request %s: %s", request.Method, request.RequestURI)
-
-	return &ApiResponse{}, errors.New("response not available in cache")
-}
-
-func (client Client) GetCacheKey(request *http.Request) string {
-	h := md5.New()
-	h.Write([]byte(request.Host))
-	h.Write([]byte(request.Method))
-	h.Write([]byte(request.RequestURI))
-
-	hash := h.Sum(nil)
-
-	return hex.EncodeToString(hash[:])
 }
 
 func (client Client) GetBaseUrl() string {

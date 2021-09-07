@@ -71,6 +71,7 @@ func NewClient() CandidatesClient {
 
 		// Set new TTL
 		adapter.SetTtl(ttl)
+		apiClient.RedisTTL = ttl
 
 		cache := cache.NewCache(adapter)
 		err := cache.Ping()

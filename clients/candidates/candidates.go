@@ -9,6 +9,10 @@ import (
 	"github.com/electivetechnology/utility-library-go/clients/connect"
 )
 
+const (
+	CANDIDATE_TAG_PREFIX = "candidates_"
+)
+
 type CandidateResponse struct {
 	Id                string `json:"id"`
 	Email             string `json:"email"`
@@ -37,8 +41,11 @@ func (client Client) GetCandidateByVendor(vendor string, vendorId string, token 
 	request.Header.Set("Authorization", "Bearer "+token)
 	request.Header.Add("Content-Type", "application/json")
 
+	// Generate tags for cache
+	var tags []string
+
 	// Perform Request
-	res, err := client.ApiClient.HandleRequest(request)
+	res, err := client.ApiClient.HandleRequest(request, tags)
 
 	// Check for errors, default evaluation is false
 	if err != nil {
@@ -64,6 +71,16 @@ func (client Client) GetCandidateByVendor(vendor string, vendorId string, token 
 	case http.StatusOK:
 		result := CandidateResponse{}
 		json.Unmarshal(data, &result)
+
+		// Check if respose was from Cache
+		if !res.WasCached {
+			// Save response to cache
+			log.Printf("Client provided fresh/uncached response. Saving response to cache")
+
+			// Add Id to tags
+			tags = append(tags, CANDIDATE_TAG_PREFIX+result.Id)
+			client.ApiClient.SaveToCache(request, res, tags)
+		}
 
 		// Return token
 		return result, nil

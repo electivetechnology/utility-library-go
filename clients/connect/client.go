@@ -27,7 +27,8 @@ type ApiClient interface {
 	GetId() string
 	GetRedisTTL() int
 	IsCacheEnabled() bool
-	HandleRequest(request *http.Request) (*ApiResponse, error)
+	HandleRequest(request *http.Request, tags []string) (*ApiResponse, error)
+	SaveToCache(request *http.Request, response *ApiResponse, tags []string) error
 }
 
 type Client struct {
@@ -44,7 +45,7 @@ type Client struct {
 // HandleRequest takes instance of the http.Request and performs request if client is enabled
 // It returns instance of http.Response, bool (true if request was actually made, false if not)
 // and error should there be any
-func (client Client) HandleRequest(request *http.Request) (*ApiResponse, error) {
+func (client Client) HandleRequest(request *http.Request, tags []string) (*ApiResponse, error) {
 	log.Printf("Handling request %s: %s", request.Method, request.RequestURI)
 	// Create new Http Client
 	c := &http.Client{}
@@ -79,16 +80,17 @@ func (client Client) HandleRequest(request *http.Request) (*ApiResponse, error) 
 
 		res = &ApiResponse{HttpResponse: &HttpResponse{Status: ret.Status, StatusCode: ret.StatusCode, Body: data}, WasRequested: true}
 
-		if client.IsCacheEnabled() {
-			// Save to cache
-			client.SaveToCache(request, res)
-		}
+		// mark response as not cached
+		res.WasCached = false
+	} else {
+		// indicate that response was from cache
+		res.WasCached = true
 	}
 
 	return res, nil
 }
 
-func (client Client) SaveToCache(request *http.Request, response *ApiResponse) error {
+func (client Client) SaveToCache(request *http.Request, response *ApiResponse, tags []string) error {
 	if client.IsCacheEnabled() {
 		// Save  result to cache
 		log.Printf("Saving to cache result for request %s: %s", request.Method, request.RequestURI)
@@ -102,7 +104,7 @@ func (client Client) SaveToCache(request *http.Request, response *ApiResponse) e
 			return err
 		}
 
-		client.Cache.Set(key, data)
+		client.Cache.SetWithTags(key, data, tags)
 	}
 
 	return nil

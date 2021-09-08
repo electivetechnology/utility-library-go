@@ -51,3 +51,10 @@ func TestInfoF(t *testing.T) {
 
 	logger.InfoF("This is info error %d", 15)
 }
+
+func BenchmarkFatalf(b *testing.B) {
+	logger := NewLogger("logger")
+	for n := 0; n < b.N; n++ {
+		logger.Fatalf("Hello World")
+	}
+}

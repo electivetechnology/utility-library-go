@@ -36,3 +36,15 @@ func TestGenerateMultipleHashes(t *testing.T) {
 
 	}
 }
+
+func BenchmarkGenerateHash10(b *testing.B) {
+	for n := 0; n < b.N; n++ {
+		GenerateHash(10)
+	}
+}
+
+func BenchmarkGenerateHash20(b *testing.B) {
+	for n := 0; n < b.N; n++ {
+		GenerateHash(20)
+	}
+}

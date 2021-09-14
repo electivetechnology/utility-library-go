@@ -26,6 +26,8 @@ type ApiClient interface {
 	HandleRequest(request *http.Request, key string) (*ApiResponse, error)
 	SaveToCache(key string, response *ApiResponse, tags []string) error
 	GenerateKey(key string) string
+	SetHttpClient(*http.Client)
+	GetHttpClient() *http.Client
 }
 
 type Client struct {
@@ -37,13 +39,16 @@ type Client struct {
 	RedisTTL     int
 	CacheEnabled bool
 	Cache        *cache.Cache
+	HttpClient   *http.Client
 }
 
 // HandleRequest takes instance of the http.Request and performs request if client is enabled
 func (client Client) HandleRequest(request *http.Request, key string) (*ApiResponse, error) {
 	log.Printf("Handling request %s: %s", request.Method, request.RequestURI)
 	// Create new Http Client
-	c := &http.Client{}
+	if client.GetHttpClient() == nil {
+		client.SetHttpClient(&http.Client{})
+	}
 
 	// Set default headers
 	request.Header.Set("User-Agent", client.GetName())
@@ -63,7 +68,7 @@ func (client Client) HandleRequest(request *http.Request, key string) (*ApiRespo
 	res, err := client.GetCached(request, key)
 	if err != nil {
 		// Make request as no result available in cache
-		ret, err := c.Do(request)
+		ret, err := client.GetHttpClient().Do(request)
 
 		// Check for errors, default evaluation is false
 		if err != nil {
@@ -112,4 +117,12 @@ func (client Client) GetRedisTTL() int {
 
 func (client Client) IsCacheEnabled() bool {
 	return client.CacheEnabled
+}
+
+func (client *Client) SetHttpClient(httpClient *http.Client) {
+	client.HttpClient = httpClient
+}
+
+func (client Client) GetHttpClient() *http.Client {
+	return client.HttpClient
 }

@@ -72,7 +72,7 @@ func NewClient() AssessmentsClient {
 	apiClient.SetupAdapter(ttl, &apiClient)
 
 	// Create new Assessments Client
-	c := Client{ApiClient: apiClient}
+	c := Client{ApiClient: &apiClient}
 
 	return &c
 }

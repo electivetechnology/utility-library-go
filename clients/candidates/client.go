@@ -67,7 +67,7 @@ func NewClient() CandidatesClient {
 	apiClient.SetupAdapter(ttl, &apiClient)
 
 	// Create new Candidate Client
-	c := Client{ApiClient: apiClient}
+	c := Client{ApiClient: &apiClient}
 
 	return &c
 }

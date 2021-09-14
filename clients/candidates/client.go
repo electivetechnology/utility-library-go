@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	ACL_CLIENT_NAME              = "Elective:UtilityLibrary:Candidates:0.*"
+	CLIENT_NAME                  = "Elective:UtilityLibrary:Candidates:0.*"
 	GET_CANDIDATE_URL            = "/v1/candidates/:candidate"
 	GET_CANDIDATE_FOR_VENDOR_URL = "/v1/candidates/vendor/:vendorName/:vendorId"
 )
@@ -58,7 +58,7 @@ func NewClient() CandidatesClient {
 	apiClient := connect.Client{
 		BaseUrl:      url,
 		Enabled:      isEnabled,
-		Name:         ACL_CLIENT_NAME,
+		Name:         CLIENT_NAME,
 		Id:           hash.GenerateHash(12),
 		CacheEnabled: false,
 	}

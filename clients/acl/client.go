@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	ACL_CLIENT_NAME    = "Elective:UtilityLibrary:ACL:0.*"
+	CLIENT_NAME        = "Elective:UtilityLibrary:ACL:0.*"
 	TOKEN_EXCHANGE_URL = "/v1/token/exchange"
 )
 
@@ -57,7 +57,7 @@ func NewClient() *Client {
 	apiClient := connect.Client{
 		BaseUrl:      url,
 		Enabled:      isEnabled,
-		Name:         ACL_CLIENT_NAME,
+		Name:         CLIENT_NAME,
 		Id:           hash.GenerateHash(12),
 		CacheEnabled: false,
 	}

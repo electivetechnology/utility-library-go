@@ -1,6 +1,8 @@
 package rest
 
-import "time"
+import (
+	"time"
+)
 
 type RestToken struct {
 	BhRestToken string `json:"BhRestToken"`

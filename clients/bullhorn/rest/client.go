@@ -12,7 +12,7 @@ var log logger.Logging
 
 func init() {
 	// Add generic logger
-	log = logger.NewLogger("clients/bullhor/rest")
+	log = logger.NewLogger("clients/bullhorn/rest")
 }
 
 type RestClient interface {
@@ -20,6 +20,7 @@ type RestClient interface {
 	GetBhRestToken(accessToken string) (*RestToken, error)
 	AddRestToken(token *RestToken)
 	CreateEntitySubscription(name string, entity string, action string) (*bullhorn.EventsSubscription, error)
+	GetCandidate(id int) (*Candidate, error)
 }
 
 type Client struct {

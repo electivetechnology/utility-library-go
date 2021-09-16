@@ -170,7 +170,7 @@ func (client BaseClient) GetBaseUrl() string {
 	return client.BaseUrl
 }
 
-func (client BaseClient) SetBaseUrl(url string) {
+func (client *BaseClient) SetBaseUrl(url string) {
 	client.BaseUrl = url
 }
 
@@ -186,7 +186,7 @@ func (client BaseClient) GetRestToken() string {
 	return client.RestToken
 }
 
-func (client BaseClient) SetRestToken(token string) {
+func (client *BaseClient) SetRestToken(token string) {
 	client.RestToken = token
 }
 

@@ -29,10 +29,3 @@ func (t Token) GetRefreshToken() string {
 func (t Token) GetExpiresAt() *time.Time {
 	return t.ExpiresAt
 }
-
-type RestToken struct {
-	BhRestToken string `json:"BhRestToken"`
-	RestUrl     string `json:"restUrl"`
-	Ttl         int
-	ExpiresAt   *time.Time
-}

@@ -12,44 +12,40 @@ import (
 )
 
 const (
-	REST_GET_CANDIDATE = "entity/Candidate/"
+	REST_GET_JOB_SUBMISSION = "entity/JobSubmission/"
 )
 
-type CandidateResponse struct {
-	Data Candidate `json:"data"`
+type JobSubmissionResponse struct {
+	Data JobSubmission `json:"data"`
 }
 
-type Candidate struct {
-	ID        int     `json:"id"`
-	FirstName string  `json:"firstName"`
-	LastName  string  `json:"lastName"`
-	Email     string  `json:"email"`
-	Phone     string  `json:"phone"`
-	Status    string  `json:"status"`
-	Address   Address `json:"address"`
+type JobSubmission struct {
+	Status    string    `json:"status"`
+	Candidate Candidate `json:"candidate"`
+	JobOrder  JobOrder  `json:"jobOrder"`
 }
 
-type Address struct {
-	City        string `json:"city"`
-	CountryName string `json:"countryName"`
+type JobOrder struct {
+	ID    int    `json:"id"`
+	Title string `json:"title"`
 }
 
-func (client *Client) GetCandidate(id int) (*Candidate, error) {
-	log.Printf("Will Get Candidate details with bullhorn ID %d", id)
+func (client *Client) GetJobSubmission(id int) (*JobSubmission, error) {
+	log.Printf("Will Get JobSubmission details with ID %d", id)
 
 	// Set URL parameters on declaration
 	values := url.Values{
-		"fields":      []string{"firstName,lastName,address,email,phone,status"},
+		"fields":      []string{"status,candidate,jobOrder"},
 		"BhRestToken": []string{client.GetApiClient().GetRestToken()},
 	}
 
-	log.Printf("Sending following data to bullhorn to get Candidate: %v", values)
+	log.Printf("Sending following data to bullhorn to get JobSubmission: %v", values)
 
 	// generate URL for request
-	requestUrl, err := bullhorn.GenerateURL(client.GetApiClient().GetBaseUrl(), REST_GET_CANDIDATE+strconv.Itoa(id), values)
+	requestUrl, err := bullhorn.GenerateURL(client.GetApiClient().GetBaseUrl(), REST_GET_JOB_SUBMISSION+strconv.Itoa(id), values)
 	if err != nil {
 		log.Printf("Error generating URL for request: %v", err)
-		return &Candidate{}, errors.New("error creating getting Candidate details")
+		return &JobSubmission{}, errors.New("error getting JobSubmission details")
 	}
 
 	// Perform Request
@@ -63,7 +59,7 @@ func (client *Client) GetCandidate(id int) (*Candidate, error) {
 	// Check for errors, default evaluation is false
 	if err != nil {
 		log.Printf("Error logging in to Bullhorn rest-services: %v", err)
-		return &Candidate{}, errors.New("error creating new subscription")
+		return &JobSubmission{}, errors.New("error creating new subscription")
 	}
 
 	// read all response body
@@ -77,12 +73,12 @@ func (client *Client) GetCandidate(id int) (*Candidate, error) {
 
 	// Success, populate token
 	if res.StatusCode == http.StatusOK {
-		ret := CandidateResponse{}
+		ret := JobSubmissionResponse{}
 		json.Unmarshal(data, &ret)
 
 		// Return token
 		return &ret.Data, nil
 	}
 
-	return &Candidate{}, nil
+	return &JobSubmission{}, nil
 }

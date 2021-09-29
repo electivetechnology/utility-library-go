@@ -33,7 +33,7 @@ type Candidate struct {
 }
 
 func (client Client) GetCandidateByVendor(vendor string, vendorId string, token string) (CandidateResponse, error) {
-	log.Printf("Will request candidate details for vendor %s and id %s", vendor, vendorId)
+	log.Printf("Will request candidate details for vendor %s and id %d", vendor, vendorId)
 
 	// Generate new path replacer
 	r := strings.NewReplacer(":vendorName", vendor, ":vendorId", vendorId)

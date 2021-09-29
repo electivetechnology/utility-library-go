@@ -19,8 +19,11 @@ type RestClient interface {
 	GetApiClient() bullhorn.ApiClient
 	GetBhRestToken(accessToken string) (*RestToken, error)
 	AddRestToken(token *RestToken)
-	CreateEntitySubscription(name string, entity string, action string) (*bullhorn.EventsSubscription, error)
+	CreateEntitySubscription(name string, entity string, actions []string) (*bullhorn.EventsSubscription, error)
+	CreateSubscription(name string, subType string, entities []string, actions []string) (*bullhorn.EventsSubscription, error)
 	GetCandidate(id int) (*Candidate, error)
+	GetJobSubmission(id int) (*JobSubmission, error)
+	PullSubscriptionEvents(string, int) (*bullhorn.SubscriptionEvents, error)
 }
 
 type Client struct {

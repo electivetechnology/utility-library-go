@@ -144,3 +144,60 @@ func (client *Client) PullSubscriptionEvents(subscription string, maxEvents int)
 
 	return &bullhorn.SubscriptionEvents{}, errors.New("error sending request to bullhorn")
 }
+
+func (client *Client) GetLastRequestId(subscription string) (*bullhorn.LastSubscriptionRequest, error) {
+	log.Printf("Will check last request Id from bullhorn for subscription: %s", subscription)
+
+	// Transform Authorization struct to Grant payload
+	// Set URL parameters on declaration
+	values := url.Values{
+		"BhRestToken": []string{client.ApiClient.GetRestToken()},
+	}
+
+	log.Printf("Sending following data to bullhorn for subscription events: %v", values)
+
+	// generate URL for request
+	requestUrl, err := bullhorn.GenerateURL(client.GetApiClient().GetBaseUrl(), REST_GET_SUBSCRIPTION+subscription+"/lastRequestId", values)
+	if err != nil {
+		log.Printf("Error generating URL for request: %v", err)
+		return &bullhorn.LastSubscriptionRequest{}, errors.New("error last request Id")
+	}
+
+	// Perform Request
+	c := &http.Client{}
+	r, _ := http.NewRequest(http.MethodGet, requestUrl, nil) // URL-encoded payload
+
+	log.Printf("Adding Header for bullhorn authorization %s", client.ApiClient.GetRestToken())
+
+	// Print request details
+	log.Printf("Request details: %v", r)
+	res, err := c.Do(r)
+
+	// Check for errors, default evaluation is false
+	if err != nil {
+		log.Printf("Error logging in to Bullhorn rest-services: %v", err)
+		return &bullhorn.LastSubscriptionRequest{}, errors.New("error subscription last request Id")
+	}
+
+	// read all response body
+	data, _ := ioutil.ReadAll(res.Body)
+
+	// defer closing response body
+	defer res.Body.Close()
+
+	// print `data` as a string
+	log.Printf("%s", data)
+
+	// Success, populate lastRequest
+	if res.StatusCode == http.StatusOK {
+		lastRequest := bullhorn.LastSubscriptionRequest{}
+		json.Unmarshal(data, &lastRequest)
+
+		// Return lastRequest
+		return &lastRequest, nil
+	}
+
+	// If we got here there was some kind of error with exchange
+
+	return &bullhorn.LastSubscriptionRequest{}, errors.New("error sending request to bullhorn")
+}

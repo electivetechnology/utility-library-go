@@ -20,3 +20,7 @@ type Event struct {
 	EntityEventType   string   `json:"entityEventType"`
 	UpdatedProperties []string `json:"updatedProperties"`
 }
+
+type LastSubscriptionRequest struct {
+	RequestId int `json:"result"`
+}

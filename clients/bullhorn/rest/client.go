@@ -24,6 +24,7 @@ type RestClient interface {
 	GetCandidate(id int) (*Candidate, error)
 	GetJobSubmission(id int) (*JobSubmission, error)
 	PullSubscriptionEvents(string, int) (*bullhorn.SubscriptionEvents, error)
+	GetLastRequestId(subscription string) (*bullhorn.LastSubscriptionRequest, error)
 }
 
 type Client struct {

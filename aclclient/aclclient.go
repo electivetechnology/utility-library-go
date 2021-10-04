@@ -32,12 +32,10 @@ type AuthorisedResponse struct {
 }
 
 var log logger.Logging
-var isEnabled = "true"
 
 func init() {
 	// Add generic logger
 	log = logger.NewLogger("aclclient")
-	isEnabled = os.Getenv("ACL_CLIENT_ENABLED")
 }
 
 func NewAclCheck(subject string, permission string) *AclCheck {
@@ -62,9 +60,6 @@ func NewAclClient() *AclClient {
 }
 
 func (client AclClient) IsTokenAuthorised(token string, aclCheck *AclCheck) bool {
-	if isEnabled != "true" {
-		return true
-	}
 	// Create new Http Client
 	c := &http.Client{}
 

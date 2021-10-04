@@ -35,7 +35,7 @@ func (client *Client) CreateSubscription(name string, subType string, entities [
 	values := url.Values{
 		"type":        []string{"entity"},
 		"names":       entities,
-		"eventTypes":  actions,
+		"eventTypes":  []string{strings.Join(actions, ",")},
 		"BhRestToken": []string{client.ApiClient.GetRestToken()},
 	}
 

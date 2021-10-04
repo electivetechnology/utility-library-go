@@ -50,7 +50,7 @@ func (client Client) GetJobByVendor(vendor string, vendorId string, token string
 	request.Header.Add("Content-Type", "application/json")
 
 	// Get key
-	key := client.ApiClient.GenerateKey("")
+	key := client.ApiClient.GenerateKey(JOB_TAG_PREFIX + path)
 
 	// Perform Request
 	res, err := client.ApiClient.HandleRequest(request, key)

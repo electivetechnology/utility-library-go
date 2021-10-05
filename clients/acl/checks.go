@@ -29,6 +29,9 @@ func NewAclCheck(subject string, permission string) *AclCheck {
 }
 
 func (client Client) IsTokenAuthorised(token string, aclCheck *AclCheck) bool {
+	if !client.ApiClient.IsEnabled() {
+		return true
+	}
 	// Create new Http Client
 	c := &http.Client{}
 

@@ -4,7 +4,6 @@ import (
 	"github.com/electivetechnology/utility-library-go/auth"
 	"github.com/gin-gonic/gin"
 	"os"
-	"strconv"
 )
 
 type Route struct {
@@ -18,18 +17,10 @@ type Route struct {
 // List of available routes/endpoints
 // [Methods], Path, handler
 var routes = []Route{}
-var isEnabled = true
+var isEnabled = "true"
 
 func init() {
-	// Check if client enabled
-	ret := os.Getenv("ACL_CLIENT_ENABLED")
-
-	var err error
-	isEnabled, err = strconv.ParseBool(ret)
-	if err != nil {
-		log.Fatalf("Could not parse ACL_CLIENT_ENABLED as bool value")
-		isEnabled = false
-	}
+	isEnabled = os.Getenv("ACL_CLIENT_ENABLED")
 }
 
 // RegisterRoute allows to add new Route object to list of engine endpoints
@@ -40,7 +31,7 @@ func RegisterRoute(route Route) {
 func addRoute(route Route, f func(relativePath string, handlers ...gin.HandlerFunc) gin.IRoutes) gin.IRoutes {
 	log.Printf("Registering new endpoint: %s %s", route.Method, route.Path)
 
-	if route.IsAuthenticated && isEnabled {
+	if route.IsAuthenticated && isEnabled == "true" {
 		log.Printf("Checking if request is authenticated")
 		if route.Authenticator != nil {
 			return f(route.Path, route.Authenticator(route), route.Handler)

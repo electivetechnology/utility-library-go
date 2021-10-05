@@ -27,6 +27,7 @@ type Candidate struct {
 	Phone     string  `json:"phone"`
 	Status    string  `json:"status"`
 	Address   Address `json:"address"`
+	Mobile    string  `json:"mobile"`
 }
 
 type Address struct {
@@ -39,7 +40,7 @@ func (client *Client) GetCandidate(id int) (*Candidate, error) {
 
 	// Set URL parameters on declaration
 	values := url.Values{
-		"fields":      []string{"firstName,lastName,address,email,phone,status"},
+		"fields":      []string{"firstName,lastName,address,email,phone,status,mobile"},
 		"BhRestToken": []string{client.GetApiClient().GetRestToken()},
 	}
 

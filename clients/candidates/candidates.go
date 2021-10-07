@@ -47,7 +47,7 @@ func (client Client) GetCandidateByVendor(vendor string, vendorId string, token 
 	request.Header.Add("Content-Type", "application/json")
 
 	// Get key
-	key := client.ApiClient.GenerateKey(CANDIDATE_TAG_PREFIX + path)
+	key := client.ApiClient.GenerateKey(CANDIDATE_TAG_PREFIX + path + token)
 
 	// Perform Request
 	res, err := client.ApiClient.HandleRequest(request, key)

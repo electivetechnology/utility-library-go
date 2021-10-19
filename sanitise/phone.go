@@ -53,7 +53,7 @@ func Phone(input string, defaultCountry string) string {
 }
 
 func trimStartAlpha(r rune) bool {
-	return unicode.IsLetter(r)
+	return !unicode.IsNumber(r)
 }
 
 func trimZeroAfterCode(input string, code int, allowZero bool) string {

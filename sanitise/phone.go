@@ -4,12 +4,15 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"unicode"
 )
 
 func Phone(input string, defaultCountry string) string {
 	log.Printf("Input: %v , DefaultCountry: %v", input, defaultCountry)
 
-	output := removeAfterAlphaSlash(input)
+	output := strings.TrimLeftFunc(input, trimStartAlpha)
+
+	output = removeAfterAlphaSlash(output)
 
 	output = trimSpace(output)
 
@@ -47,6 +50,10 @@ func Phone(input string, defaultCountry string) string {
 	log.Printf("Return: %v", output)
 
 	return output
+}
+
+func trimStartAlpha(r rune) bool {
+	return unicode.IsLetter(r)
 }
 
 func trimZeroAfterCode(input string, code int, allowZero bool) string {

@@ -36,8 +36,8 @@ func Phone(input string, defaultCountry string) string {
 
 	if defaultCountry != "" && defaultCountryCode != 0 {
 		output = trimZeroAfterCode(outputAndDefault, defaultCountryCode, defaultAllowZero)
-		log.Printf("Return defaultCountry && hasCountryCode: %v", outputAndDefault)
-		return outputAndDefault
+		log.Printf("Return defaultCountry && hasCountryCode: %v", output)
+		return output
 	}
 
 	if outputCountryCode != 0 {

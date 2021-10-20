@@ -10,9 +10,7 @@ import (
 func Phone(input string, defaultCountry string) string {
 	log.Printf("Input: %v , DefaultCountry: %v", input, defaultCountry)
 
-	output := strings.TrimLeftFunc(input, trimStartAlpha)
-
-	output = removeAfterAlphaSlash(output)
+	output := removeAfterAlphaSlash(input)
 
 	output = trimSpace(output)
 

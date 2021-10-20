@@ -4,6 +4,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"unicode"
 )
 
 func Phone(input string, defaultCountry string) string {
@@ -33,8 +34,8 @@ func Phone(input string, defaultCountry string) string {
 
 	if defaultCountry != "" && defaultCountryCode != 0 {
 		output = trimZeroAfterCode(outputAndDefault, defaultCountryCode, defaultAllowZero)
-		log.Printf("Return defaultCountry && hasCountryCode: %v", outputAndDefault)
-		return outputAndDefault
+		log.Printf("Return defaultCountry && hasCountryCode: %v", output)
+		return output
 	}
 
 	if outputCountryCode != 0 {
@@ -47,6 +48,10 @@ func Phone(input string, defaultCountry string) string {
 	log.Printf("Return: %v", output)
 
 	return output
+}
+
+func trimStartAlpha(r rune) bool {
+	return !unicode.IsNumber(r)
 }
 
 func trimZeroAfterCode(input string, code int, allowZero bool) string {

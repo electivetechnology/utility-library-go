@@ -46,7 +46,7 @@ type ChannelType struct {
 
 type ChannelTypes []ChannelType
 
-func makeRequest(path string, token string, client Client, responseData interface{}) (ConfigResponse, error) {
+func makeRequest(path string, token string, client Client, formatData func(data []byte) interface{}) (ConfigResponse, error) {
 	request, _ := http.NewRequest(http.MethodGet, path, nil)
 
 	// Set Headers for this request
@@ -81,12 +81,8 @@ func makeRequest(path string, token string, client Client, responseData interfac
 	// print `data` as a string
 	log.Printf("%s\n", data)
 
-	//var responseData interface{}
-
 	switch res.HttpResponse.StatusCode {
 	case http.StatusOK:
-		json.Unmarshal(data, &responseData)
-
 		// Check if respose was from Cache
 		if !res.WasCached {
 			// Save response to cache
@@ -100,7 +96,7 @@ func makeRequest(path string, token string, client Client, responseData interfac
 		}
 
 		// Return response
-		response.Data = &responseData
+		response.Data = formatData(data)
 
 		return response, nil
 
@@ -116,9 +112,13 @@ func (client Client) GetChannel(channelId string, token string) (ConfigResponse,
 
 	path := client.ApiClient.GetBaseUrl() + CHANNELS_URL + "/" + channelId
 
-	var responseData Channel
+	var formatData = func(data []byte) interface{} {
+		var responseData Channel
+		json.Unmarshal(data, &responseData)
+		return responseData
+	}
 
-	return makeRequest(path, token, client, responseData)
+	return makeRequest(path, token, client, formatData)
 }
 
 func (client Client) GetChannels(token string) (ConfigResponse, error) {
@@ -126,9 +126,13 @@ func (client Client) GetChannels(token string) (ConfigResponse, error) {
 
 	path := client.ApiClient.GetBaseUrl() + CHANNELS_URL
 
-	var responseData Channels
+	var formatData = func(data []byte) interface{} {
+		var responseData Channels
+		json.Unmarshal(data, &responseData)
+		return responseData
+	}
 
-	return makeRequest(path, token, client, responseData)
+	return makeRequest(path, token, client, formatData)
 }
 
 func (client Client) GetChannelType(channelTypeId string, token string) (ConfigResponse, error) {
@@ -136,9 +140,13 @@ func (client Client) GetChannelType(channelTypeId string, token string) (ConfigR
 
 	path := client.ApiClient.GetBaseUrl() + CHANNELS_TYPE_URL + "/" + channelTypeId
 
-	var responseData ChannelType
+	var formatData = func(data []byte) interface{} {
+		var responseData ChannelType
+		json.Unmarshal(data, &responseData)
+		return responseData
+	}
 
-	return makeRequest(path, token, client, responseData)
+	return makeRequest(path, token, client, formatData)
 }
 
 func (client Client) GetChannelTypes(token string) (ConfigResponse, error) {
@@ -146,7 +154,11 @@ func (client Client) GetChannelTypes(token string) (ConfigResponse, error) {
 
 	path := client.ApiClient.GetBaseUrl() + CHANNELS_TYPE_URL
 
-	var responseData ChannelTypes
+	var formatData = func(data []byte) interface{} {
+		var responseData ChannelTypes
+		json.Unmarshal(data, &responseData)
+		return responseData
+	}
 
-	return makeRequest(path, token, client, responseData)
+	return makeRequest(path, token, client, formatData)
 }

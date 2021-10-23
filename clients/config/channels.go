@@ -9,9 +9,10 @@ import (
 )
 
 const (
-	CHANNELS_URL       = "/v1/channels"
-	CHANNELS_TYPE_URL  = "/v1/channel-types"
-	CHANNEL_TAG_PREFIX = "channels_"
+	CHANNELS_URL             = "/v1/channels"
+	CHANNELS_TYPE_URL        = "/v1/channel-types"
+	CHANNEL_TAG_PREFIX       = "channels_"
+	CHANNEL_TYPES_TAG_PREFIX = "channels-types_"
 )
 
 type ConfigResponse struct {
@@ -46,7 +47,7 @@ type ChannelType struct {
 
 type ChannelTypes []ChannelType
 
-func makeRequest(path string, token string, client Client, formatData func(data []byte) interface{}) (ConfigResponse, error) {
+func makeRequest(path string, tagId string, token string, client Client, formatData func(data []byte) interface{}) (ConfigResponse, error) {
 	request, _ := http.NewRequest(http.MethodGet, path, nil)
 
 	// Set Headers for this request
@@ -90,7 +91,7 @@ func makeRequest(path string, token string, client Client, formatData func(data 
 
 			// Generate tags for cache
 			var tags []string
-			//tags = append(tags, CHANNEL_TAG_PREFIX+config.Id)
+			tags = append(tags, tagId)
 			tags = append(tags, key)
 			client.ApiClient.SaveToCache(key, res, tags)
 		}
@@ -118,7 +119,7 @@ func (client Client) GetChannel(channelId string, token string) (ConfigResponse,
 		return responseData
 	}
 
-	return makeRequest(path, token, client, formatData)
+	return makeRequest(path, CHANNEL_TAG_PREFIX+channelId, token, client, formatData)
 }
 
 func (client Client) GetChannels(token string) (ConfigResponse, error) {
@@ -132,7 +133,7 @@ func (client Client) GetChannels(token string) (ConfigResponse, error) {
 		return responseData
 	}
 
-	return makeRequest(path, token, client, formatData)
+	return makeRequest(path, "", token, client, formatData)
 }
 
 func (client Client) GetChannelType(channelTypeId string, token string) (ConfigResponse, error) {
@@ -146,7 +147,7 @@ func (client Client) GetChannelType(channelTypeId string, token string) (ConfigR
 		return responseData
 	}
 
-	return makeRequest(path, token, client, formatData)
+	return makeRequest(path, CHANNEL_TYPES_TAG_PREFIX+channelTypeId, token, client, formatData)
 }
 
 func (client Client) GetChannelTypes(token string) (ConfigResponse, error) {
@@ -160,5 +161,5 @@ func (client Client) GetChannelTypes(token string) (ConfigResponse, error) {
 		return responseData
 	}
 
-	return makeRequest(path, token, client, formatData)
+	return makeRequest(path, "", token, client, formatData)
 }

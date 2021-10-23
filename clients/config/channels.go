@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/electivetechnology/utility-library-go/clients/connect"
 	"net/http"
+	"time"
 )
 
 const (
@@ -15,18 +16,37 @@ const (
 
 type ConfigResponse struct {
 	ApiResponse *connect.ApiResponse
-	Config      *Config
+	Data        interface{}
 }
 
-type Config struct {
-	Id              string `json:"id"`
-	ChannelType     string `json:"channelType"`
-	Organisation    string `json:"organisation"`
-	Name            string `json:"name"`
-	IsConfigEnabled bool   `json:"isConfigEnabled"`
+type Channel struct {
+	Id                  string     `json:"id"`
+	Organisation        string     `json:"organisation"`
+	Name                string     `json:"name"`
+	IsInvitationEnabled string     `json:"isInvitationEnabled"`
+	IsAssessmentEnabled string     `json:"isAssessmentEnabled"`
+	AssessmentType      string     `json:"assessmentType"`
+	ChannelType         string     `json:"channelType"`
+	CreatedAt           *time.Time `json:"createdAt"`
+	UpdatedAt           *time.Time `json:"updatedAt"`
+	DeletedAt           *time.Time `json:"deletedAt"`
 }
 
-func makeRequest(path string, token string, client Client) (ConfigResponse, error) {
+type Channels []Channel
+
+type ChannelType struct {
+	Id        string     `json:"id"`
+	Code      string     `json:"code"`
+	Name      string     `json:"name"`
+	Type      string     `json:"type"`
+	CreatedAt *time.Time `json:"createdAt"`
+	UpdatedAt *time.Time `json:"updatedAt"`
+	DeletedAt *time.Time `json:"deletedAt"`
+}
+
+type ChannelTypes []ChannelType
+
+func makeRequest(path string, token string, client Client, responseData interface{}) (ConfigResponse, error) {
 	request, _ := http.NewRequest(http.MethodGet, path, nil)
 
 	// Set Headers for this request
@@ -61,10 +81,11 @@ func makeRequest(path string, token string, client Client) (ConfigResponse, erro
 	// print `data` as a string
 	log.Printf("%s\n", data)
 
+	//var responseData interface{}
+
 	switch res.HttpResponse.StatusCode {
 	case http.StatusOK:
-		config := Config{}
-		json.Unmarshal(data, &config)
+		json.Unmarshal(data, &responseData)
 
 		// Check if respose was from Cache
 		if !res.WasCached {
@@ -73,13 +94,13 @@ func makeRequest(path string, token string, client Client) (ConfigResponse, erro
 
 			// Generate tags for cache
 			var tags []string
-			tags = append(tags, CHANNEL_TAG_PREFIX+config.Id)
+			//tags = append(tags, CHANNEL_TAG_PREFIX+config.Id)
 			tags = append(tags, key)
 			client.ApiClient.SaveToCache(key, res, tags)
 		}
 
 		// Return response
-		response.Config = &config
+		response.Data = &responseData
 
 		return response, nil
 
@@ -95,7 +116,9 @@ func (client Client) GetChannel(channelId string, token string) (ConfigResponse,
 
 	path := client.ApiClient.GetBaseUrl() + CHANNELS_URL + "/" + channelId
 
-	return makeRequest(path, token, client)
+	var responseData Channel
+
+	return makeRequest(path, token, client, responseData)
 }
 
 func (client Client) GetChannels(token string) (ConfigResponse, error) {
@@ -103,7 +126,9 @@ func (client Client) GetChannels(token string) (ConfigResponse, error) {
 
 	path := client.ApiClient.GetBaseUrl() + CHANNELS_URL
 
-	return makeRequest(path, token, client)
+	var responseData Channels
+
+	return makeRequest(path, token, client, responseData)
 }
 
 func (client Client) GetChannelType(channelTypeId string, token string) (ConfigResponse, error) {
@@ -111,7 +136,9 @@ func (client Client) GetChannelType(channelTypeId string, token string) (ConfigR
 
 	path := client.ApiClient.GetBaseUrl() + CHANNELS_TYPE_URL + "/" + channelTypeId
 
-	return makeRequest(path, token, client)
+	var responseData ChannelType
+
+	return makeRequest(path, token, client, responseData)
 }
 
 func (client Client) GetChannelTypes(token string) (ConfigResponse, error) {
@@ -119,5 +146,7 @@ func (client Client) GetChannelTypes(token string) (ConfigResponse, error) {
 
 	path := client.ApiClient.GetBaseUrl() + CHANNELS_TYPE_URL
 
-	return makeRequest(path, token, client)
+	var responseData ChannelTypes
+
+	return makeRequest(path, token, client, responseData)
 }

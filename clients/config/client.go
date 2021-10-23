@@ -10,8 +10,7 @@ import (
 )
 
 const (
-	CLIENT_NAME    = "Elective:UtilityLibrary:Config:0.*"
-	GET_CONFIG_URL = "/v1/channels/:channelId"
+	CLIENT_NAME = "Elective:UtilityLibrary:Config:0.*"
 )
 
 var log logger.Logging
@@ -24,6 +23,8 @@ func init() {
 type ConfigClient interface {
 	GetChannels(token string) (ConfigResponse, error)
 	GetChannel(channelId string, token string) (ConfigResponse, error)
+	GetChannelTypes(token string) (ConfigResponse, error)
+	GetChannelType(channelTypeId string, token string) (ConfigResponse, error)
 }
 
 type Client struct {

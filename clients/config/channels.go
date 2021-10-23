@@ -9,6 +9,7 @@ import (
 
 const (
 	CHANNELS_URL       = "/v1/channels"
+	CHANNELS_TYPE_URL  = "/v1/channel-types"
 	CHANNEL_TAG_PREFIX = "channels_"
 )
 
@@ -90,6 +91,8 @@ func makeRequest(path string, token string, client Client) (ConfigResponse, erro
 }
 
 func (client Client) GetChannel(channelId string, token string) (ConfigResponse, error) {
+	log.Printf("Will request channel with channelId: %s", channelId)
+
 	path := client.ApiClient.GetBaseUrl() + CHANNELS_URL + "/" + channelId
 
 	return makeRequest(path, token, client)
@@ -100,65 +103,21 @@ func (client Client) GetChannels(token string) (ConfigResponse, error) {
 
 	path := client.ApiClient.GetBaseUrl() + CHANNELS_URL
 
-	request, _ := http.NewRequest(http.MethodGet, path, nil)
+	return makeRequest(path, token, client)
+}
 
-	// Set Headers for this request
-	request.Header.Set("Authorization", "Bearer "+token)
-	request.Header.Add("Content-Type", "application/json")
+func (client Client) GetChannelType(channelTypeId string, token string) (ConfigResponse, error) {
+	log.Printf("Will request channel type with channelId: %s", channelTypeId)
 
-	// Get key
-	key := client.ApiClient.GenerateKey(CHANNEL_TAG_PREFIX + path + token)
+	path := client.ApiClient.GetBaseUrl() + CHANNELS_TYPE_URL + "/" + channelTypeId
 
-	// Perform Request
-	res, err := client.ApiClient.HandleRequest(request, key)
+	return makeRequest(path, token, client)
+}
 
-	// Check for errors, default evaluation is false
-	if err != nil {
-		log.Printf("Error getting Config details: %v", err)
-		return ConfigResponse{}, connect.NewInternalError(err.Error())
-	}
+func (client Client) GetChannelTypes(token string) (ConfigResponse, error) {
+	log.Printf("Will request all channel types")
 
-	// Success, populate token
-	response := ConfigResponse{ApiResponse: res}
+	path := client.ApiClient.GetBaseUrl() + CHANNELS_TYPE_URL
 
-	// Check if the request was actually made
-	if !res.WasRequested {
-		// No request was made, let's return fake response
-		// This will be exactly the same token as requested for exchange
-		return ConfigResponse{}, nil
-	}
-
-	// read all response body
-	data := res.HttpResponse.Body
-
-	// print `data` as a string
-	log.Printf("%s\n", data)
-
-	switch res.HttpResponse.StatusCode {
-	case http.StatusOK:
-		config := Config{}
-		json.Unmarshal(data, &config)
-
-		// Check if respose was from Cache
-		if !res.WasCached {
-			// Save response to cache
-			log.Printf("Client provided fresh/uncached response. Saving response to cache with TTL %d", client.ApiClient.GetRedisTTL())
-
-			// Generate tags for cache
-			var tags []string
-			tags = append(tags, CHANNEL_TAG_PREFIX+config.Id)
-			tags = append(tags, key)
-			client.ApiClient.SaveToCache(key, res, tags)
-		}
-
-		// Return response
-		response.Config = &config
-
-		return response, nil
-
-	default:
-		return response, nil
-	}
-
-	return response, errors.New("error getting config for given vendor")
+	return makeRequest(path, token, client)
 }

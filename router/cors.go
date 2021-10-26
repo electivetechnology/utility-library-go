@@ -8,7 +8,7 @@ func AddDeaultHeaders() {
 	log.Printf("Adding default CORS Headers")
 	defaultHeaders := map[string]string{
 		"Access-Control-Allow-Origin":  "*",
-		"Access-Control-Allow-Methods": "GET, OPTIONS, HEAD, POST, PUT",
+		"Access-Control-Allow-Methods": "GET, OPTIONS, HEAD, POST, PUT, PATCH, DELETE",
 		"Access-Control-Allow-Headers": "Content-Type, Authorization",
 	}
 

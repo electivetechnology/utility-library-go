@@ -91,8 +91,12 @@ func makeRequest(path string, tagId string, token string, client Client, formatD
 
 			// Generate tags for cache
 			var tags []string
-			tags = append(tags, tagId)
 			tags = append(tags, key)
+
+			if tagId != "" {
+				tags = append(tags, tagId)
+			}
+
 			client.ApiClient.SaveToCache(key, res, tags)
 		}
 

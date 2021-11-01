@@ -11,6 +11,10 @@ const (
 )
 
 func VisibilityValidator(fl validator.FieldLevel) bool {
+	if fl.Field().IsZero() {
+		return true
+	}
+
 	switch fl.Field().String() {
 	case PUBLIC:
 		return true

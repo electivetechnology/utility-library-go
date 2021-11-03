@@ -11,12 +11,17 @@ const (
 	DEFAULT_CONFIGS_TAG_PREFIX = "defaults-configs_"
 )
 
+type DefaultConfigConfig struct {
+	DefaultFooter uint `json:"defaultFooter"`
+	DefaultHeader uint `json:"defaultHeader"`
+}
+
 type DefaultConfig struct {
-	Id           string      `json:"id"`
-	Name         string      `json:"name"`
-	Config       interface{} `json:"config"`
-	Organisation string      `json:"organisation"`
-	Visibility   string      `json:"visibility"`
+	Id           string              `json:"id"`
+	Name         string              `json:"name"`
+	Config       DefaultConfigConfig `json:"config"`
+	Organisation string              `json:"organisation"`
+	Visibility   string              `json:"visibility"`
 }
 
 type DefaultConfigResponse struct {

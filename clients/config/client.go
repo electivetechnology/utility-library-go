@@ -21,10 +21,11 @@ func init() {
 }
 
 type ConfigClient interface {
-	GetChannels(token string) (ConfigResponse, error)
-	GetChannel(channelId string, token string) (ConfigResponse, error)
-	GetChannelTypes(token string) (ConfigResponse, error)
-	GetChannelType(channelTypeId string, token string) (ConfigResponse, error)
+	GetChannels(token string) (ChannelResponse, error)
+	GetChannel(channelId string, token string) (ChannelResponse, error)
+	GetChannelTypes(token string) (ChannelResponse, error)
+	GetChannelType(channelTypeId string, token string) (ChannelResponse, error)
+	GetDefaultConfig(defaultConfigIdOrName string, token string) (DefaultConfigResponse, error)
 }
 
 type Client struct {

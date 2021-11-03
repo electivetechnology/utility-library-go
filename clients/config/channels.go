@@ -15,7 +15,7 @@ const (
 	CHANNEL_TYPES_TAG_PREFIX = "channels-types_"
 )
 
-type ConfigResponse struct {
+type ChannelResponse struct {
 	ApiResponse *connect.ApiResponse
 	Data        interface{}
 }
@@ -47,7 +47,7 @@ type ChannelType struct {
 
 type ChannelTypes []ChannelType
 
-func makeRequest(path string, tagId string, token string, client Client, formatData func(data []byte) interface{}) (ConfigResponse, error) {
+func channelRequest(path string, tagPrefix string, id string, token string, client Client, formatData func(data []byte) interface{}) (ChannelResponse, error) {
 	request, _ := http.NewRequest(http.MethodGet, path, nil)
 
 	// Set Headers for this request
@@ -55,7 +55,7 @@ func makeRequest(path string, tagId string, token string, client Client, formatD
 	request.Header.Add("Content-Type", "application/json")
 
 	// Get key
-	key := client.ApiClient.GenerateKey(CHANNEL_TAG_PREFIX + path + token)
+	key := client.ApiClient.GenerateKey(tagPrefix + path + token)
 
 	// Perform Request
 	res, err := client.ApiClient.HandleRequest(request, key)
@@ -63,17 +63,17 @@ func makeRequest(path string, tagId string, token string, client Client, formatD
 	// Check for errors, default evaluation is false
 	if err != nil {
 		log.Printf("Error getting Config details: %v", err)
-		return ConfigResponse{}, connect.NewInternalError(err.Error())
+		return ChannelResponse{}, connect.NewInternalError(err.Error())
 	}
 
 	// Success, populate token
-	response := ConfigResponse{ApiResponse: res}
+	response := ChannelResponse{ApiResponse: res}
 
 	// Check if the request was actually made
 	if !res.WasRequested {
 		// No request was made, let's return fake response
 		// This will be exactly the same token as requested for exchange
-		return ConfigResponse{}, nil
+		return ChannelResponse{}, nil
 	}
 
 	// read all response body
@@ -93,8 +93,8 @@ func makeRequest(path string, tagId string, token string, client Client, formatD
 			var tags []string
 			tags = append(tags, key)
 
-			if tagId != "" {
-				tags = append(tags, tagId)
+			if id != "" {
+				tags = append(tags, tagPrefix+id)
 			}
 
 			client.ApiClient.SaveToCache(key, res, tags)
@@ -112,7 +112,7 @@ func makeRequest(path string, tagId string, token string, client Client, formatD
 	return response, errors.New("error getting config for given vendor")
 }
 
-func (client Client) GetChannel(channelId string, token string) (ConfigResponse, error) {
+func (client Client) GetChannel(channelId string, token string) (ChannelResponse, error) {
 	log.Printf("Will request channel with channelId: %s", channelId)
 
 	path := client.ApiClient.GetBaseUrl() + CHANNELS_URL + "/" + channelId
@@ -123,10 +123,10 @@ func (client Client) GetChannel(channelId string, token string) (ConfigResponse,
 		return responseData
 	}
 
-	return makeRequest(path, CHANNEL_TAG_PREFIX+channelId, token, client, formatData)
+	return channelRequest(path, CHANNEL_TAG_PREFIX, channelId, token, client, formatData)
 }
 
-func (client Client) GetChannels(token string) (ConfigResponse, error) {
+func (client Client) GetChannels(token string) (ChannelResponse, error) {
 	log.Printf("Will request all channels")
 
 	path := client.ApiClient.GetBaseUrl() + CHANNELS_URL
@@ -137,10 +137,10 @@ func (client Client) GetChannels(token string) (ConfigResponse, error) {
 		return responseData
 	}
 
-	return makeRequest(path, "", token, client, formatData)
+	return channelRequest(path, CHANNEL_TAG_PREFIX, "", token, client, formatData)
 }
 
-func (client Client) GetChannelType(channelTypeId string, token string) (ConfigResponse, error) {
+func (client Client) GetChannelType(channelTypeId string, token string) (ChannelResponse, error) {
 	log.Printf("Will request channel type with channelId: %s", channelTypeId)
 
 	path := client.ApiClient.GetBaseUrl() + CHANNELS_TYPE_URL + "/" + channelTypeId
@@ -151,10 +151,10 @@ func (client Client) GetChannelType(channelTypeId string, token string) (ConfigR
 		return responseData
 	}
 
-	return makeRequest(path, CHANNEL_TYPES_TAG_PREFIX+channelTypeId, token, client, formatData)
+	return channelRequest(path, CHANNEL_TYPES_TAG_PREFIX, channelTypeId, token, client, formatData)
 }
 
-func (client Client) GetChannelTypes(token string) (ConfigResponse, error) {
+func (client Client) GetChannelTypes(token string) (ChannelResponse, error) {
 	log.Printf("Will request all channel types")
 
 	path := client.ApiClient.GetBaseUrl() + CHANNELS_TYPE_URL
@@ -165,5 +165,5 @@ func (client Client) GetChannelTypes(token string) (ConfigResponse, error) {
 		return responseData
 	}
 
-	return makeRequest(path, "", token, client, formatData)
+	return channelRequest(path, CHANNEL_TYPES_TAG_PREFIX, "", token, client, formatData)
 }

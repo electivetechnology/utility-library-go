@@ -22,11 +22,7 @@ type AclCheck struct {
 }
 
 func NewAclCheck(subject string, permission string) *AclCheck {
-	//var deleted map[string][]string
 	checks := []string{"MESSAGE_TEMPLATE", ACTION_UNDELETE}
-	//deleted["deleted"] = checks
-
-	//deleted["deleted"] = make(map[string]string)
 
 	deleted := make(map[string][]string)
 	deleted["deleted"] = checks
@@ -35,27 +31,9 @@ func NewAclCheck(subject string, permission string) *AclCheck {
 	check.Subject = subject
 	check.Permission = permission
 	check.Checks = deleted
-	//for _, extraCheck := range extraChecks {
-	//	check.Checks = extraCheck
-	//}
 
 	return check
 }
-
-//func NewAclCheck(subject string, permission string, extraChecks ...map[string][]string) *AclCheck {
-//	var deleted map[string][]string
-//	checks := []string{"MESSAGE_TEMPLATE", ACTION_UNDELETE}
-//	deleted["deleted"] = checks
-//
-//	check := &AclCheck{Name: "main"}
-//	check.Subject = subject
-//	check.Permission = permission
-//	for _, extraCheck := range extraChecks {
-//		check.Checks = extraCheck
-//	}
-//
-//	return check
-//}
 
 func (client Client) IsTokenAuthorised(token string, aclCheck *AclCheck) bool {
 	if !client.ApiClient.IsEnabled() {

@@ -23,6 +23,7 @@ type Sorts struct {
 type SortsType interface {
 	GetSorts() map[string]Sort
 	GetSort(key string) (Sort, error)
+	GetDataSorts() map[string]data.Sort
 }
 
 func NewSorts() Sorts {
@@ -38,6 +39,11 @@ func GetSorts(c *gin.Context) Sorts {
 	return sorts
 }
 
+// GetSortsFromContext returns Sorts passed via request sorts[] parameter
+// Order of the sorts matters. Anonymous sorts are always processed first,
+// folowed by named sorts in alpha-numerical order.
+// A query string sorts[z]=name-asc&sorts[a]=email-asc&sorts[]=id-asc will result in following sorts:
+// s_00:id-asc, s_a:email-asc, s_z:name-asc
 func GetSortsFromContext(ctx *gin.Context) Sorts {
 	sorts := NewSorts()
 

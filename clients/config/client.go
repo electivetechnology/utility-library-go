@@ -26,6 +26,7 @@ type ConfigClient interface {
 	GetChannelTypes(token string) (ChannelResponse, error)
 	GetChannelType(channelTypeId string, token string) (ChannelResponse, error)
 	GetDefaultConfig(defaultConfigIdOrName string, token string) (DefaultConfigResponse, error)
+	GetPurposeOption(token string) (PurposeOptionResponse, error)
 }
 
 type Client struct {

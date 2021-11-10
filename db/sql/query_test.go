@@ -1,7 +1,6 @@
 package sql
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/electivetechnology/utility-library-go/data"
@@ -89,7 +88,7 @@ func TestPrepareNewSimpleWithFilter(t *testing.T) {
 	filters["f_0"] = *f1
 
 	q, _ := NewSimpleQuery("SELECT * FROM candidates")
-	expected := "SELECT * FROM candidates LIMIT 1000 OFFSET 0"
+	expected := "SELECT * FROM candidates WHERE (`first_name` =  CAST(:f_0_w_filter_0 AS CHAR) COLLATE utf8mb4_bin AND `organisation` =  CAST(:f_0_w_filter_1 AS CHAR) COLLATE utf8mb4_bin) LIMIT 1000 OFFSET 0"
 
 	// Add filters
 	q.Filters = filters
@@ -98,9 +97,15 @@ func TestPrepareNewSimpleWithFilter(t *testing.T) {
 	q.Prepare()
 
 	//fmt.Printf("\nQuery Params: %v\n", q.Parameters)
-	fmt.Printf("\nSQL with Params: %s\n", q.GetSql())
+	//fmt.Printf("\nSQL with Params: %s\n", q.GetSql())
 
 	if q.Statement != expected {
 		t.Errorf("Query.Prepare() failed, expected %v, got %v", expected, q.Statement)
+	}
+
+	expectedSql := "SELECT * FROM candidates WHERE (`first_name` =  CAST(\"Kris\" AS CHAR) COLLATE utf8mb4_bin AND `organisation` =  CAST(\"Ds7q0eBi2Iyy\" AS CHAR) COLLATE utf8mb4_bin) LIMIT 1000 OFFSET 0"
+
+	if q.GetSql() != expectedSql {
+		t.Errorf("Query.GetSql() failed, expected %v, got %v", expectedSql, q.GetSql())
 	}
 }

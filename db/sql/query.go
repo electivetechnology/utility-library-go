@@ -109,5 +109,5 @@ func (q *Query) Prepare() {
 
 	q.Statement = s
 
-	fmt.Printf("SELECT: %s", s)
+	//fmt.Printf("SELECT: %s", s)
 }

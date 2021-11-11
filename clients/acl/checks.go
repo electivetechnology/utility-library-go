@@ -13,11 +13,23 @@ const (
 	AUTH_URL = "/v1/authorise"
 )
 
-type AclCheck struct {
-	Name         string `json:"name"`
+type Authorise struct {
 	Subject      string `json:"subject"`
 	Permission   string `json:"permission"`
 	Organisation string `json:"organisation"`
+}
+
+type Checks struct {
+	Name      string    `json:"name"`
+	Authorise Authorise `json:"authorise"`
+}
+
+type AclCheck struct {
+	Name         string   `json:"name"`
+	Subject      string   `json:"subject"`
+	Permission   string   `json:"permission"`
+	Organisation string   `json:"organisation"`
+	Checks       []Checks `json:"checks"`
 }
 
 func NewAclCheck(subject string, permission string) *AclCheck {

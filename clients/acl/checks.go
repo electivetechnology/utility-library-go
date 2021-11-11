@@ -50,7 +50,7 @@ func (client Client) IsTokenAuthorised(token string, aclCheck *AclCheck) bool {
 	// Transform AclCheck struct to json payload
 	jsonValue, _ := json.Marshal(aclCheck)
 	request, _ := http.NewRequest(http.MethodPost, client.ApiClient.GetBaseUrl()+AUTH_URL, bytes.NewBuffer(jsonValue))
-	log.Printf("Checking if user have %s permissions on subject %s extra checks %v", aclCheck.Permission, aclCheck.Subject, aclCheck.Checks)
+	log.Printf("Checking if user have %s permissions on subject %s", aclCheck.Permission, aclCheck.Subject)
 
 	// Set Headers for this request
 	request.Header.Set("Authorization", "Bearer "+token)
@@ -58,9 +58,6 @@ func (client Client) IsTokenAuthorised(token string, aclCheck *AclCheck) bool {
 
 	// Perform Request
 	res, err := c.Do(request)
-
-	log.Printf("Response processing Authorisation: %v\n", res.Body)
-	//log.Printf("Response processing Authorisation: %v\n", res.)
 
 	// Check for errors, default evaluation is false
 	if err != nil {

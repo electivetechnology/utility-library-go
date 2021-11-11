@@ -13,24 +13,29 @@ const (
 	AUTH_URL = "/v1/authorise"
 )
 
+type Authorise struct {
+	Subject      string `json:"subject"`
+	Permission   string `json:"permission"`
+	Organisation string `json:"organisation"`
+}
+
+type Checks struct {
+	Name      string    `json:"name"`
+	Authorise Authorise `json:"authorise"`
+}
+
 type AclCheck struct {
-	Name         string              `json:"name"`
-	Subject      string              `json:"subject"`
-	Permission   string              `json:"permission"`
-	Organisation string              `json:"organisation"`
-	Checks       map[string][]string `json:"checks"`
+	Name         string   `json:"name"`
+	Subject      string   `json:"subject"`
+	Permission   string   `json:"permission"`
+	Organisation string   `json:"organisation"`
+	Checks       []Checks `json:"checks"`
 }
 
 func NewAclCheck(subject string, permission string) *AclCheck {
-	checks := []string{"MESSAGE_TEMPLATE", ACTION_UNDELETE}
-
-	deleted := make(map[string][]string)
-	deleted["deleted"] = checks
-
 	check := &AclCheck{Name: "main"}
 	check.Subject = subject
 	check.Permission = permission
-	check.Checks = deleted
 
 	return check
 }

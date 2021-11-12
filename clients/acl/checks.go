@@ -40,6 +40,23 @@ func NewAclCheck(subject string, permission string) *AclCheck {
 	return check
 }
 
+func AddAclCheck(ctx *gin.Context, aclCheck *AclCheck, name string, subject string, permission string) *AclCheck {
+	// Get SecurityToken
+	st, _ := ctx.Get("SecurityToken")
+	token := st.(auth.SecurityToken)
+
+	aclCheck.Checks = []Checks{{
+		Name: name,
+		Authorise: Authorise{
+			Permission:   permission,
+			Subject:      subject,
+			Organisation: token.GetOrganisation(),
+		},
+	}}
+
+	return aclCheck
+}
+
 func (client Client) IsTokenAuthorised(token string, aclCheck *AclCheck) bool {
 	if !client.ApiClient.IsEnabled() {
 		return true

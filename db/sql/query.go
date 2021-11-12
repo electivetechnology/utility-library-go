@@ -25,6 +25,8 @@ type Query struct {
 	Parameters map[string]string
 	Sorts      map[string]data.Sort
 	Filters    map[string]data.Filter
+	Displays   map[string]data.Display
+	FieldMap   map[string]string
 }
 
 func NewQuery(table string) Query {
@@ -32,10 +34,10 @@ func NewQuery(table string) Query {
 }
 
 func NewSimpleQuery(query string) (Query, error) {
-	var re = regexp.MustCompile(`(?P<select>SELECT )((\W)) (?P<from>FROM )(?P<table>\w*)`)
-	match := re.FindStringSubmatch(query)
+	var re = regexp.MustCompile(`(?mi)From \s*(?P<table>.*?)\s*( |$)`)
+	matches := re.FindStringSubmatch(query)
 
-	if match == nil {
+	if matches == nil {
 		msg := fmt.Sprintf(
 			"Could not prepare simple query from: '%s'."+
 				" Please check your syntax."+
@@ -47,7 +49,7 @@ func NewSimpleQuery(query string) (Query, error) {
 	result := make(map[string]string)
 	for i, name := range re.SubexpNames() {
 		if i != 0 && name != "" {
-			result[name] = match[i]
+			result[name] = matches[i]
 		}
 	}
 
@@ -66,8 +68,9 @@ func NewSimpleQuery(query string) (Query, error) {
 }
 
 // GetSql returns ready to use SQL statement with parsed parameters
+// This will internally run Prepare() first
 func (q Query) GetSql() string {
-	sql := q.Statement
+	sql := q.GetStatement()
 	for key, value := range q.Parameters {
 		sql = strings.ReplaceAll(sql, ":"+key, `"`+value+`"`)
 	}
@@ -82,8 +85,12 @@ func (q Query) GetStatement() string {
 
 func (q *Query) Prepare() {
 	var s string
+	// Build Select clause from Displays
+	selectClause := GetSelectSql(q)
+	fmt.Printf("SELECT Clause: %v\n", selectClause)
+
 	// Build SELECT
-	s = "SELECT " + strings.Join(q.Fields, ", ")
+	s = selectClause.Statement
 
 	// Build FROM
 	s += " FROM " + q.Table
@@ -108,6 +115,24 @@ func (q *Query) Prepare() {
 	s += " " + GetLimitSql(q)
 
 	q.Statement = s
+}
 
-	//fmt.Printf("SELECT: %s", s)
+func GetSelectSql(q *Query) Clause {
+	c := Clause{}
+
+	// If there are no displays use q.Fields
+	if len(q.Displays) == 0 {
+		// Build SELECT
+		c.Statement = strings.Join(q.Fields, ", ")
+	} else {
+		displayClause := DisplaysToSqlClause(q.Displays, q.FieldMap)
+		c.Statement = displayClause.Statement
+	}
+
+	// Prepend with SELECT
+	if len(c.Statement) > 0 {
+		c.Statement = "SELECT " + c.Statement
+	}
+
+	return c
 }

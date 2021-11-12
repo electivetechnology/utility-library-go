@@ -16,12 +16,12 @@ const (
 	CAST_TYPE_NUMERIC = "NUMERIC"
 )
 
-func CriterionToSqlClause(criterion data.Criterion, placeHolder string, collation bool) Clause {
+func CriterionToSqlClause(criterion data.Criterion, placeHolder string, fieldMap map[string]string, collation bool) Clause {
 	c := Clause{}
 
 	method, _ := criterionOperandToMethod(criterion)
 
-	clause := method(criterion, placeHolder, collation)
+	clause := method(criterion, placeHolder, fieldMap, collation)
 
 	c.Statement = clause.Statement
 
@@ -30,11 +30,11 @@ func CriterionToSqlClause(criterion data.Criterion, placeHolder string, collatio
 	return c
 }
 
-func criterionToBoolClause(criterion data.Criterion, placeHolder string, collation bool) Clause {
+func criterionToBoolClause(criterion data.Criterion, placeHolder string, fieldMap map[string]string, collation bool) Clause {
 	c := Clause{}
 
 	// Escape, quote and qualify the field name for security.
-	field := getSafeFieldName(criterion.Key)
+	field := getSafeFieldName(criterion.Key, fieldMap)
 	fmt.Printf("Safe filed name is: %s\n", field)
 
 	// We can only compare true or false for boolean
@@ -48,7 +48,7 @@ func criterionToBoolClause(criterion data.Criterion, placeHolder string, collati
 }
 
 // criterionToDirectClause turns Criterion object to SQL clause
-func criterionToDirectClause(criterion data.Criterion, placeHolder string, collation bool) Clause {
+func criterionToDirectClause(criterion data.Criterion, placeHolder string, fieldMap map[string]string, collation bool) Clause {
 	c := Clause{}
 
 	var op, collate, comparand string
@@ -84,7 +84,7 @@ func criterionToDirectClause(criterion data.Criterion, placeHolder string, colla
 			placeHolder: criterion.Value,
 		}
 	} else if criterion.Type == CRITERION_TYPE_FIELD {
-		comparand = getSafeFieldName(criterion.Value)
+		comparand = getSafeFieldName(criterion.Value, fieldMap)
 	}
 
 	// Check value type
@@ -93,7 +93,7 @@ func criterionToDirectClause(criterion data.Criterion, placeHolder string, colla
 	}
 
 	// Escape, quote and qualify the field name for security.
-	field := getSafeFieldName(criterion.Key)
+	field := getSafeFieldName(criterion.Key, fieldMap)
 
 	// Build the final clause.
 	// We can't assume the value is text, so cast it to char and
@@ -126,38 +126,38 @@ func criterionToDirectClause(criterion data.Criterion, placeHolder string, colla
 	return c
 }
 
-func criterionToRelativeClause(criterion data.Criterion, placeHolder string, collation bool) Clause {
+func criterionToRelativeClause(criterion data.Criterion, placeHolder string, fieldMap map[string]string, collation bool) Clause {
 	c := Clause{}
 
 	return c
 }
 
-func criterionToContainsClause(criterion data.Criterion, placeHolder string, collation bool) Clause {
+func criterionToContainsClause(criterion data.Criterion, placeHolder string, fieldMap map[string]string, collation bool) Clause {
 	c := Clause{}
 
 	return c
 }
 
-func criterionToBeginsClause(criterion data.Criterion, placeHolder string, collation bool) Clause {
+func criterionToBeginsClause(criterion data.Criterion, placeHolder string, fieldMap map[string]string, collation bool) Clause {
 	c := Clause{}
 
 	return c
 }
 
-func criterionToRegexClause(criterion data.Criterion, placeHolder string, collation bool) Clause {
+func criterionToRegexClause(criterion data.Criterion, placeHolder string, fieldMap map[string]string, collation bool) Clause {
 	c := Clause{}
 
 	return c
 }
 
-func criterionToInClause(criterion data.Criterion, placeHolder string, collation bool) Clause {
+func criterionToInClause(criterion data.Criterion, placeHolder string, fieldMap map[string]string, collation bool) Clause {
 	c := Clause{}
 
 	return c
 }
 
-func criterionOperandToMethod(criterion data.Criterion) (func(criterion data.Criterion, placeHolder string, collation bool) Clause, string) {
-	var method func(criterion data.Criterion, placeHolder string, collation bool) Clause
+func criterionOperandToMethod(criterion data.Criterion) (func(criterion data.Criterion, placeHolder string, fieldMap map[string]string, collation bool) Clause, string) {
+	var method func(criterion data.Criterion, placeHolder string, fieldMap map[string]string, collation bool) Clause
 	var methodName string
 
 	switch criterion.Operand {

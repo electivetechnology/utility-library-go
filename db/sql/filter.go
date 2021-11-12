@@ -33,7 +33,7 @@ func GetFilterSql(q *Query) Clause {
 		whereFilters[i+"_w"] = modifiedFilter
 	}
 
-	clause := FiltersToSqlClause(whereFilters)
+	clause := FiltersToSqlClause(whereFilters, q.FieldMap)
 
 	// Copy parameters
 	c.Parameters = clause.Parameters
@@ -45,14 +45,14 @@ func GetFilterSql(q *Query) Clause {
 	return c
 }
 
-func FiltersToSqlClause(filters map[string]data.Filter) Clause {
+func FiltersToSqlClause(filters map[string]data.Filter, fieldMap map[string]string) Clause {
 	c := Clause{}
 	c.Parameters = make(map[string]string)
 
 	// Iterate over filters and turn each filter to SQL Clause
 	for i, filter := range filters {
 		// Turn each filter into SQL Clause
-		clause := FilterToSqlClause(filter, i+"_filter")
+		clause := FilterToSqlClause(filter, fieldMap, i+"_filter")
 
 		// Add filter Logic
 		if len(c.Statement) != 0 {
@@ -62,11 +62,11 @@ func FiltersToSqlClause(filters map[string]data.Filter) Clause {
 		// Process filter subquery
 		if filter.Subquery.IsEnabled && len(filter.Subquery.Key) > 0 && len(filter.Subquery.Set) > 0 {
 			// Append SQL Statement
-			c.Statement += getSafeFieldName(filter.Subquery.Key) +
+			c.Statement += getSafeFieldName(filter.Subquery.Key, fieldMap) +
 				" IN (SELECT " +
-				getSafeFieldName(filter.Subquery.Key) +
+				getSafeFieldName(filter.Subquery.Key, fieldMap) +
 				" FROM " +
-				getSafeTableName(filter.Subquery.Set) +
+				getSafeTableName(filter.Subquery.Set, fieldMap) +
 				" WHERE " +
 				clause.Statement + ")"
 		} else {
@@ -85,7 +85,7 @@ func FiltersToSqlClause(filters map[string]data.Filter) Clause {
 	return c
 }
 
-func FilterToSqlClause(filter data.Filter, namespace string) Clause {
+func FilterToSqlClause(filter data.Filter, fieldMap map[string]string, namespace string) Clause {
 	c := Clause{}
 	c.Parameters = make(map[string]string)
 
@@ -94,7 +94,7 @@ func FilterToSqlClause(filter data.Filter, namespace string) Clause {
 		placeHolder := namespace + "_" + strconv.Itoa(i)
 
 		// Turn each Criterion into Clause
-		clause := CriterionToSqlClause(criterion, placeHolder, filter.Collation)
+		clause := CriterionToSqlClause(criterion, placeHolder, fieldMap, filter.Collation)
 
 		// Add Parametes
 		for key, parameter := range clause.Parameters {
@@ -116,7 +116,7 @@ func FilterToSqlClause(filter data.Filter, namespace string) Clause {
 			filters[i] = *f
 		}
 
-		clause := FiltersToSqlClause(filters)
+		clause := FiltersToSqlClause(filters, fieldMap)
 		c.Statement += " AND " + clause.Statement
 
 		// Add Parametes

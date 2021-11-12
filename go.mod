@@ -10,5 +10,6 @@ require (
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-redis/redis/v7 v7.4.0
 	github.com/google/martian/v3 v3.1.0
-	github.com/stretchr/testify v1.6.1
+	github.com/gopherjs/gopherjs v0.0.0-20211111143520-d0d5ecc1a356
+	github.com/stretchr/testify v1.7.0
 )

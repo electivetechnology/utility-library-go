@@ -1,7 +1,6 @@
 package sql
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -10,8 +9,7 @@ func GetSortSql(q *Query) string {
 	var sql string
 
 	for _, sort := range q.Sorts {
-		fmt.Printf("Sort: %v", sort)
-		field := getSafeFieldName(sort.Field)
+		field := getSafeFieldName(sort.Field, q.FieldMap)
 		sql += field + " " + strings.ToUpper(sort.Direction) + ", "
 	}
 

@@ -3,6 +3,7 @@ package acl
 import (
 	"bytes"
 	"encoding/json"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/electivetechnology/utility-library-go/auth"
@@ -32,6 +33,11 @@ type AclCheck struct {
 	Checks       []Checks `json:"checks"`
 }
 
+type ResponseData struct {
+	Message string          `json:"message"`
+	Checks  map[string]bool `json:"checks"`
+}
+
 func NewAclCheck(subject string, permission string) *AclCheck {
 	check := &AclCheck{Name: "main"}
 	check.Subject = subject
@@ -41,9 +47,7 @@ func NewAclCheck(subject string, permission string) *AclCheck {
 }
 
 func AddAclCheck(ctx *gin.Context, aclCheck *AclCheck, name string, subject string, permission string) *AclCheck {
-	// Get SecurityToken
-	st, _ := ctx.Get("SecurityToken")
-	token := st.(auth.SecurityToken)
+	aclCheck, token := getSecurityToken(ctx, aclCheck)
 
 	aclCheck.Checks = []Checks{{
 		Name: name,
@@ -57,9 +61,9 @@ func AddAclCheck(ctx *gin.Context, aclCheck *AclCheck, name string, subject stri
 	return aclCheck
 }
 
-func (client Client) IsTokenAuthorised(token string, aclCheck *AclCheck) bool {
+func (client Client) IsTokenAuthorised(token string, aclCheck *AclCheck) (bool, ResponseData) {
 	if !client.ApiClient.IsEnabled() {
-		return true
+		return true, ResponseData{}
 	}
 	// Create new Http Client
 	c := &http.Client{}
@@ -79,21 +83,45 @@ func (client Client) IsTokenAuthorised(token string, aclCheck *AclCheck) bool {
 	// Check for errors, default evaluation is false
 	if err != nil {
 		log.Printf("Error processing Authorisation: %v\n", err)
-		return false
+		return false, ResponseData{}
 	}
 
 	if res.StatusCode == http.StatusOK {
-		return true
+		data, _ := ioutil.ReadAll(res.Body)
+
+		// defer closing response body
+		defer res.Body.Close()
+
+		responseData := ResponseData{}
+		json.Unmarshal(data, &responseData)
+
+		return true, responseData
 	}
 
-	return false
+	return false, ResponseData{}
 }
 
 func (client Client) IsRequestAuthorized(ctx *gin.Context, aclCheck *AclCheck) bool {
+	aclCheck, token := getSecurityToken(ctx, aclCheck)
+
+	isTokenAuthorised, _ := client.IsTokenAuthorised(token.GetRawToken(), aclCheck)
+
+	return isTokenAuthorised
+}
+
+func (client Client) ResponseData(ctx *gin.Context, aclCheck *AclCheck) ResponseData {
+	aclCheck, token := getSecurityToken(ctx, aclCheck)
+
+	_, data := client.IsTokenAuthorised(token.GetRawToken(), aclCheck)
+
+	return data
+}
+
+func getSecurityToken(ctx *gin.Context, aclCheck *AclCheck) (*AclCheck, auth.SecurityToken) {
 	// Get SecurityToken
 	st, _ := ctx.Get("SecurityToken")
 	token := st.(auth.SecurityToken)
 	aclCheck.Organisation = token.GetOrganisation()
 
-	return client.IsTokenAuthorised(token.GetRawToken(), aclCheck)
+	return aclCheck, token
 }

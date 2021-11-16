@@ -128,6 +128,37 @@ func criterionToDirectClause(criterion data.Criterion, placeHolder string, field
 
 func criterionToRelativeClause(criterion data.Criterion, placeHolder string, fieldMap map[string]string, collation bool) Clause {
 	c := Clause{}
+	var op, comparand string
+
+	switch criterion.Operand {
+	case "gt":
+		op = ">"
+
+	case "ge":
+		op = ">="
+
+	case "lt":
+		op = "<"
+
+	case "le":
+		op = "<="
+	}
+
+	if criterion.Type == CRITERION_TYPE_VALUE {
+		// Add the static value as a parameter
+		comparand = ":" + placeHolder
+		c.Parameters = map[string]string{
+			placeHolder: criterion.Value,
+		}
+	} else if criterion.Type == CRITERION_TYPE_FIELD {
+		comparand = getSafeFieldName(criterion.Value, fieldMap)
+	}
+
+	// Escape, quote and qualify the field name for security.
+	field := getSafeFieldName(criterion.Key, fieldMap)
+
+	// Build the final clause.
+	c.Statement = addLogic(criterion) + " " + field + " " + op + " " + comparand
 
 	return c
 }

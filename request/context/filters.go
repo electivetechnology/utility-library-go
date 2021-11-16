@@ -7,6 +7,8 @@ import (
 	"strings"
 
 	"github.com/electivetechnology/utility-library-go/data"
+	FilterType "github.com/electivetechnology/utility-library-go/data/types/pseudo/filters"
+	"github.com/electivetechnology/utility-library-go/validation"
 	"github.com/gin-gonic/gin"
 )
 
@@ -39,10 +41,36 @@ func NewFilters() Filters {
 	return filters
 }
 
-func GetFilters(c *gin.Context) Filters {
+func GetFilters(c *gin.Context, requirements validation.ValidatorRequirements) (Filters, error) {
 	filters := GetFiltersFromContext(c)
 
-	return filters
+	for idx, filter := range filters.GetDataFilters() {
+		_, err := ValidateFilters(filter, idx, requirements)
+		if err != nil {
+			log.Fatalf(err.Error())
+			return filters, err
+		}
+	}
+
+	return filters, nil
+}
+
+func ValidateFilters(filter data.Filter, namespace string, requirements validation.ValidatorRequirements) (data.Filter, error) {
+	if len(filter.Filters) > 0 {
+		for _, f := range filter.Filters {
+			ValidateFilters(*f, namespace, requirements)
+		}
+	}
+
+	// Check if filter is valid
+	_, err := FilterType.Check(filter, requirements)
+	if err != nil {
+		msg := fmt.Sprintf("Filter %s failed validation with message: %s", namespace, err.Error())
+		log.Fatalf(msg)
+		return filter, errors.New(msg)
+	}
+
+	return filter, nil
 }
 
 func GetFiltersFromContext(ctx *gin.Context) Filters {
@@ -228,7 +256,7 @@ func (f Filters) GetFilters() map[string]Filter {
 
 func (f Filters) GetDataFilters() map[string]data.Filter {
 	filters := make(map[string]data.Filter)
-	for _, filter := range f.GetFilters() {
+	for _, filter := range f.Filters {
 		filters[filter.ID] = *filter.DataFilter
 	}
 

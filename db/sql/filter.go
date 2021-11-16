@@ -1,7 +1,6 @@
 package sql
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 
@@ -16,21 +15,20 @@ func GetFilterSql(q *Query) Clause {
 	whereFilters := make(map[string]data.Filter)
 
 	for i, filter := range q.Filters {
-		// @todo, iterate over criterions and compare keys with FieldMap
+		// Only add filter if there are criterions
+		if len(filter.Criterions) > 0 {
+			// Set filter collation based on query flavour
+			if q.Flavour == QUERY_FLAVOUR_MYSQL {
+				collation = true
+			} else if q.Flavour == QUERY_FLAVOUR_BIG_QUERY {
+				collation = false
+			}
 
-		// Set filter collation based on query flavour
-		if q.Flavour == QUERY_FLAVOUR_MYSQL {
-			collation = true
-		} else if q.Flavour == QUERY_FLAVOUR_BIG_QUERY {
-			collation = false
+			modifiedFilter := OverrideCollation(filter, collation)
+
+			// also check for HAVING filter
+			whereFilters[i+"_w"] = modifiedFilter
 		}
-
-		modifiedFilter := OverrideCollation(filter, collation)
-
-		fmt.Printf("Filter for query is: %v\n", modifiedFilter)
-
-		// also check for HAVING filter
-		whereFilters[i+"_w"] = modifiedFilter
 	}
 
 	clause := FiltersToSqlClause(whereFilters, q.FieldMap)

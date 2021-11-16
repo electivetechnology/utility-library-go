@@ -87,7 +87,6 @@ func (q *Query) Prepare() {
 	var s string
 	// Build Select clause from Displays
 	selectClause := GetSelectSql(q)
-	fmt.Printf("SELECT Clause: %v\n", selectClause)
 
 	// Build SELECT
 	s = selectClause.Statement

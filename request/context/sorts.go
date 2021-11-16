@@ -7,6 +7,8 @@ import (
 	"strings"
 
 	"github.com/electivetechnology/utility-library-go/data"
+	SortType "github.com/electivetechnology/utility-library-go/data/types/pseudo/sorts"
+	"github.com/electivetechnology/utility-library-go/validation"
 	"github.com/gin-gonic/gin"
 )
 
@@ -33,10 +35,34 @@ func NewSorts() Sorts {
 	return sorts
 }
 
-func GetSorts(c *gin.Context) Sorts {
-	sorts := GetSortsFromContext(c)
+func GetSorts(c *gin.Context, requirements validation.ValidatorRequirements) (Sorts, error) {
+	sorts, err := GetSortsFromContext(c)
+	if err != nil {
+		log.Fatalf(err.Error())
+		return sorts, err
+	}
 
-	return sorts
+	for idx, sort := range sorts.GetDataSorts() {
+		_, err := ValidateSort(sort, idx, requirements)
+		if err != nil {
+			log.Fatalf(err.Error())
+			return sorts, err
+		}
+	}
+
+	return sorts, nil
+}
+
+func ValidateSort(sort data.Sort, namespace string, requirements validation.ValidatorRequirements) (data.Sort, error) {
+	// Check if sort is valid
+	_, err := SortType.Check(sort, requirements)
+	if err != nil {
+		msg := fmt.Sprintf("Sort %s failed validation with message: %s", namespace, err.Error())
+		log.Fatalf(msg)
+		return sort, errors.New(msg)
+	}
+
+	return sort, nil
 }
 
 // GetSortsFromContext returns Sorts passed via request sorts[] parameter
@@ -44,25 +70,35 @@ func GetSorts(c *gin.Context) Sorts {
 // folowed by named sorts in alpha-numerical order.
 // A query string sorts[z]=name-asc&sorts[a]=email-asc&sorts[]=id-asc will result in following sorts:
 // s_00:id-asc, s_a:email-asc, s_z:name-asc
-func GetSortsFromContext(ctx *gin.Context) Sorts {
+func GetSortsFromContext(ctx *gin.Context) (Sorts, error) {
 	sorts := NewSorts()
 
 	// Get anonymous
-	anonymous := GetAnonymousSortsFromContext(ctx)
+	anonymous, err := GetAnonymousSortsFromContext(ctx)
+	if err != nil {
+		log.Fatalf(err.Error())
+		return sorts, err
+	}
+
 	for key, sort := range anonymous.Sorts {
 		sorts.Sorts[key] = sort
 	}
 
 	// Get named sorts
-	named := GetMappedSortsFromContext(ctx)
+	named, err := GetMappedSortsFromContext(ctx)
+	if err != nil {
+		log.Fatalf(err.Error())
+		return sorts, err
+	}
+
 	for key, sort := range named.Sorts {
 		sorts.Sorts[key] = sort
 	}
 
-	return sorts
+	return sorts, nil
 }
 
-func GetAnonymousSortsFromContext(ctx *gin.Context) Sorts {
+func GetAnonymousSortsFromContext(ctx *gin.Context) (Sorts, error) {
 	s, _ := ctx.GetQueryArray("sorts[]")
 	sorts := NewSorts()
 
@@ -70,14 +106,22 @@ func GetAnonymousSortsFromContext(ctx *gin.Context) Sorts {
 		sort := Sort{}
 		sort.ID = getSafeSortName("0" + strconv.Itoa(idx))
 		sort.Directive = directive
-		sort.DataSort, _ = DirectiveToDataSort(directive, idx, sort.ID)
+		dataSort, err := DirectiveToDataSort(directive, idx, sort.ID)
+		// Check for errors
+		if err != nil {
+			log.Fatalf(err.Error())
+			return sorts, err
+		}
+
+		// Assign values
+		sort.DataSort = dataSort
 		sorts.Sorts[sort.ID] = sort
 	}
 
-	return sorts
+	return sorts, nil
 }
 
-func GetMappedSortsFromContext(ctx *gin.Context) Sorts {
+func GetMappedSortsFromContext(ctx *gin.Context) (Sorts, error) {
 	s, _ := ctx.GetQueryMap("sorts")
 	sorts := NewSorts()
 	i := 0
@@ -85,12 +129,21 @@ func GetMappedSortsFromContext(ctx *gin.Context) Sorts {
 		sort := Sort{}
 		sort.ID = getSafeSortName(idx)
 		sort.Directive = directive
-		sort.DataSort, _ = DirectiveToDataSort(directive, i, sort.ID)
+		dataSort, err := DirectiveToDataSort(directive, i, sort.ID)
+
+		// Check for errors
+		if err != nil {
+			log.Fatalf(err.Error())
+			return sorts, err
+		}
+
+		// Assign values
+		sort.DataSort = dataSort
 		i++
 		sorts.Sorts[sort.ID] = sort
 	}
 
-	return sorts
+	return sorts, nil
 }
 
 func getSafeSortName(key string) string {
@@ -119,10 +172,10 @@ func DirectiveToDataSort(directive string, index int, name string) (*data.Sort, 
 
 	if parts[1] != data.SORT_DIRECTION_ASC && parts[1] != data.SORT_DIRECTION_DESC {
 		msg = fmt.Sprintf(
-			"sort direction for sort %s index %d must be one of "+
+			"sort direction for sort %s index %d (%s) must be one of "+
 				data.SORT_DIRECTION_ASC+
 				" or "+data.SORT_DIRECTION_DESC+
-				" '%s' given", name, index, parts[1])
+				". '%s' given instead", name, index, parts[0], parts[1])
 		log.Fatalf(msg)
 		return sort, errors.New(msg)
 	}

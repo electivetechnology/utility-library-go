@@ -1,6 +1,7 @@
 package context
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 
@@ -15,10 +16,14 @@ type OffsetType interface {
 	GetOffset() int
 }
 
-func GetOffset(c *gin.Context) Offset {
-	offset := GetOffsetFromContext(c)
+func GetOffset(c *gin.Context) (Offset, error) {
+	offset, err := GetOffsetFromContext(c)
+	if err != nil {
+		log.Fatalf(err.Error())
+		return offset, err
+	}
 
-	return offset
+	return offset, nil
 }
 
 func NewOffset() Offset {
@@ -27,20 +32,27 @@ func NewOffset() Offset {
 	return offset
 }
 
-func GetOffsetFromContext(ctx *gin.Context) Offset {
+func GetOffsetFromContext(ctx *gin.Context) (Offset, error) {
 	offset := NewOffset()
 
 	// Get Offset from query (GET method)
-	o, err := strconv.Atoi(ctx.Query("offset"))
+	off := ctx.Query("offset")
+
+	if off == "" {
+		// Override with 0
+		off = "0"
+	}
+
+	o, err := strconv.Atoi(off)
 	if err != nil {
 		msg := fmt.Sprintf("Expected offset to be numeric, got '%v' instead", ctx.Query("offset"))
 		log.Fatalf(msg)
-		return offset
+		return offset, errors.New(msg)
 	}
 
 	offset.Offset = o
 
-	return offset
+	return offset, nil
 }
 
 func (o Offset) GetOffset() int {

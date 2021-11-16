@@ -48,13 +48,13 @@ func getSafeTableName(field string, fieldMap map[string]string) string {
 	var ret string
 
 	// Find the correct table for this field according to the field map
-	if fieldMap[field] == "" {
-		table = ""
+	if fieldMap[field] != "" {
+		table = fieldMap[field]
 	} else {
-		if fieldMap[field] == "*" {
+		if fieldMap["*"] != "" {
 			table = fieldMap["*"]
 		} else {
-			table = fieldMap[field]
+			table = ""
 		}
 	}
 

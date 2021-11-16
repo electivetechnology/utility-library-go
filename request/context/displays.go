@@ -7,6 +7,8 @@ import (
 	"strings"
 
 	"github.com/electivetechnology/utility-library-go/data"
+	DisplaysType "github.com/electivetechnology/utility-library-go/data/types/pseudo/displays"
+	"github.com/electivetechnology/utility-library-go/validation"
 	"github.com/gin-gonic/gin"
 )
 
@@ -33,25 +35,54 @@ func NewDisplays() Displays {
 	return displays
 }
 
-func GetDisplays(c *gin.Context) Displays {
-	displays := GetDisplaysFromContext(c)
+func GetDisplays(c *gin.Context, requirements validation.ValidatorRequirements) (Displays, error) {
+	displays, err := GetDisplaysFromContext(c)
+	if err != nil {
+		log.Fatalf(err.Error())
+		return displays, err
+	}
 
-	return displays
+	for idx, display := range displays.GetDataDisplays() {
+		_, err := ValidateDisplay(display, idx, requirements)
+		if err != nil {
+			log.Fatalf(err.Error())
+			return displays, err
+		}
+	}
+
+	return displays, nil
 }
 
-func GetDisplaysFromContext(ctx *gin.Context) Displays {
+func ValidateDisplay(display data.Display, namespace string, requirements validation.ValidatorRequirements) (data.Display, error) {
+	// Check if display is valid
+	_, err := DisplaysType.Check(display, requirements)
+	if err != nil {
+		msg := fmt.Sprintf("Display %s failed validation with message: %s", namespace, err.Error())
+		log.Fatalf(msg)
+		return display, errors.New(msg)
+	}
+
+	return display, nil
+}
+
+func GetDisplaysFromContext(ctx *gin.Context) (Displays, error) {
 	displays := NewDisplays()
 
 	// Get anonymous
-	anonymous := GetAnonymousDisplaysFromContext(ctx)
+	anonymous, err := GetAnonymousDisplaysFromContext(ctx)
+	if err != nil {
+		log.Fatalf(err.Error())
+		return displays, err
+	}
+
 	for key, display := range anonymous.Displays {
 		displays.Displays[key] = display
 	}
 
-	return displays
+	return displays, nil
 }
 
-func GetAnonymousDisplaysFromContext(ctx *gin.Context) Displays {
+func GetAnonymousDisplaysFromContext(ctx *gin.Context) (Displays, error) {
 	d, _ := ctx.GetQueryArray("displays[]")
 	displays := NewDisplays()
 
@@ -59,11 +90,19 @@ func GetAnonymousDisplaysFromContext(ctx *gin.Context) Displays {
 		display := Display{}
 		display.ID = getSafeDisplayName("0" + strconv.Itoa(idx))
 		display.Directive = directive
-		display.DataDisplay, _ = DirectiveToDataDisplay(directive, idx, display.ID)
+		dataDisplay, err := DirectiveToDataDisplay(directive, idx, display.ID)
+		// Check for errors
+		if err != nil {
+			log.Fatalf(err.Error())
+			return displays, err
+		}
+
+		// Assign values
+		display.DataDisplay = dataDisplay
 		displays.Displays[display.ID] = display
 	}
 
-	return displays
+	return displays, nil
 }
 
 func DirectiveToDataDisplay(directive string, index int, name string) (*data.Display, error) {

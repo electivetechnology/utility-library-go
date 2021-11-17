@@ -69,7 +69,7 @@ func TestPrepareNewSimpleWithSort(t *testing.T) {
 	sorts["s_a"] = *s3
 
 	q, _ := NewSimpleQuery("SELECT * FROM candidates")
-	expected := "SELECT * FROM candidates ORDER BY `id` ASC, `email` DESC, `first_name` ASC LIMIT 1000 OFFSET 0"
+	expected := "SELECT * FROM candidates ORDER BY `id` ASC, `first_name` ASC, `email` DESC LIMIT 1000 OFFSET 0"
 
 	// Add sorts
 	q.Sorts = sorts
@@ -104,7 +104,7 @@ func TestPrepareNewSimpleBigQueryWithSort(t *testing.T) {
 
 	q, _ := NewSimpleQuery("SELECT * FROM `connect-f7e5b.staging_reporting.candidates`")
 	q.Flavour = QUERY_FLAVOUR_BIG_QUERY
-	expected := "SELECT * FROM `connect-f7e5b.staging_reporting.candidates` ORDER BY `id` ASC, `email` DESC, `first_name` ASC LIMIT 1000 OFFSET 0"
+	expected := "SELECT * FROM `connect-f7e5b.staging_reporting.candidates` ORDER BY `id` ASC, `first_name` ASC, `email` DESC LIMIT 1000 OFFSET 0"
 
 	// Add sorts
 	q.Sorts = sorts

@@ -1,6 +1,7 @@
 package sql
 
 import (
+	"sort"
 	"strings"
 
 	"github.com/electivetechnology/utility-library-go/data"
@@ -21,6 +22,7 @@ func DisplaysToSqlClause(displays map[string]data.Display, fieldMap map[string]s
 
 	// Now that we have all displays
 	// Let's turn them into string and add alaias if necessary
+	sort.Strings(ds)
 	c.Statement = strings.Join(ds, ", ")
 
 	return c

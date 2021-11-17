@@ -251,7 +251,7 @@ func TestGetSelectSqlWithDisplays(t *testing.T) {
 	ds3["d2"] = *d2
 	ds3["d3"] = *d3
 
-	expected := "SELECT `candidates`.`id`, `candidates`.`lastName`, `candidates`.`firstName` AS fName FROM candidates LIMIT 1000 OFFSET 0"
+	expected := "SELECT `candidates`.`firstName` AS fName, `candidates`.`id`, `candidates`.`lastName` FROM candidates LIMIT 1000 OFFSET 0"
 
 	q.Displays = ds3
 	q.FieldMap = fieldMap

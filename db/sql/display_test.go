@@ -47,7 +47,7 @@ func TestDisplaysToSqlClause(t *testing.T) {
 	testData := []TestDisplaysToSqlClauseDataItem{
 		{Displays: ds1, Expected: "`assessments`.`id`"},
 		{Displays: ds2, Expected: "`assessments`.`id`, `candidates`.`id`"},
-		{Displays: ds3, Expected: "`assessments`.`id`, `candidates`.`id`, `candidates`.`firstName` AS fName"},
+		{Displays: ds3, Expected: "`assessments`.`id`, `candidates`.`firstName` AS fName, `candidates`.`id`"},
 	}
 
 	for i, item := range testData {

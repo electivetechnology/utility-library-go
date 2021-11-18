@@ -175,6 +175,73 @@ func criterionToRelativeClause(criterion data.Criterion, placeHolder string, fie
 
 func criterionToContainsClause(criterion data.Criterion, placeHolder string, fieldMap map[string]string, collation bool) Clause {
 	c := Clause{}
+	var op, collate, comparand string
+	var caseSensitive bool
+	castType := CAST_TYPE_STRING
+
+	switch criterion.Operand {
+	case "inc": // includes
+		op = "LIKE"
+		collate = "utf8mb4_bin"
+		caseSensitive = true
+
+	case "ninc": // does not include
+		op = "NOT LIKE"
+		collate = "utf8mb4_bin"
+		caseSensitive = true
+
+	case "inci": // includes (case insensitive)
+		op = "LIKE"
+		collate = "utf8mb4_general_ci"
+		caseSensitive = false
+
+	case "ninci": // does not include (case insensitive)
+		op = "NOT LIKE"
+		collate = "utf8mb4_general_ci"
+		caseSensitive = false
+	}
+
+	if criterion.Type == CRITERION_TYPE_VALUE {
+		// Add the static value as a parameter
+		comparand = ":" + placeHolder
+		c.Parameters = map[string]string{
+			placeHolder: criterion.Value,
+		}
+	} else if criterion.Type == CRITERION_TYPE_FIELD {
+		comparand = getSafeFieldName(criterion.Value, fieldMap)
+	}
+
+	// Check value type
+	if _, err := strconv.Atoi(criterion.Value); err == nil {
+		castType = CAST_TYPE_NUMERIC
+	}
+
+	// Escape, quote and qualify the field name for security.
+	field := getSafeFieldName(criterion.Key, fieldMap)
+
+	// Build the final clause.
+	if collation {
+		c.Statement = addLogic(criterion) +
+			" " + field + " " + op + " " +
+			" CONCAT(\"%\", CAST(" + comparand + " AS CHAR), \"%\")" +
+			" COLLATE " + collate
+	} else {
+		if caseSensitive {
+			c.Statement = addLogic(criterion) +
+				" CAST(" + field + " AS " + castType + ") " + op + " " +
+				" CONCAT(\"%\", CAST(" + comparand + " AS " + castType + "), \"%\")"
+		} else {
+			if castType == CAST_TYPE_NUMERIC {
+				c.Statement = addLogic(criterion) +
+					" CAST(" + field + " AS " + castType + ") " + op + " " +
+					" CONCAT(\"%\", CAST(" + comparand + " AS " + castType + "), \"%\")"
+			} else if castType == CAST_TYPE_STRING {
+				c.Statement = addLogic(criterion) +
+					" LOWER(CAST(" + field + " AS " + castType + ")) " + op + " " +
+					" CONCAT(\"%\", LOWER(CAST(" + comparand + " AS " + castType + ")), \"%\")"
+			}
+		}
+	}
 
 	return c
 }

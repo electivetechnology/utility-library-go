@@ -409,3 +409,134 @@ func TestPrepareNewSimpleBigQueryWithFilterContains(t *testing.T) {
 		t.Errorf("Query.GetSql() failed, expected %v, got %v", expectedSql, q.GetSql())
 	}
 }
+
+func TestPrepareNewSimpleWithFilterBegins(t *testing.T) {
+	// Prepare filters
+	filters := make(map[string]data.Filter)
+
+	c1 := data.Criterion{
+		Logic:   "and",
+		Key:     "email",
+		Operand: "begins",
+		Type:    "value",
+		Value:   "Kris",
+	}
+
+	c2 := data.Criterion{
+		Logic:   "and",
+		Key:     "email",
+		Operand: "nbegins",
+		Type:    "value",
+		Value:   "Kris",
+	}
+
+	c3 := data.Criterion{
+		Logic:   "and",
+		Key:     "email",
+		Operand: "beginsi",
+		Type:    "value",
+		Value:   "Kris",
+	}
+
+	c4 := data.Criterion{
+		Logic:   "and",
+		Key:     "email",
+		Operand: "nbeginsi",
+		Type:    "value",
+		Value:   "Kris",
+	}
+
+	// First Filter
+	f1 := data.NewFilter()
+	f1.Criterions = append(f1.Criterions, c1)
+	f1.Criterions = append(f1.Criterions, c2)
+	f1.Criterions = append(f1.Criterions, c3)
+	f1.Criterions = append(f1.Criterions, c4)
+
+	filters["f_0"] = *f1
+
+	q, _ := NewSimpleQuery("SELECT * FROM candidates")
+	expected := "SELECT * FROM candidates WHERE (`email` LIKE  CONCAT(CAST(:f_0_w_filter_0 AS CHAR), \"%\") COLLATE utf8mb4_bin AND `email` NOT LIKE  CONCAT(CAST(:f_0_w_filter_1 AS CHAR), \"%\") COLLATE utf8mb4_bin AND `email` LIKE  CONCAT(CAST(:f_0_w_filter_2 AS CHAR), \"%\") COLLATE utf8mb4_general_ci AND `email` NOT LIKE  CONCAT(CAST(:f_0_w_filter_3 AS CHAR), \"%\") COLLATE utf8mb4_general_ci) LIMIT 1000 OFFSET 0"
+
+	// Add filters
+	q.Filters = filters
+
+	// Prepare query
+	q.Prepare()
+
+	if q.Statement != expected {
+		t.Errorf("Query.Prepare() failed, expected %v, got %v", expected, q.Statement)
+	}
+
+	expectedSql := "SELECT * FROM candidates WHERE (`email` LIKE  CONCAT(CAST(\"Kris\" AS CHAR), \"%\") COLLATE utf8mb4_bin AND `email` NOT LIKE  CONCAT(CAST(\"Kris\" AS CHAR), \"%\") COLLATE utf8mb4_bin AND `email` LIKE  CONCAT(CAST(\"Kris\" AS CHAR), \"%\") COLLATE utf8mb4_general_ci AND `email` NOT LIKE  CONCAT(CAST(\"Kris\" AS CHAR), \"%\") COLLATE utf8mb4_general_ci) LIMIT 1000 OFFSET 0"
+
+	if q.GetSql() != expectedSql {
+		t.Errorf("Query.GetSql() failed, expected %v, got %v", expectedSql, q.GetSql())
+	}
+}
+
+func TestPrepareNewSimpleBigQueryWithFilterBegins(t *testing.T) {
+	// Prepare filters
+	filters := make(map[string]data.Filter)
+
+	c1 := data.Criterion{
+		Logic:   "and",
+		Key:     "email",
+		Operand: "begins",
+		Type:    "value",
+		Value:   "Kris",
+	}
+
+	c2 := data.Criterion{
+		Logic:   "and",
+		Key:     "email",
+		Operand: "nbegins",
+		Type:    "value",
+		Value:   "Kris",
+	}
+
+	c3 := data.Criterion{
+		Logic:   "and",
+		Key:     "email",
+		Operand: "beginsi",
+		Type:    "value",
+		Value:   "Kris",
+	}
+
+	c4 := data.Criterion{
+		Logic:   "and",
+		Key:     "email",
+		Operand: "nbeginsi",
+		Type:    "value",
+		Value:   "Kris",
+	}
+
+	// First Filter
+	f1 := data.NewFilter()
+	f1.Criterions = append(f1.Criterions, c1)
+	f1.Criterions = append(f1.Criterions, c2)
+	f1.Criterions = append(f1.Criterions, c3)
+	f1.Criterions = append(f1.Criterions, c4)
+
+	filters["f_0"] = *f1
+
+	q, _ := NewSimpleQuery("SELECT * FROM `connect-f7e5b.staging_reporting.candidates`")
+	q.Flavour = QUERY_FLAVOUR_BIG_QUERY
+	expected := "SELECT * FROM `connect-f7e5b.staging_reporting.candidates` WHERE (CAST(`email` AS STRING) LIKE  CONCAT(CAST(:f_0_w_filter_0 AS STRING), \"%\") AND CAST(`email` AS STRING) NOT LIKE  CONCAT(CAST(:f_0_w_filter_1 AS STRING), \"%\") AND LOWER(CAST(`email` AS STRING)) LIKE  CONCAT(LOWER(CAST(:f_0_w_filter_2 AS STRING)), \"%\") AND LOWER(CAST(`email` AS STRING)) NOT LIKE  CONCAT(LOWER(CAST(:f_0_w_filter_3 AS STRING)), \"%\")) LIMIT 1000 OFFSET 0"
+
+	// Add filters
+	q.Filters = filters
+
+	// Prepare query
+	q.Prepare()
+
+	if q.Statement != expected {
+		t.Errorf("Query.Prepare() failed, expected %v, got %v", expected, q.Statement)
+	}
+
+	expectedSql := "SELECT * FROM `connect-f7e5b.staging_reporting.candidates` WHERE (CAST(`email` AS STRING) LIKE  CONCAT(CAST(\"Kris\" AS STRING), \"%\") AND CAST(`email` AS STRING) NOT LIKE  CONCAT(CAST(\"Kris\" AS STRING), \"%\") AND LOWER(CAST(`email` AS STRING)) LIKE  CONCAT(LOWER(CAST(\"Kris\" AS STRING)), \"%\") AND LOWER(CAST(`email` AS STRING)) NOT LIKE  CONCAT(LOWER(CAST(\"Kris\" AS STRING)), \"%\")) LIMIT 1000 OFFSET 0"
+
+	if q.GetSql() != expectedSql {
+		t.Errorf("Query.GetSql() failed, expected %v, got %v", expectedSql, q.GetSql())
+	}
+}

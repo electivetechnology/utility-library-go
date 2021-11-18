@@ -137,15 +137,24 @@ func TestPrepareNewSimpleWithFilter(t *testing.T) {
 		Value:   "Ds7q0eBi2Iyy",
 	}
 
+	c3 := data.Criterion{
+		Logic:   "and",
+		Key:     "id",
+		Operand: "gt",
+		Type:    "value",
+		Value:   "2",
+	}
+
 	// First Filter
 	f1 := data.NewFilter()
 	f1.Criterions = append(f1.Criterions, c1)
 	f1.Criterions = append(f1.Criterions, c2)
+	f1.Criterions = append(f1.Criterions, c3)
 
 	filters["f_0"] = *f1
 
 	q, _ := NewSimpleQuery("SELECT * FROM candidates")
-	expected := "SELECT * FROM candidates WHERE (`first_name` =  CAST(:f_0_w_filter_0 AS CHAR) COLLATE utf8mb4_bin AND `organisation` =  CAST(:f_0_w_filter_1 AS CHAR) COLLATE utf8mb4_bin) LIMIT 1000 OFFSET 0"
+	expected := "SELECT * FROM candidates WHERE (`first_name` =  CAST(:f_0_w_filter_0 AS CHAR) COLLATE utf8mb4_bin AND `organisation` =  CAST(:f_0_w_filter_1 AS CHAR) COLLATE utf8mb4_bin AND CAST(`id` AS NUMERIC) > CAST(:f_0_w_filter_2 AS NUMERIC)) LIMIT 1000 OFFSET 0"
 
 	// Add filters
 	q.Filters = filters
@@ -157,7 +166,7 @@ func TestPrepareNewSimpleWithFilter(t *testing.T) {
 		t.Errorf("Query.Prepare() failed, expected %v, got %v", expected, q.Statement)
 	}
 
-	expectedSql := "SELECT * FROM candidates WHERE (`first_name` =  CAST(\"Kris\" AS CHAR) COLLATE utf8mb4_bin AND `organisation` =  CAST(\"Ds7q0eBi2Iyy\" AS CHAR) COLLATE utf8mb4_bin) LIMIT 1000 OFFSET 0"
+	expectedSql := "SELECT * FROM candidates WHERE (`first_name` =  CAST(\"Kris\" AS CHAR) COLLATE utf8mb4_bin AND `organisation` =  CAST(\"Ds7q0eBi2Iyy\" AS CHAR) COLLATE utf8mb4_bin AND CAST(`id` AS NUMERIC) > CAST(\"2\" AS NUMERIC)) LIMIT 1000 OFFSET 0"
 
 	if q.GetSql() != expectedSql {
 		t.Errorf("Query.GetSql() failed, expected %v, got %v", expectedSql, q.GetSql())
@@ -184,19 +193,25 @@ func TestPrepareNewSimpleBigQueryWithFilter(t *testing.T) {
 		Value:   "Ds7q0eBi2Iyy",
 	}
 
+	c3 := data.Criterion{
+		Logic:   "and",
+		Key:     "id",
+		Operand: "gt",
+		Type:    "value",
+		Value:   "2",
+	}
+
 	// First Filter
 	f1 := data.NewFilter()
 	f1.Criterions = append(f1.Criterions, c1)
 	f1.Criterions = append(f1.Criterions, c2)
+	f1.Criterions = append(f1.Criterions, c3)
 
 	filters["f_0"] = *f1
 
 	q, _ := NewSimpleQuery("SELECT * FROM `connect-f7e5b.staging_reporting.candidates`")
 	q.Flavour = QUERY_FLAVOUR_BIG_QUERY
-	expected := "SELECT * FROM " +
-		"`connect-f7e5b.staging_reporting.candidates` " +
-		"WHERE (CAST(`firstName` AS STRING) =  CAST(:f_0_w_filter_0 AS STRING) AND CAST(`organisation` AS STRING) =  CAST(:f_0_w_filter_1 AS STRING)) " +
-		"LIMIT 1000 OFFSET 0"
+	expected := "SELECT * FROM `connect-f7e5b.staging_reporting.candidates` WHERE (CAST(`firstName` AS STRING) =  CAST(:f_0_w_filter_0 AS STRING) AND CAST(`organisation` AS STRING) =  CAST(:f_0_w_filter_1 AS STRING) AND CAST(`id` AS NUMERIC) > CAST(:f_0_w_filter_2 AS NUMERIC)) LIMIT 1000 OFFSET 0"
 
 	// Add filters
 	q.Filters = filters
@@ -208,7 +223,7 @@ func TestPrepareNewSimpleBigQueryWithFilter(t *testing.T) {
 		t.Errorf("Query.Prepare() failed, expected %v, got %v", expected, q.Statement)
 	}
 
-	expectedSql := "SELECT * FROM `connect-f7e5b.staging_reporting.candidates` WHERE (CAST(`firstName` AS STRING) =  CAST(\"Kris\" AS STRING) AND CAST(`organisation` AS STRING) =  CAST(\"Ds7q0eBi2Iyy\" AS STRING)) LIMIT 1000 OFFSET 0"
+	expectedSql := "SELECT * FROM `connect-f7e5b.staging_reporting.candidates` WHERE (CAST(`firstName` AS STRING) =  CAST(\"Kris\" AS STRING) AND CAST(`organisation` AS STRING) =  CAST(\"Ds7q0eBi2Iyy\" AS STRING) AND CAST(`id` AS NUMERIC) > CAST(\"2\" AS NUMERIC)) LIMIT 1000 OFFSET 0"
 
 	if q.GetSql() != expectedSql {
 		t.Errorf("Query.GetSql() failed, expected %v, got %v", expectedSql, q.GetSql())

@@ -1,5 +1,6 @@
 package request
 
+// DEPRECATED - Please use new request/context package insted
 import (
 	"errors"
 	"net/url"

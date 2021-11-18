@@ -143,7 +143,7 @@ func CriteriaToCriterion(criteria string, index int) (data.Criterion, error) {
 
 	// Check all elements of criteria are present
 	if len(parts) != 5 ||
-		(parts[0] != data.CRITERION_LOGIC_INTERSCTION && parts[0] != data.CRITERION_LOGIC_UNION) {
+		(parts[0] != data.CRITERION_LOGIC_INTERSECTION && parts[0] != data.CRITERION_LOGIC_UNION) {
 		return c, errors.New(
 			"value for index " + strconv.Itoa(index) +
 				", and part 1 (logic) must be one of " +

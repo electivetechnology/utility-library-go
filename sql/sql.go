@@ -51,6 +51,7 @@ func GetSortSql(q *Query) Clause {
 	var sql string
 
 	for _, sort := range q.Sorts {
+		fmt.Printf("Sort: %v", sort)
 		field := getSafeFieldName(sort.Field)
 		sql += field + " " + strings.ToUpper(sort.Direction) + ", "
 	}

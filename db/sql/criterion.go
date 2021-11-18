@@ -162,12 +162,15 @@ func criterionToRelativeClause(criterion data.Criterion, placeHolder string, fie
 	field := getSafeFieldName(criterion.Key, fieldMap)
 
 	// Build the final clause.
-	if castType == CAST_TYPE_NUMERIC {
-		c.Statement = addLogic(criterion) + " CAST(" + field + " AS " + castType + ") " + op + " CAST(" + comparand + " AS " + castType + ")"
-	} else {
+	if collation {
 		c.Statement = addLogic(criterion) + " " + field + " " + op + " " + comparand
+	} else {
+		if castType == CAST_TYPE_NUMERIC {
+			c.Statement = addLogic(criterion) + " CAST(" + field + " AS " + castType + ") " + op + " CAST(" + comparand + " AS " + castType + ")"
+		} else {
+			c.Statement = addLogic(criterion) + " " + field + " " + op + " " + comparand
+		}
 	}
-
 	return c
 }
 

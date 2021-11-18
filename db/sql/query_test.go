@@ -279,6 +279,137 @@ func TestGetSelectSqlWithDisplays(t *testing.T) {
 	}
 }
 
+func TestPrepareNewSimpleWithFilterRelative(t *testing.T) {
+	// Prepare filters
+	filters := make(map[string]data.Filter)
+
+	c1 := data.Criterion{
+		Logic:   "and",
+		Key:     "id",
+		Operand: "gt",
+		Type:    "value",
+		Value:   "2",
+	}
+
+	c2 := data.Criterion{
+		Logic:   "and",
+		Key:     "id",
+		Operand: "ge",
+		Type:    "value",
+		Value:   "2",
+	}
+
+	c3 := data.Criterion{
+		Logic:   "and",
+		Key:     "id",
+		Operand: "lt",
+		Type:    "value",
+		Value:   "2",
+	}
+
+	c4 := data.Criterion{
+		Logic:   "and",
+		Key:     "id",
+		Operand: "le",
+		Type:    "value",
+		Value:   "2",
+	}
+
+	// First Filter
+	f1 := data.NewFilter()
+	f1.Criterions = append(f1.Criterions, c1)
+	f1.Criterions = append(f1.Criterions, c2)
+	f1.Criterions = append(f1.Criterions, c3)
+	f1.Criterions = append(f1.Criterions, c4)
+
+	filters["f_0"] = *f1
+
+	q, _ := NewSimpleQuery("SELECT * FROM candidates")
+	expected := "SELECT * FROM candidates WHERE (`id` > :f_0_w_filter_0 AND `id` >= :f_0_w_filter_1 AND `id` < :f_0_w_filter_2 AND `id` <= :f_0_w_filter_3) LIMIT 1000 OFFSET 0"
+
+	// Add filters
+	q.Filters = filters
+
+	// Prepare query
+	q.Prepare()
+
+	if q.Statement != expected {
+		t.Errorf("Query.Prepare() failed, expected %v, got %v", expected, q.Statement)
+	}
+
+	expectedSql := "SELECT * FROM candidates WHERE (`id` > \"2\" AND `id` >= \"2\" AND `id` < \"2\" AND `id` <= \"2\") LIMIT 1000 OFFSET 0"
+
+	if q.GetSql() != expectedSql {
+		t.Errorf("Query.GetSql() failed, expected %v, got %v", expectedSql, q.GetSql())
+	}
+}
+
+func TestPrepareNewSimpleBigQueryWithFilterRelative(t *testing.T) {
+	// Prepare filters
+	filters := make(map[string]data.Filter)
+
+	c1 := data.Criterion{
+		Logic:   "and",
+		Key:     "mid",
+		Operand: "gt",
+		Type:    "value",
+		Value:   "3449302388198566",
+	}
+
+	c2 := data.Criterion{
+		Logic:   "and",
+		Key:     "mid",
+		Operand: "ge",
+		Type:    "value",
+		Value:   "3449302388198566",
+	}
+
+	c3 := data.Criterion{
+		Logic:   "and",
+		Key:     "mid",
+		Operand: "lt",
+		Type:    "value",
+		Value:   "3449302388198566",
+	}
+
+	c4 := data.Criterion{
+		Logic:   "and",
+		Key:     "mid",
+		Operand: "le",
+		Type:    "value",
+		Value:   "3449302388198566",
+	}
+
+	// First Filter
+	f1 := data.NewFilter()
+	f1.Criterions = append(f1.Criterions, c1)
+	f1.Criterions = append(f1.Criterions, c2)
+	f1.Criterions = append(f1.Criterions, c3)
+	f1.Criterions = append(f1.Criterions, c4)
+
+	filters["f_0"] = *f1
+
+	q, _ := NewSimpleQuery("SELECT * FROM `connect-f7e5b.staging_reporting.candidates`")
+	q.Flavour = QUERY_FLAVOUR_BIG_QUERY
+	expected := "SELECT * FROM `connect-f7e5b.staging_reporting.candidates` WHERE (CAST(`mid` AS NUMERIC) > CAST(:f_0_w_filter_0 AS NUMERIC) AND CAST(`mid` AS NUMERIC) >= CAST(:f_0_w_filter_1 AS NUMERIC) AND CAST(`mid` AS NUMERIC) < CAST(:f_0_w_filter_2 AS NUMERIC) AND CAST(`mid` AS NUMERIC) <= CAST(:f_0_w_filter_3 AS NUMERIC)) LIMIT 1000 OFFSET 0"
+
+	// Add filters
+	q.Filters = filters
+
+	// Prepare query
+	q.Prepare()
+
+	if q.Statement != expected {
+		t.Errorf("Query.Prepare() failed, expected %v, got %v", expected, q.Statement)
+	}
+
+	expectedSql := "SELECT * FROM `connect-f7e5b.staging_reporting.candidates` WHERE (CAST(`mid` AS NUMERIC) > CAST(\"3449302388198566\" AS NUMERIC) AND CAST(`mid` AS NUMERIC) >= CAST(\"3449302388198566\" AS NUMERIC) AND CAST(`mid` AS NUMERIC) < CAST(\"3449302388198566\" AS NUMERIC) AND CAST(`mid` AS NUMERIC) <= CAST(\"3449302388198566\" AS NUMERIC)) LIMIT 1000 OFFSET 0"
+
+	if q.GetSql() != expectedSql {
+		t.Errorf("Query.GetSql() failed, expected %v, got %v", expectedSql, q.GetSql())
+	}
+}
+
 func TestPrepareNewSimpleWithFilterContains(t *testing.T) {
 	// Prepare filters
 	filters := make(map[string]data.Filter)

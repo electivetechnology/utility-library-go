@@ -1,7 +1,6 @@
 package sql
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 
@@ -35,7 +34,6 @@ func criterionToBoolClause(criterion data.Criterion, placeHolder string, fieldMa
 
 	// Escape, quote and qualify the field name for security.
 	field := getSafeFieldName(criterion.Key, fieldMap)
-	fmt.Printf("Safe filed name is: %s\n", field)
 
 	// We can only compare true or false for boolean
 	if strings.ToLower(criterion.Value) == "true" || criterion.Value == "1" {
@@ -299,6 +297,31 @@ func criterionToBeginsClause(criterion data.Criterion, placeHolder string, field
 
 func criterionToRegexClause(criterion data.Criterion, placeHolder string, fieldMap map[string]string, collation bool) Clause {
 	c := Clause{}
+	var comparand string
+	castType := CAST_TYPE_STRING
+
+	if criterion.Type == CRITERION_TYPE_VALUE {
+		// Add the static value as a parameter
+		comparand = ":" + placeHolder
+		c.Parameters = map[string]string{
+			placeHolder: criterion.Value,
+		}
+	} else if criterion.Type == CRITERION_TYPE_FIELD {
+		comparand = getSafeFieldName(criterion.Value, fieldMap)
+	}
+
+	// Escape, quote and qualify the field name for security.
+	field := getSafeFieldName(criterion.Key, fieldMap)
+
+	if collation {
+		c.Statement = addLogic(criterion) +
+			" " + field + " REGEXP " +
+			" " + comparand
+	} else {
+		c.Statement = addLogic(criterion) +
+			" REGEXP_CONTAINS(CAST(" + field + " AS " + castType + "), " +
+			" CAST(" + comparand + " AS " + castType + "))"
+	}
 
 	return c
 }

@@ -540,3 +540,80 @@ func TestPrepareNewSimpleBigQueryWithFilterBegins(t *testing.T) {
 		t.Errorf("Query.GetSql() failed, expected %v, got %v", expectedSql, q.GetSql())
 	}
 }
+
+func TestPrepareNewSimpleWithFilterRegex(t *testing.T) {
+	// Prepare filters
+	filters := make(map[string]data.Filter)
+
+	c1 := data.Criterion{
+		Logic:   "and",
+		Key:     "organisation",
+		Operand: "re",
+		Type:    "value",
+		Value:   "^c",
+	}
+
+	// First Filter
+	f1 := data.NewFilter()
+	f1.Criterions = append(f1.Criterions, c1)
+
+	filters["f_0"] = *f1
+
+	q, _ := NewSimpleQuery("SELECT * FROM candidates")
+	expected := "SELECT * FROM candidates WHERE (`organisation` REGEXP  :f_0_w_filter_0) LIMIT 1000 OFFSET 0"
+
+	// Add filters
+	q.Filters = filters
+
+	// Prepare query
+	q.Prepare()
+
+	if q.Statement != expected {
+		t.Errorf("Query.Prepare() failed, expected %v, got %v", expected, q.Statement)
+	}
+
+	expectedSql := "SELECT * FROM candidates WHERE (`organisation` REGEXP  \"^c\") LIMIT 1000 OFFSET 0"
+
+	if q.GetSql() != expectedSql {
+		t.Errorf("Query.GetSql() failed, expected %v, got %v", expectedSql, q.GetSql())
+	}
+}
+
+func TestPrepareNewSimpleBigQueryWithFilterRegex(t *testing.T) {
+	// Prepare filters
+	filters := make(map[string]data.Filter)
+
+	c1 := data.Criterion{
+		Logic:   "and",
+		Key:     "organisation",
+		Operand: "re",
+		Type:    "value",
+		Value:   "^c",
+	}
+
+	// First Filter
+	f1 := data.NewFilter()
+	f1.Criterions = append(f1.Criterions, c1)
+
+	filters["f_0"] = *f1
+
+	q, _ := NewSimpleQuery("SELECT * FROM `connect-f7e5b.staging_reporting.candidates`")
+	q.Flavour = QUERY_FLAVOUR_BIG_QUERY
+	expected := ""
+
+	// Add filters
+	q.Filters = filters
+
+	// Prepare query
+	q.Prepare()
+
+	if q.Statement != expected {
+		t.Errorf("Query.Prepare() failed, expected %v, got %v", expected, q.Statement)
+	}
+
+	expectedSql := ""
+
+	if q.GetSql() != expectedSql {
+		t.Errorf("Query.GetSql() failed, expected %v, got %v", expectedSql, q.GetSql())
+	}
+}

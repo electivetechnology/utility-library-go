@@ -328,6 +328,97 @@ func criterionToRegexClause(criterion data.Criterion, placeHolder string, fieldM
 
 func criterionToInClause(criterion data.Criterion, placeHolder string, fieldMap map[string]string, collation bool) Clause {
 	c := Clause{}
+	var op, collate, comparand string
+	var caseSensitive bool
+	var values []string
+	castType := CAST_TYPE_STRING
+
+	switch criterion.Operand {
+	case "in": // is in the list
+		op = "IN"
+		collate = "utf8mb4_bin"
+		caseSensitive = true
+
+	case "nin": // is not in the list
+		op = "NOT IN"
+		collate = "utf8mb4_bin"
+		caseSensitive = true
+
+	case "ini": // is in the list (case insensitive)
+		op = "IN"
+		collate = "utf8mb4_general_ci"
+		caseSensitive = false
+
+	case "nini": // is not in the list (case insensitive)
+		op = "NOT IN"
+		collate = "utf8mb4_general_ci"
+		caseSensitive = false
+	}
+
+	if criterion.Type == CRITERION_TYPE_VALUE {
+		// Values should be in a comma separated list.
+		values = strings.Split(criterion.Value, ",")
+		var placehoders []string
+		params := make(map[string]string, 0)
+		for i, value := range values {
+			// Add parameters
+			key := placeHolder + "_" + strconv.Itoa(i)
+			params[key] = value
+
+			// Add value to placeholders
+			if collation {
+				placehoders = append(placehoders, ":"+key+" COLLATE "+collate)
+			} else {
+				if caseSensitive {
+					placehoders = append(placehoders, ":"+key)
+				} else {
+					placehoders = append(placehoders, "LOWER(:"+key+")")
+				}
+			}
+		}
+		c.Parameters = params
+		// The comparand for this operation is the list of values
+		comparand = "(" + strings.Join(placehoders, ", ") + ")"
+	} else if criterion.Type == CRITERION_TYPE_FIELD {
+		// Field names should be in a comma separated list.
+		values = strings.Split(criterion.Value, ",")
+		var placehoders []string
+		for _, value := range values {
+			// Add field to placeholders
+			if collation {
+				placehoders = append(placehoders, getSafeFieldName(value, fieldMap)+" COLLATE "+collate)
+			} else {
+				if caseSensitive {
+					placehoders = append(placehoders, getSafeFieldName(value, fieldMap))
+				} else {
+					placehoders = append(placehoders, "LOWER("+getSafeFieldName(value, fieldMap)+")")
+				}
+			}
+		}
+		// The comparand for this operation is the list of field names.
+		comparand = "(" + strings.Join(placehoders, ", ") + ")"
+	}
+
+	// Escape, quote and qualify the field name for security.
+	field := getSafeFieldName(criterion.Key, fieldMap)
+
+	// Build the final clause.
+	if collation {
+		c.Statement = addLogic(criterion) +
+			" " + field +
+			" " + op +
+			" " + comparand
+	} else {
+		if caseSensitive {
+			c.Statement = addLogic(criterion) +
+				" CAST(" + field + " AS " + castType + ") " + op +
+				" " + comparand
+		} else {
+			c.Statement = addLogic(criterion) +
+				" LOWER(CAST(" + field + " AS " + castType + ")) " + op +
+				" " + comparand
+		}
+	}
 
 	return c
 }

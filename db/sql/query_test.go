@@ -599,7 +599,7 @@ func TestPrepareNewSimpleBigQueryWithFilterRegex(t *testing.T) {
 
 	q, _ := NewSimpleQuery("SELECT * FROM `connect-f7e5b.staging_reporting.candidates`")
 	q.Flavour = QUERY_FLAVOUR_BIG_QUERY
-	expected := ""
+	expected := "SELECT * FROM `connect-f7e5b.staging_reporting.candidates` WHERE (REGEXP_CONTAINS(CAST(`organisation` AS STRING),  CAST(:f_0_w_filter_0 AS STRING))) LIMIT 1000 OFFSET 0"
 
 	// Add filters
 	q.Filters = filters
@@ -611,7 +611,138 @@ func TestPrepareNewSimpleBigQueryWithFilterRegex(t *testing.T) {
 		t.Errorf("Query.Prepare() failed, expected %v, got %v", expected, q.Statement)
 	}
 
-	expectedSql := ""
+	expectedSql := "SELECT * FROM `connect-f7e5b.staging_reporting.candidates` WHERE (REGEXP_CONTAINS(CAST(`organisation` AS STRING),  CAST(\"^c\" AS STRING))) LIMIT 1000 OFFSET 0"
+
+	if q.GetSql() != expectedSql {
+		t.Errorf("Query.GetSql() failed, expected %v, got %v", expectedSql, q.GetSql())
+	}
+}
+
+func TestPrepareNewSimpleWithFilterIn(t *testing.T) {
+	// Prepare filters
+	filters := make(map[string]data.Filter)
+
+	c1 := data.Criterion{
+		Logic:   "and",
+		Key:     "invitation_id",
+		Operand: "in",
+		Type:    "value",
+		Value:   "3pGyisgS86yc,ImrJLEC21t2i",
+	}
+
+	c2 := data.Criterion{
+		Logic:   "and",
+		Key:     "invitation_id",
+		Operand: "nin",
+		Type:    "value",
+		Value:   "3pGyisgS86yc,ImrJLEC21t2i",
+	}
+
+	c3 := data.Criterion{
+		Logic:   "and",
+		Key:     "invitation_id",
+		Operand: "ini",
+		Type:    "value",
+		Value:   "3pGyisgS86yc,ImrJLEC21t2i",
+	}
+
+	c4 := data.Criterion{
+		Logic:   "and",
+		Key:     "invitation_id",
+		Operand: "nini",
+		Type:    "value",
+		Value:   "3pGyisgS86yc,ImrJLEC21t2i",
+	}
+
+	// First Filter
+	f1 := data.NewFilter()
+	f1.Criterions = append(f1.Criterions, c1)
+	f1.Criterions = append(f1.Criterions, c2)
+	f1.Criterions = append(f1.Criterions, c3)
+	f1.Criterions = append(f1.Criterions, c4)
+
+	filters["f_0"] = *f1
+
+	q, _ := NewSimpleQuery("SELECT * FROM transcripts")
+	expected := "SELECT * FROM transcripts WHERE (`invitation_id` IN (:f_0_w_filter_0_0 COLLATE utf8mb4_bin, :f_0_w_filter_0_1 COLLATE utf8mb4_bin) AND `invitation_id` NOT IN (:f_0_w_filter_1_0 COLLATE utf8mb4_bin, :f_0_w_filter_1_1 COLLATE utf8mb4_bin) AND `invitation_id` IN (:f_0_w_filter_2_0 COLLATE utf8mb4_general_ci, :f_0_w_filter_2_1 COLLATE utf8mb4_general_ci) AND `invitation_id` NOT IN (:f_0_w_filter_3_0 COLLATE utf8mb4_general_ci, :f_0_w_filter_3_1 COLLATE utf8mb4_general_ci)) LIMIT 1000 OFFSET 0"
+
+	// Add filters
+	q.Filters = filters
+
+	// Prepare query
+	q.Prepare()
+
+	if q.Statement != expected {
+		t.Errorf("Query.Prepare() failed, expected %v, got %v", expected, q.Statement)
+	}
+
+	expectedSql := "SELECT * FROM transcripts WHERE (`invitation_id` IN (\"3pGyisgS86yc\" COLLATE utf8mb4_bin, \"ImrJLEC21t2i\" COLLATE utf8mb4_bin) AND `invitation_id` NOT IN (\"3pGyisgS86yc\" COLLATE utf8mb4_bin, \"ImrJLEC21t2i\" COLLATE utf8mb4_bin) AND `invitation_id` IN (\"3pGyisgS86yc\" COLLATE utf8mb4_general_ci, \"ImrJLEC21t2i\" COLLATE utf8mb4_general_ci) AND `invitation_id` NOT IN (\"3pGyisgS86yc\" COLLATE utf8mb4_general_ci, \"ImrJLEC21t2i\" COLLATE utf8mb4_general_ci)) LIMIT 1000 OFFSET 0"
+
+	if q.GetSql() != expectedSql {
+		t.Errorf("Query.GetSql() failed, expected %v, got %v", expectedSql, q.GetSql())
+	}
+}
+
+func TestPrepareNewSimpleBigQueryWithFilterIn(t *testing.T) {
+	// Prepare filters
+	filters := make(map[string]data.Filter)
+
+	c1 := data.Criterion{
+		Logic:   "and",
+		Key:     "invitation_id",
+		Operand: "in",
+		Type:    "value",
+		Value:   "bXkKeWW4hTZF,j1uLpVoLaals",
+	}
+
+	c2 := data.Criterion{
+		Logic:   "and",
+		Key:     "invitation_id",
+		Operand: "nin",
+		Type:    "value",
+		Value:   "bXkKeWW4hTZF,j1uLpVoLaals",
+	}
+
+	c3 := data.Criterion{
+		Logic:   "and",
+		Key:     "invitation_id",
+		Operand: "ini",
+		Type:    "value",
+		Value:   "bXkKeWW4hTZF,j1uLpVoLaals",
+	}
+
+	c4 := data.Criterion{
+		Logic:   "and",
+		Key:     "invitation_id",
+		Operand: "nini",
+		Type:    "value",
+		Value:   "bXkKeWW4hTZF,j1uLpVoLaals",
+	}
+
+	// First Filter
+	f1 := data.NewFilter()
+	f1.Criterions = append(f1.Criterions, c1)
+	f1.Criterions = append(f1.Criterions, c2)
+	f1.Criterions = append(f1.Criterions, c3)
+	f1.Criterions = append(f1.Criterions, c4)
+
+	filters["f_0"] = *f1
+
+	q, _ := NewSimpleQuery("SELECT * FROM `connect-f7e5b.staging_reporting.transcripts`")
+	q.Flavour = QUERY_FLAVOUR_BIG_QUERY
+	expected := "SELECT * FROM `connect-f7e5b.staging_reporting.transcripts` WHERE (CAST(`invitation_id` AS STRING) IN (:f_0_w_filter_0_0, :f_0_w_filter_0_1) AND CAST(`invitation_id` AS STRING) NOT IN (:f_0_w_filter_1_0, :f_0_w_filter_1_1) AND LOWER(CAST(`invitation_id` AS STRING)) IN (LOWER(:f_0_w_filter_2_0), LOWER(:f_0_w_filter_2_1)) AND LOWER(CAST(`invitation_id` AS STRING)) NOT IN (LOWER(:f_0_w_filter_3_0), LOWER(:f_0_w_filter_3_1))) LIMIT 1000 OFFSET 0"
+
+	// Add filters
+	q.Filters = filters
+
+	// Prepare query
+	q.Prepare()
+
+	if q.Statement != expected {
+		t.Errorf("Query.Prepare() failed, expected %v, got %v", expected, q.Statement)
+	}
+
+	expectedSql := "SELECT * FROM `connect-f7e5b.staging_reporting.transcripts` WHERE (CAST(`invitation_id` AS STRING) IN (\"bXkKeWW4hTZF\", \"j1uLpVoLaals\") AND CAST(`invitation_id` AS STRING) NOT IN (\"bXkKeWW4hTZF\", \"j1uLpVoLaals\") AND LOWER(CAST(`invitation_id` AS STRING)) IN (LOWER(\"bXkKeWW4hTZF\"), LOWER(\"j1uLpVoLaals\")) AND LOWER(CAST(`invitation_id` AS STRING)) NOT IN (LOWER(\"bXkKeWW4hTZF\"), LOWER(\"j1uLpVoLaals\"))) LIMIT 1000 OFFSET 0"
 
 	if q.GetSql() != expectedSql {
 		t.Errorf("Query.GetSql() failed, expected %v, got %v", expectedSql, q.GetSql())

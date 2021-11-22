@@ -42,6 +42,7 @@ func NewAclCheck(subject string, permission string) *AclCheck {
 	check := &AclCheck{Name: "main"}
 	check.Subject = subject
 	check.Permission = permission
+	check.Checks = []Checks{}
 
 	return check
 }

@@ -115,7 +115,7 @@ func FilterToSqlClause(filter data.Filter, fieldMap map[string]string, namespace
 		}
 
 		clause := FiltersToSqlClause(filters, fieldMap)
-		c.Statement += " AND " + clause.Statement
+		c.Statement += " " + filter.Logic + " " + clause.Statement
 
 		// Add Parametes
 		for key, parameter := range clause.Parameters {

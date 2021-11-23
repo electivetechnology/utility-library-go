@@ -1,6 +1,7 @@
 package sql
 
 import (
+	"sort"
 	"strconv"
 	"strings"
 
@@ -47,10 +48,18 @@ func FiltersToSqlClause(filters map[string]data.Filter, fieldMap map[string]stri
 	c := Clause{}
 	c.Parameters = make(map[string]string)
 
+	// Sort Keys to preserve order of the filters (important)
+	keys := make([]string, 0)
+	for k, _ := range filters {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
 	// Iterate over filters and turn each filter to SQL Clause
-	for i, filter := range filters {
+	for _, k := range keys {
+		filter := filters[k]
 		// Turn each filter into SQL Clause
-		clause := FilterToSqlClause(filter, fieldMap, i+"_filter")
+		clause := FilterToSqlClause(filter, fieldMap, k+"_filter")
 
 		// Add filter Logic
 		if len(c.Statement) != 0 {

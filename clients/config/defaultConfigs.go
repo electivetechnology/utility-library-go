@@ -2,8 +2,9 @@ package config
 
 import (
 	"encoding/json"
-	"github.com/electivetechnology/utility-library-go/clients/connect"
 	"net/http"
+
+	"github.com/electivetechnology/utility-library-go/clients/connect"
 )
 
 const (
@@ -12,8 +13,8 @@ const (
 )
 
 type DefaultConfigConfig struct {
-	DefaultFooter uint `json:"defaultFooter"`
-	DefaultHeader uint `json:"defaultHeader"`
+	DefaultFooter string `json:"defaultFooter"`
+	DefaultHeader string `json:"defaultHeader"`
 }
 
 type DefaultConfig struct {

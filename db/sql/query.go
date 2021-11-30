@@ -27,6 +27,7 @@ type Query struct {
 	Filters    map[string]data.Filter
 	Displays   map[string]data.Display
 	FieldMap   map[string]string
+	Joins      []Join
 }
 
 func NewQuery(table string) Query {
@@ -94,6 +95,12 @@ func (q *Query) Prepare() {
 	// Build FROM
 	s += " FROM " + q.Table
 
+	// Build Join
+	joinClause := GetJoinSql(q)
+	if len(joinClause.Statement) > 0 {
+		s += " " + joinClause.Statement
+	}
+
 	// Build Filter clause
 	filterClause := GetFilterSql(q)
 	if len(filterClause.Statement) > 0 {
@@ -122,7 +129,17 @@ func GetSelectSql(q *Query) Clause {
 	// If there are no displays use q.Fields
 	if len(q.Displays) == 0 {
 		// Build SELECT
-		c.Statement = strings.Join(q.Fields, ", ")
+		fields := make([]string, 0)
+		for _, f := range q.Fields {
+			field := getSafeFieldName(f, q.FieldMap)
+			if f != "*" {
+				fields = append(fields, field+" AS `"+f+"`")
+			} else {
+				fields = append(fields, field)
+			}
+		}
+
+		c.Statement = strings.Join(fields, ", ")
 	} else {
 		displayClause := DisplaysToSqlClause(q.Displays, q.FieldMap)
 		c.Statement = displayClause.Statement

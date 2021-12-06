@@ -13,8 +13,9 @@ const (
 )
 
 type DefaultConfigConfig struct {
-	DefaultFooter string `json:"defaultFooter"`
-	DefaultHeader string `json:"defaultHeader"`
+	DefaultFooter  uint `json:"defaultFooter"`
+	DefaultHeader  uint `json:"defaultHeader"`
+	DefaultWrapper uint `json:"defaultWrapper"`
 }
 
 type DefaultConfig struct {

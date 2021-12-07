@@ -38,7 +38,11 @@ func GetFilterSql(q *Query) Clause {
 	c.Parameters = clause.Parameters
 
 	if len(clause.Statement) > 0 {
-		c.Statement = "WHERE " + clause.Statement
+		// Remove whitespace
+		clause.Statement = strings.TrimLeft(clause.Statement, " ")
+
+		// Trim first AND|OR and prepend with WHERE
+		c.Statement = "WHERE " + clause.removeLogicFromStatement().Statement
 	}
 
 	return c
@@ -61,11 +65,6 @@ func FiltersToSqlClause(filters map[string]data.Filter, fieldMap map[string]stri
 		// Turn each filter into SQL Clause
 		clause := FilterToSqlClause(filter, fieldMap, k+"_filter")
 
-		// Add filter Logic
-		if len(c.Statement) != 0 {
-			c.Statement += " " + strings.ToUpper(filter.Logic) + " "
-		}
-
 		// Process filter subquery
 		if filter.Subquery.IsEnabled && len(filter.Subquery.Key) > 0 && len(filter.Subquery.Set) > 0 {
 			// Append SQL Statement
@@ -78,9 +77,7 @@ func FiltersToSqlClause(filters map[string]data.Filter, fieldMap map[string]stri
 				clause.Statement + ")"
 		} else {
 			// Append SQL Statement
-			if len(clause.Statement) > 0 {
-				c.Statement += "(" + clause.Statement + ")"
-			}
+			c.Statement += clause.Statement
 		}
 
 		// Add Parametes
@@ -96,6 +93,9 @@ func FilterToSqlClause(filter data.Filter, fieldMap map[string]string, namespace
 	c := Clause{}
 	c.Parameters = make(map[string]string)
 
+	// Add logic
+	c.Statement += " " + strings.ToUpper(filter.Logic) + " ("
+
 	for i, criterion := range filter.Criterions {
 		// Placeholder name for query binding
 		placeHolder := namespace + "_" + strconv.Itoa(i)
@@ -110,7 +110,7 @@ func FilterToSqlClause(filter data.Filter, fieldMap map[string]string, namespace
 
 		// Remove Logic from first Statement
 		// and Append SQL Statement
-		if len(c.Statement) == 0 {
+		if i == 0 {
 			c.Statement += clause.removeLogicFromStatement().Statement
 		} else {
 			c.Statement += " " + clause.Statement
@@ -124,13 +124,16 @@ func FilterToSqlClause(filter data.Filter, fieldMap map[string]string, namespace
 		}
 
 		clause := FiltersToSqlClause(filters, fieldMap)
-		c.Statement += " " + filter.Logic + " " + clause.Statement
+		c.Statement += clause.Statement
 
 		// Add Parametes
 		for key, parameter := range clause.Parameters {
 			c.Parameters[key] = parameter
 		}
 	}
+
+	// Close logic
+	c.Statement += ")"
 
 	return c
 }

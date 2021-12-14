@@ -18,10 +18,10 @@ type Purpose struct {
 
 type PurposeResponse struct {
 	ApiResponse *connect.ApiResponse
-	Data        map[string]Purpose
+	Data        []Purpose
 }
 
-func purposeRequest(path string, tagPrefix string, token string, client Client, formatData func(data []byte) map[string]Purpose) (PurposeResponse, error) {
+func purposeRequest(path string, tagPrefix string, token string, client Client, formatData func(data []byte) []Purpose) (PurposeResponse, error) {
 	request, _ := http.NewRequest(http.MethodGet, path, nil)
 
 	// Set Headers for this request
@@ -85,8 +85,8 @@ func (client Client) GetPurposes(token string) (PurposeResponse, error) {
 
 	path := client.ApiClient.GetBaseUrl() + PUPRPOSES_URL
 
-	var formatData = func(data []byte) map[string]Purpose {
-		var responseData map[string]Purpose
+	var formatData = func(data []byte) []Purpose {
+		var responseData []Purpose
 		json.Unmarshal(data, &responseData)
 		return responseData
 	}

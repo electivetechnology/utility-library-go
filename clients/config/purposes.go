@@ -7,16 +7,16 @@ import (
 )
 
 const (
-	PUPRPOSES_URL               = "/v1/purposes"
-	PUPRPOSE_OPTIONS_TAG_PREFIX = "purposes-options_"
+	PUPRPOSES_URL       = "/v1/purposes"
+	PUPRPOSE_TAG_PREFIX = "purposes_"
 )
 
-type PurposeOptionResponse struct {
+type PurposeResponse struct {
 	ApiResponse *connect.ApiResponse
 	Data        map[string]string
 }
 
-func purposeOptionRequest(path string, tagPrefix string, token string, client Client, formatData func(data []byte) map[string]string) (PurposeOptionResponse, error) {
+func purposeRequest(path string, tagPrefix string, token string, client Client, formatData func(data []byte) map[string]string) (PurposeResponse, error) {
 	request, _ := http.NewRequest(http.MethodGet, path, nil)
 
 	// Set Headers for this request
@@ -32,17 +32,17 @@ func purposeOptionRequest(path string, tagPrefix string, token string, client Cl
 	// Check for errors, purpose evaluation is false
 	if err != nil {
 		log.Printf("Error getting Option details: %v", err)
-		return PurposeOptionResponse{}, connect.NewInternalError(err.Error())
+		return PurposeResponse{}, connect.NewInternalError(err.Error())
 	}
 
 	// Success, populate token
-	response := PurposeOptionResponse{ApiResponse: res}
+	response := PurposeResponse{ApiResponse: res}
 
 	// Check if the request was actually made
 	if !res.WasRequested {
 		// No request was made, let's return fake response
 		// This will be exactly the same token as requested for exchange
-		return PurposeOptionResponse{}, nil
+		return PurposeResponse{}, nil
 	}
 
 	// read all response body
@@ -78,10 +78,10 @@ func purposeOptionRequest(path string, tagPrefix string, token string, client Cl
 	}
 }
 
-func (client Client) GetPurposeOption(token string) (PurposeOptionResponse, error) {
+func (client Client) GetPurposes(token string) (PurposeResponse, error) {
 	log.Printf("Will request purpose option with purposeId")
 
-	path := client.ApiClient.GetBaseUrl() + PUPRPOSES_URL + "/options"
+	path := client.ApiClient.GetBaseUrl() + PUPRPOSES_URL
 
 	var formatData = func(data []byte) map[string]string {
 		var responseData map[string]string
@@ -89,5 +89,5 @@ func (client Client) GetPurposeOption(token string) (PurposeOptionResponse, erro
 		return responseData
 	}
 
-	return purposeOptionRequest(path, PUPRPOSE_OPTIONS_TAG_PREFIX, token, client, formatData)
+	return purposeRequest(path, PUPRPOSE_TAG_PREFIX, token, client, formatData)
 }

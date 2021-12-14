@@ -11,12 +11,17 @@ const (
 	PUPRPOSE_TAG_PREFIX = "purposes_"
 )
 
-type PurposeResponse struct {
-	ApiResponse *connect.ApiResponse
-	Data        map[string]string
+type Purpose struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
 }
 
-func purposeRequest(path string, tagPrefix string, token string, client Client, formatData func(data []byte) map[string]string) (PurposeResponse, error) {
+type PurposeResponse struct {
+	ApiResponse *connect.ApiResponse
+	Data        map[string]Purpose
+}
+
+func purposeRequest(path string, tagPrefix string, token string, client Client, formatData func(data []byte) map[string]Purpose) (PurposeResponse, error) {
 	request, _ := http.NewRequest(http.MethodGet, path, nil)
 
 	// Set Headers for this request
@@ -66,10 +71,7 @@ func purposeRequest(path string, tagPrefix string, token string, client Client, 
 		}
 
 		// Return response
-		var responseData map[string]string
-		json.Unmarshal(data, &responseData)
-		response.Data = responseData
-		//response.Data = formatData(data)
+		response.Data = formatData(data)
 
 		return response, nil
 
@@ -83,8 +85,8 @@ func (client Client) GetPurposes(token string) (PurposeResponse, error) {
 
 	path := client.ApiClient.GetBaseUrl() + PUPRPOSES_URL
 
-	var formatData = func(data []byte) map[string]string {
-		var responseData map[string]string
+	var formatData = func(data []byte) map[string]Purpose {
+		var responseData map[string]Purpose
 		json.Unmarshal(data, &responseData)
 		return responseData
 	}

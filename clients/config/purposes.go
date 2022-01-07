@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	PUPRPOSES_URL       = "/v1/purposes"
-	PUPRPOSE_TAG_PREFIX = "purposes_"
+	PURPOSES_URL       = "/v1/purposes"
+	PURPOSE_TAG_PREFIX = "purposes_"
 )
 
 type Purpose struct {
@@ -83,7 +83,7 @@ func purposeRequest(path string, tagPrefix string, token string, client Client, 
 func (client Client) GetPurposes(token string) (PurposeResponse, error) {
 	log.Printf("Will request purpose option with purposeId")
 
-	path := client.ApiClient.GetBaseUrl() + PUPRPOSES_URL
+	path := client.ApiClient.GetBaseUrl() + PURPOSES_URL
 
 	var formatData = func(data []byte) []Purpose {
 		var responseData []Purpose
@@ -91,5 +91,5 @@ func (client Client) GetPurposes(token string) (PurposeResponse, error) {
 		return responseData
 	}
 
-	return purposeRequest(path, PUPRPOSE_TAG_PREFIX, token, client, formatData)
+	return purposeRequest(path, PURPOSE_TAG_PREFIX, token, client, formatData)
 }

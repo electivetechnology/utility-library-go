@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	PURPOSE_TEMPLATE_VARIABLES_URL        = "/v1/purpose/"
+	PURPOSE_TEMPLATE_VARIABLES_URL        = "/v1/purposes/"
 	PURPOSE_TEMPLATE_VARIABLES_TAG_PREFIX = "purposeTemplateVariables_"
 )
 

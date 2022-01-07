@@ -9,7 +9,7 @@ import (
 
 const (
 	DEFAULTS_CONFIG_URL        = "/v1/default-configs"
-	DEFAULT_CONFIGS_TAG_PREFIX = "defaults-configs_"
+	DEFAULT_CONFIGS_TAG_PREFIX = "defaultsConfigs_"
 )
 
 type DefaultConfigConfig struct {

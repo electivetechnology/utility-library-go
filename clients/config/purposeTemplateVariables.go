@@ -40,6 +40,7 @@ type PurposeTemplateVariableResponse struct {
 
 func purposeTemplateVariableRequest(path string, tagPrefix string, token string, client Client, formatData func(data []byte) []PurposeTemplateVariable) (PurposeTemplateVariableResponse, error) {
 	request, _ := http.NewRequest(http.MethodGet, path, nil)
+	log.Printf("purposeTemplateVariableRequest %v", path)
 
 	// Set Headers for this request
 	request.Header.Set("Authorization", "Bearer "+token)
@@ -51,6 +52,8 @@ func purposeTemplateVariableRequest(path string, tagPrefix string, token string,
 	// Perform Request
 	res, err := client.ApiClient.HandleRequest(request, key)
 
+	log.Printf("purposeTemplateVariableRequest res %v", res)
+
 	// Check for errors, purposeTemplateVariable evaluation is false
 	if err != nil {
 		log.Printf("Error getting Option details: %v", err)
@@ -59,6 +62,8 @@ func purposeTemplateVariableRequest(path string, tagPrefix string, token string,
 
 	// Success, populate token
 	response := PurposeTemplateVariableResponse{ApiResponse: res}
+
+	log.Printf("purposeTemplateVariableRequest response %v", response)
 
 	// Check if the request was actually made
 	if !res.WasRequested {
@@ -69,6 +74,8 @@ func purposeTemplateVariableRequest(path string, tagPrefix string, token string,
 
 	// read all response body
 	data := res.HttpResponse.Body
+
+	log.Printf("purposeTemplateVariableRequest data %v", data)
 
 	// print `data` as a string
 	log.Printf("%s\n", data)

@@ -8,6 +8,10 @@ import (
 
 const (
 	STATUS_CREATED = "created"
+	STATUS_BOOKED  = "booked"
+	STATUS_SENT    = "sent"
+	STATUS_OPEN    = "open"
+	STATUS_FAILED  = "failed"
 )
 
 type Status struct {

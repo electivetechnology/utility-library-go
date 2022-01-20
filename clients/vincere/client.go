@@ -15,7 +15,8 @@ import (
 )
 
 const (
-	AUTH_TOKEN_URL = "/oauth2/token"
+	AUTH_AUTHORIZATION_URL = "/oauth2/authorize"
+	AUTH_TOKEN_URL         = "/oauth2/token"
 )
 
 type OAuthClient struct {

@@ -8,6 +8,7 @@ type Token interface {
 	GetExpiresIn() int
 	GetRefreshToken() string
 	GetExpiresAt() *time.Time
+	GetIdToken() string
 }
 
 type AccessToken struct {

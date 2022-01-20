@@ -1,4 +1,4 @@
-package google
+package vincere
 
 import "time"
 
@@ -8,15 +8,15 @@ type Token struct {
 	ExpiresIn    int    `json:"expires_in"`
 	ExpiresAt    *time.Time
 	RefreshToken string `json:"refresh_token"`
-	Scope        string `json:"scope"`
+	IdToken      string `json:"id_token"`
 }
 
 func (t Token) GetAccessToken() string {
 	return t.AccessToken
 }
 
-func (t Token) GetTokenType() string {
-	return t.TokenType
+func (t Token) GetExpiresAt() *time.Time {
+	return t.ExpiresAt
 }
 
 func (t Token) GetExpiresIn() int {
@@ -27,15 +27,10 @@ func (t Token) GetRefreshToken() string {
 	return t.RefreshToken
 }
 
-func (t Token) GetExpiresAt() *time.Time {
-	return t.ExpiresAt
+func (t Token) GetTokenType() string {
+	return t.TokenType
 }
 
-func (t Token) GetScope() string {
-	return t.Scope
-}
-
-// Not supported
 func (t Token) GetIdToken() string {
-	return ""
+	return t.IdToken
 }

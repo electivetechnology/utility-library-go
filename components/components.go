@@ -31,3 +31,7 @@ func (c ComponentNotification) GetAttributes() (map[string]string, error) {
 
 	return attr, nil
 }
+
+func (c ComponentNotification) GetId() string {
+	return c.ID
+}

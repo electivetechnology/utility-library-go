@@ -29,3 +29,8 @@ func (t Token) GetRefreshToken() string {
 func (t Token) GetExpiresAt() *time.Time {
 	return t.ExpiresAt
 }
+
+// Not supported
+func (t Token) GetIdToken() string {
+	return ""
+}

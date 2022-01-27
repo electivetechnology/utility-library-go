@@ -106,10 +106,9 @@ func (client Client) GetJobByVendor(vendor string, vendorId string, token string
 		msg := fmt.Sprintf("Could not find Job for vendor: %s and id: %s", vendor, vendorId)
 		return response, errors.New(msg)
 	default:
-		return response, nil
+		msg := fmt.Sprintf("Could not get Job details")
+		return response, errors.New(msg)
 	}
-
-	return JobResponse{}, nil
 }
 
 func (client Client) GetJobById(id string, token string) (JobResponse, error) {
@@ -181,8 +180,7 @@ func (client Client) GetJobById(id string, token string) (JobResponse, error) {
 		msg := fmt.Sprintf("Could not find Job for id: %s", id)
 		return response, errors.New(msg)
 	default:
-		return response, nil
+		msg := fmt.Sprintf("Could not get Job details")
+		return response, errors.New(msg)
 	}
-
-	return JobResponse{}, nil
 }

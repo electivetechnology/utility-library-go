@@ -29,6 +29,7 @@ func init() {
 type AssessmentsClient interface {
 	GetApiClient() connect.ApiClient
 	GetJobByVendor(vendor string, vendorId string, token string) (JobResponse, error)
+	GetJobById(id string, token string) (JobResponse, error)
 }
 
 type Client struct {

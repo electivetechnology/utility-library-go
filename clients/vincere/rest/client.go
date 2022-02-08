@@ -2,12 +2,11 @@ package rest
 
 import (
 	"os"
-	"strings"
 )
 
 type RestClient interface {
 	GetApiClient() ApiClient
-	SearchApplications(index int, payload *strings.Reader) error
+	SearchApplications(index int, payload []byte, token string) (Applications, error)
 }
 
 type Client struct {

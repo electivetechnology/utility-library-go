@@ -12,7 +12,9 @@ import (
 const (
 	CLIENT_NAME                  = "Elective:UtilityLibrary:Candidates:0.*"
 	GET_CANDIDATE_URL            = "/v1/candidates/:candidate"
+	PUT_CANDIDATE_URL            = "/v1/candidates"
 	GET_CANDIDATE_FOR_VENDOR_URL = "/v1/candidates/vendor/:vendorName/:vendorId"
+	ADD_CANDIDATE_VENDOR         = "/v1/candidates/:candidate/:vendors"
 )
 
 var log logger.Logging
@@ -24,6 +26,8 @@ func init() {
 
 type CandidatesClient interface {
 	GetCandidateByVendor(vendor string, vendorId string, token string) (CandidateResponse, error)
+	PutCandidate(payload []byte, token string) (CandidateResponse, error)
+	AddCandidateVendor(vendor string, vendorId string, token string) (CandidateVendorResponse, error)
 }
 
 type Client struct {

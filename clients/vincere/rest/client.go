@@ -7,6 +7,7 @@ import (
 type RestClient interface {
 	GetApiClient() ApiClient
 	SearchApplications(index int, payload []byte, token string) (Applications, error)
+	GetCandidate(id int, token string) (Candidate, error)
 }
 
 type Client struct {

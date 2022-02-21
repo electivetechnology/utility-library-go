@@ -8,6 +8,7 @@ type RestClient interface {
 	GetApiClient() ApiClient
 	SearchApplications(index int, payload []byte, token string) (Applications, error)
 	GetCandidate(id int, token string) (Candidate, error)
+	CreateComment(comment Comment, token string) (Comment, error)
 }
 
 type Client struct {

@@ -26,6 +26,7 @@ func init() {
 
 type CandidatesClient interface {
 	GetCandidateByVendor(vendor string, vendorId string, token string) (CandidateResponse, error)
+	GetCandidateById(id string, token string) (CandidateResponse, error)
 	PutCandidate(payload []byte, token string) (CandidateResponse, error)
 	AddCandidateVendor(vendor string, vendorId string, token string) (CandidateVendorResponse, error)
 }

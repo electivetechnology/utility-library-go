@@ -37,7 +37,13 @@ func getSafeFieldName(field string, fieldMap map[string]string) string {
 			fieldName = parts[0]
 		}
 
-		ret = table + "." + fieldName
+		if strings.Contains(fieldName, "$") {
+			log.Printf("ret2")
+			ret = strings.Replace(fieldName, "$.", "", 0)
+		} else {
+			log.Printf("ret3")
+			ret = table + "." + fieldName
+		}
 	}
 
 	return ret

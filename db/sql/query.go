@@ -139,6 +139,8 @@ func GetSelectSql(q *Query) Clause {
 			}
 		}
 
+		fields = append(fields, "JSON_EXTRACT(value, '$.score') AS `$score`")
+
 		c.Statement = strings.Join(fields, ", ")
 	} else {
 		displayClause := DisplaysToSqlClause(q.Displays, q.FieldMap)

@@ -130,16 +130,24 @@ func GetSelectSql(q *Query) Clause {
 	if len(q.Displays) == 0 {
 		// Build SELECT
 		fields := make([]string, 0)
+
 		for _, f := range q.Fields {
 			field := getSafeFieldName(f, q.FieldMap)
-			if f != "*" {
-				fields = append(fields, field+" AS `"+f+"`")
+
+			fieldParts := strings.Split(field, ".")
+
+			if len(fieldParts) > 2 {
+				alias := fieldParts[0] + fieldParts[1] + fieldParts[2]
+				fieldName := fmt.Sprintf("JSON_EXTRACT(%s, '$.%s') AS %s", fieldParts[1], fieldParts[2], alias)
+				fields = append(fields, fieldName)
 			} else {
-				fields = append(fields, field)
+				if f != "*" {
+					fields = append(fields, field+" AS `"+f+"`")
+				} else {
+					fields = append(fields, field)
+				}
 			}
 		}
-
-		fields = append(fields, "JSON_EXTRACT(value, '$.score') AS `$score`")
 
 		c.Statement = strings.Join(fields, ", ")
 	} else {

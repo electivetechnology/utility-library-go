@@ -26,7 +26,7 @@ type Query struct {
 	Sorts      map[string]data.Sort
 	Filters    map[string]data.Filter
 	Displays   map[string]data.Display
-	Extracts   []data.Extract
+	Extracts   []string
 	FieldMap   map[string]string
 	Joins      []Join
 }
@@ -152,8 +152,13 @@ func GetSelectSql(q *Query) Clause {
 		extracts := make([]string, 0)
 
 		for _, e := range q.Extracts {
-			alias := fmt.Sprintf("`%s.%s.%s`", e.Table, e.Field, e.Value)
-			fieldName := fmt.Sprintf("JSON_EXTRACT(%s, '$.%s') AS %s", e.Field, e.Value, alias)
+			parts := strings.Split(e, ".")
+			table := parts[0]
+			field := parts[1]
+			value := parts[2]
+
+			alias := fmt.Sprintf("`%s.%s.%s`", table, field, value)
+			fieldName := fmt.Sprintf("JSON_EXTRACT(`%s`.`%s`, '$.%s') AS %s", table, field, value, alias)
 			extracts = append(extracts, fieldName)
 		}
 

@@ -31,13 +31,15 @@ func getSafeFieldName(field string, fieldMap map[string]string) string {
 		// Check if field was already prepended with table name
 		parts := strings.Split(ret, ".")
 
-		if len(parts) > 1 {
-			fieldName = parts[1]
-		} else {
-			fieldName = parts[0]
-		}
+		if len(parts) < 3 {
+			if len(parts) > 1 {
+				fieldName = parts[1]
+			} else {
+				fieldName = parts[0]
+			}
 
-		ret = table + "." + fieldName
+			ret = table + "." + fieldName
+		}
 	}
 
 	return ret

@@ -26,6 +26,7 @@ type Query struct {
 	Sorts      map[string]data.Sort
 	Filters    map[string]data.Filter
 	Displays   map[string]data.Display
+	Extracts   []string
 	FieldMap   map[string]string
 	Joins      []Join
 }
@@ -130,8 +131,10 @@ func GetSelectSql(q *Query) Clause {
 	if len(q.Displays) == 0 {
 		// Build SELECT
 		fields := make([]string, 0)
+
 		for _, f := range q.Fields {
 			field := getSafeFieldName(f, q.FieldMap)
+
 			if f != "*" {
 				fields = append(fields, field+" AS `"+f+"`")
 			} else {
@@ -143,6 +146,23 @@ func GetSelectSql(q *Query) Clause {
 	} else {
 		displayClause := DisplaysToSqlClause(q.Displays, q.FieldMap)
 		c.Statement = displayClause.Statement
+	}
+
+	if len(q.Extracts) != 0 {
+		extracts := make([]string, 0)
+
+		for _, e := range q.Extracts {
+			parts := strings.Split(e, ".")
+			table := parts[0]
+			field := parts[1]
+			value := parts[2]
+
+			alias := fmt.Sprintf("`%s.%s.%s`", table, field, value)
+			fieldName := fmt.Sprintf("JSON_EXTRACT(`%s`.`%s`, '$.%s') AS %s", table, field, value, alias)
+			extracts = append(extracts, fieldName)
+		}
+
+		c.Statement += ", " + strings.Join(extracts, ", ")
 	}
 
 	// Prepend with SELECT

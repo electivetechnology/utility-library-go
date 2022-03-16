@@ -17,8 +17,8 @@ func GetSortSql(q *Query) string {
 	sort.Strings(keys)
 
 	for _, k := range keys {
-
 		field := getSafeFieldName(q.Sorts[k].Field, q.FieldMap)
+
 		sql += field + " " + strings.ToUpper(q.Sorts[k].Direction) + ", "
 	}
 

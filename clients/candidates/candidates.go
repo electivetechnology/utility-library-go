@@ -48,6 +48,7 @@ type Candidate struct {
 	TertiaryLanguage  string `json:"tertiaryLanguage"`
 	Title             string `json:"title"`
 	Gender            string `json:"gender"`
+	CvText            string `json:"cvText"`
 }
 
 func (client Client) GetCandidateByVendor(vendor string, vendorId string, token string) (CandidateResponse, error) {

@@ -32,10 +32,8 @@ func GetFilterSql(q *Query) Clause {
 				parts := strings.Split(criterion.Key, ".")
 				if len(parts) > 2 {
 					havingFilters[i+"_w"] = modifiedFilter
-					//log.Printf("[GetFilterSql] 3 part key: %s", criterion.Key)
 				} else {
 					whereFilters[i+"_w"] = modifiedFilter
-					//log.Printf("[GetFilterSql] 1 part key: %s", criterion.Key)
 				}
 			}
 		}
@@ -46,9 +44,9 @@ func GetFilterSql(q *Query) Clause {
 
 	// Copy parameters
 	c.Parameters = whereClause.Parameters
-
-	log.Printf("[GetFilterSql] whereClause: %s", whereClause.Statement)
-	log.Printf("[GetFilterSql] havingClause: %s", havingClause.Statement)
+	for k, v := range havingClause.Parameters {
+		c.Parameters[k] = v
+	}
 
 	if len(whereClause.Statement) > 0 {
 		// Remove whitespace
@@ -67,8 +65,6 @@ func GetFilterSql(q *Query) Clause {
 
 		c.Statement += " HAVING " + havingClause.removeLogicFromStatement().Statement
 	}
-
-	//log.Printf("[GetFilterSql] Statement: %s", c.Statement)
 
 	return c
 }

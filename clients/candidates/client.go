@@ -13,6 +13,7 @@ const (
 	CLIENT_NAME                  = "Elective:UtilityLibrary:Candidates:0.*"
 	GET_CANDIDATE_URL            = "/v1/candidates/:candidate"
 	PUT_CANDIDATE_URL            = "/v1/candidates"
+	GET_CANDIDATES_URL           = "/v1/candidates"
 	GET_CANDIDATE_FOR_VENDOR_URL = "/v1/candidates/vendor/:vendorName/:vendorId"
 	ADD_CANDIDATE_VENDOR         = "/v1/candidates/:candidate/:vendors"
 )
@@ -29,6 +30,7 @@ type CandidatesClient interface {
 	GetCandidateById(id string, token string) (CandidateResponse, error)
 	PutCandidate(payload []byte, token string) (CandidateResponse, error)
 	AddCandidateVendor(vendor string, vendorId string, token string) (CandidateVendorResponse, error)
+	GetCandidateCount(token string) (CandidatesCountResponse, error)
 }
 
 type Client struct {

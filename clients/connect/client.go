@@ -79,7 +79,7 @@ func (client Client) HandleRequest(request *http.Request, key string) (*ApiRespo
 		// read all response body
 		data, _ := ioutil.ReadAll(ret.Body)
 
-		res = &ApiResponse{HttpResponse: &HttpResponse{Status: ret.Status, StatusCode: ret.StatusCode, Body: data}, WasRequested: true}
+		res = &ApiResponse{HttpResponse: &HttpResponse{Status: ret.Status, StatusCode: ret.StatusCode, Body: data, Headers: ret.Header}, WasRequested: true}
 
 		// mark response as not cached
 		res.WasCached = false

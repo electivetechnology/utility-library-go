@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/electivetechnology/utility-library-go/clients/connect"
@@ -49,6 +50,11 @@ type Candidate struct {
 	Title             string `json:"title"`
 	Gender            string `json:"gender"`
 	CvText            string `json:"cvText"`
+}
+
+type CandidatesCountResponse struct {
+	ApiResponse *connect.ApiResponse
+	Count       int
 }
 
 func (client Client) GetCandidateByVendor(vendor string, vendorId string, token string) (CandidateResponse, error) {
@@ -343,6 +349,61 @@ func (client Client) AddCandidateVendor(vendor string, vendorId string, token st
 	case http.StatusConflict:
 		log.Printf("Vendor already exists")
 		return response, nil
+	default:
+		return response, nil
+	}
+}
+
+func (client Client) GetCandidateCount(token string) (CandidatesCountResponse, error) {
+	log.Printf("Will request candidate count")
+
+	request, _ := http.NewRequest(http.MethodHead, client.ApiClient.GetBaseUrl()+GET_CANDIDATES_URL, nil)
+
+	// Set Headers for this request
+	request.Header.Set("Authorization", "Bearer "+token)
+	request.Header.Add("Content-Type", "application/json")
+
+	// Get key
+	key := client.ApiClient.GenerateKey(CANDIDATE_TAG_PREFIX + http.MethodHead + GET_CANDIDATES_URL + token)
+
+	// Perform Request
+	res, err := client.ApiClient.HandleRequest(request, key)
+
+	// Check for errors, default evaluation is false
+	if err != nil {
+		log.Printf("Error getting Candidate details: %v", err)
+		return CandidatesCountResponse{}, connect.NewInternalError(err.Error())
+	}
+
+	// Success, populate token
+	response := CandidatesCountResponse{ApiResponse: res}
+
+	// Check if the request was actually made
+	if !res.WasRequested {
+		// No request was made, let's return fake response
+		// This will be exactly the same token as requested for exchange
+		return CandidatesCountResponse{}, nil
+	}
+
+	switch res.HttpResponse.StatusCode {
+	case http.StatusOK:
+
+		// Add number of candidates
+		response.Count, _ = strconv.Atoi(res.HttpResponse.Headers.Get("X-Results-Total"))
+
+		// Check if respose was from Cache
+		if !res.WasCached {
+			// Save response to cache
+			log.Printf("Client provided fresh/uncached response. Saving response to cache with TTL %d", client.ApiClient.GetRedisTTL())
+
+			// Generate tags for cache
+			var tags []string
+			tags = append(tags, key)
+			client.ApiClient.SaveToCache(key, res, tags)
+		}
+
+		return response, nil
+
 	default:
 		return response, nil
 	}

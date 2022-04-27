@@ -31,6 +31,8 @@ type CandidatesClient interface {
 	PutCandidate(payload []byte, token string) (CandidateResponse, error)
 	AddCandidateVendor(vendor string, vendorId string, token string) (CandidateVendorResponse, error)
 	GetCandidateCount(token string) (CandidatesCountResponse, error)
+	SearchCandidates(query connect.ApiQuery, token string) (CandidatesResponse, error)
+	GetCandidates(token string) (CandidatesResponse, error)
 }
 
 type Client struct {

@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 
@@ -19,6 +20,11 @@ const (
 type CandidateResponse struct {
 	ApiResponse *connect.ApiResponse
 	Candidate   *Candidate
+}
+
+type CandidatesResponse struct {
+	ApiResponse *connect.ApiResponse
+	Candidates  []Candidate
 }
 
 type CandidateVendorResponse struct {
@@ -37,6 +43,7 @@ type VendorPayload struct {
 	Vendor   string `json:"vendor"`
 	VendorId string `json:"vendorId"`
 }
+
 type Candidate struct {
 	Id                string `json:"id"`
 	Email             string `json:"email"`
@@ -401,6 +408,84 @@ func (client Client) GetCandidateCount(token string) (CandidatesCountResponse, e
 			tags = append(tags, key)
 			client.ApiClient.SaveToCache(key, res, tags)
 		}
+
+		return response, nil
+
+	default:
+		return response, nil
+	}
+}
+
+func (client Client) GetCandidates(token string) (CandidatesResponse, error) {
+	log.Printf("Will request candidates")
+
+	return client.SearchCandidates(connect.NewApiQuery(), token)
+}
+
+func (client Client) SearchCandidates(query connect.ApiQuery, token string) (CandidatesResponse, error) {
+	log.Printf("Will search candidates")
+
+	// Generate new path
+	values := url.Values{
+		"limit":  []string{strconv.Itoa(query.GetLimit())},
+		"offset": []string{strconv.Itoa(query.GetOffset())},
+	}
+
+	path := GET_CANDIDATES_URL + "?" + values.Encode()
+	log.Printf("New path generated for request %s", path)
+
+	request, _ := http.NewRequest(http.MethodGet, client.ApiClient.GetBaseUrl()+path, nil)
+
+	// Set Headers for this request
+	request.Header.Set("Authorization", "Bearer "+token)
+	request.Header.Add("Content-Type", "application/json")
+
+	// Get key
+	key := client.ApiClient.GenerateKey(CANDIDATE_TAG_PREFIX + path + token)
+
+	// Perform Request
+	res, err := client.ApiClient.HandleRequest(request, key)
+
+	// Check for errors, default evaluation is false
+	if err != nil {
+		log.Printf("Error getting Candidate details: %v", err)
+		return CandidatesResponse{}, connect.NewInternalError(err.Error())
+	}
+
+	// Success, populate token
+	response := CandidatesResponse{ApiResponse: res}
+
+	// Check if the request was actually made
+	if !res.WasRequested {
+		// No request was made, let's return fake response
+		// This will be exactly the same token as requested for exchange
+		return CandidatesResponse{}, nil
+	}
+
+	// read all response body
+	data := res.HttpResponse.Body
+
+	// print `data` as a string
+	log.Printf("%s\n", data)
+
+	switch res.HttpResponse.StatusCode {
+	case http.StatusOK:
+		candidates := []Candidate{}
+		json.Unmarshal(data, &candidates)
+
+		// Check if respose was from Cache
+		if !res.WasCached {
+			// Save response to cache
+			log.Printf("Client provided fresh/uncached response. Saving response to cache with TTL %d", client.ApiClient.GetRedisTTL())
+
+			// Generate tags for cache
+			var tags []string
+			tags = append(tags, key)
+			client.ApiClient.SaveToCache(key, res, tags)
+		}
+
+		// Return response
+		response.Candidates = candidates
 
 		return response, nil
 

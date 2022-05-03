@@ -14,6 +14,7 @@ func GetFilterSql(q *Query) Clause {
 	c.Parameters = make(map[string]string)
 
 	whereFilters := make(map[string]data.Filter)
+	havingFilters := make(map[string]data.Filter)
 
 	for i, filter := range q.Filters {
 		// Only add filter if there are criterions
@@ -27,22 +28,42 @@ func GetFilterSql(q *Query) Clause {
 
 			modifiedFilter := OverrideCollation(filter, collation)
 
-			// also check for HAVING filter
-			whereFilters[i+"_w"] = modifiedFilter
+			for _, criterion := range filter.Criterions {
+				parts := strings.Split(criterion.Key, ".")
+				if len(parts) > 2 {
+					havingFilters[i+"_w"] = modifiedFilter
+				} else {
+					whereFilters[i+"_w"] = modifiedFilter
+				}
+			}
 		}
 	}
 
-	clause := FiltersToSqlClause(whereFilters, q.FieldMap)
+	whereClause := FiltersToSqlClause(whereFilters, q.FieldMap)
+	havingClause := FiltersToSqlClause(havingFilters, q.FieldMap)
 
 	// Copy parameters
-	c.Parameters = clause.Parameters
+	c.Parameters = whereClause.Parameters
+	for k, v := range havingClause.Parameters {
+		c.Parameters[k] = v
+	}
 
-	if len(clause.Statement) > 0 {
+	if len(whereClause.Statement) > 0 {
 		// Remove whitespace
-		clause.Statement = strings.TrimLeft(clause.Statement, " ")
+		whereClause.Statement = strings.TrimLeft(whereClause.Statement, " ")
 
 		// Trim first AND|OR and prepend with WHERE
-		c.Statement = "WHERE " + clause.removeLogicFromStatement().Statement
+
+		c.Statement = "WHERE " + whereClause.removeLogicFromStatement().Statement
+	}
+
+	if len(havingClause.Statement) > 0 {
+		// Remove whitespace
+		havingClause.Statement = strings.TrimLeft(havingClause.Statement, " ")
+
+		// Trim first AND|OR and prepend with WHERE
+
+		c.Statement += " HAVING " + havingClause.removeLogicFromStatement().Statement
 	}
 
 	return c

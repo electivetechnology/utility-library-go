@@ -158,7 +158,21 @@ func GetSelectSql(q *Query) Clause {
 			value := parts[2]
 
 			alias := fmt.Sprintf("`%s.%s.%s`", table, field, value)
-			fieldName := fmt.Sprintf("JSON_EXTRACT(`%s`.`%s`, '$.%s') AS %s", table, field, value, alias)
+
+			// Override alias if it's defined in fieldMap
+			for mapKey, tableName := range q.FieldMap {
+				if strings.ToLower(tableName) == "having" {
+					mapKeyParts := strings.Split(mapKey, ".")
+
+					if len(mapKeyParts) > 2 {
+						if mapKeyParts[1] == field && mapKeyParts[2] == value {
+							alias = fmt.Sprintf("`%s`", mapKey)
+						}
+					}
+				}
+			}
+
+			fieldName := fmt.Sprintf("JSON_UNQUOTE(JSON_EXTRACT(`%s`.`%s`, '$.%s')) AS %s", table, field, value, alias)
 			extracts = append(extracts, fieldName)
 		}
 

@@ -14,6 +14,7 @@ func GetFilterSql(q *Query) Clause {
 	c.Parameters = make(map[string]string)
 
 	whereFilters := make(map[string]data.Filter)
+	havingFilters := make(map[string]data.Filter)
 
 	for i, filter := range q.Filters {
 		// Only add filter if there are criterions
@@ -25,24 +26,38 @@ func GetFilterSql(q *Query) Clause {
 				collation = false
 			}
 
-			modifiedFilter := OverrideCollation(filter, collation)
+			modifiedFilter := OverrideCollation(filter, collation, q.FieldMap)
 
+			whereFilters[i+"_w"] = GetWhereFilters(modifiedFilter, q.FieldMap)
 			// also check for HAVING filter
-			whereFilters[i+"_w"] = modifiedFilter
+			havingFilters[i+"_w"] = GetHavingFilters(modifiedFilter, q.FieldMap)
 		}
 	}
 
-	clause := FiltersToSqlClause(whereFilters, q.FieldMap)
+	whereClause := FiltersToSqlClause(whereFilters, q.FieldMap)
+	havingClause := FiltersToSqlClause(havingFilters, q.FieldMap)
 
 	// Copy parameters
-	c.Parameters = clause.Parameters
+	c.Parameters = whereClause.Parameters
+	for k, v := range havingClause.Parameters {
+		c.Parameters[k] = v
+	}
 
-	if len(clause.Statement) > 0 {
+	if len(whereClause.Statement) > 0 {
 		// Remove whitespace
-		clause.Statement = strings.TrimLeft(clause.Statement, " ")
+		whereClause.Statement = strings.TrimLeft(whereClause.Statement, " ")
 
 		// Trim first AND|OR and prepend with WHERE
-		c.Statement = "WHERE " + clause.removeLogicFromStatement().Statement
+		c.Statement = "WHERE " + whereClause.removeLogicFromStatement().Statement
+	}
+
+	if len(havingClause.Statement) > 0 {
+		// Remove whitespace
+		havingClause.Statement = strings.TrimLeft(havingClause.Statement, " ")
+
+		// Trim first AND|OR and prepend with WHERE
+
+		c.Statement += " HAVING " + havingClause.removeLogicFromStatement().Statement
 	}
 
 	return c
@@ -135,18 +150,63 @@ func FilterToSqlClause(filter data.Filter, fieldMap map[string]string, namespace
 	// Close logic
 	c.Statement += ")"
 
+	// Remove empty statement
+	if c.Statement == " AND ()" {
+		c.Statement = ""
+	}
+
 	return c
 }
 
-func OverrideCollation(filter data.Filter, collation bool) data.Filter {
+func OverrideCollation(filter data.Filter, collation bool, fieldMap map[string]string) data.Filter {
 	if len(filter.Filters) > 0 {
 		for _, f := range filter.Filters {
-			modified := OverrideCollation(*f, collation)
+			modified := OverrideCollation(*f, collation, fieldMap)
 			f = &modified
 		}
 	}
 
 	filter.Collation = collation
+
+	return filter
+}
+
+func GetWhereFilters(filter data.Filter, fieldMap map[string]string) data.Filter {
+	if len(filter.Filters) > 0 {
+		for _, f := range filter.Filters {
+			modified := GetWhereFilters(*f, fieldMap)
+			f = &modified
+		}
+	}
+
+	criterions := make([]data.Criterion, 0)
+	for _, criterion := range filter.Criterions {
+		if strings.ToLower(fieldMap[criterion.Key]) != "having" {
+			criterions = append(criterions, criterion)
+		}
+	}
+
+	filter.Criterions = criterions
+
+	return filter
+}
+
+func GetHavingFilters(filter data.Filter, fieldMap map[string]string) data.Filter {
+	if len(filter.Filters) > 0 {
+		for _, f := range filter.Filters {
+			modified := GetWhereFilters(*f, fieldMap)
+			f = &modified
+		}
+	}
+
+	criterions := make([]data.Criterion, 0)
+	for _, criterion := range filter.Criterions {
+		if strings.ToLower(fieldMap[criterion.Key]) == "having" {
+			criterions = append(criterions, criterion)
+		}
+	}
+
+	filter.Criterions = criterions
 
 	return filter
 }

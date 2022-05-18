@@ -45,23 +45,29 @@ type VendorPayload struct {
 }
 
 type Candidate struct {
-	Id                string `json:"id"`
-	Email             string `json:"email"`
-	FirstName         string `json:"firstName"`
-	LastName          string `json:"lastName"`
-	Phone             string `json:"phone"`
-	Organisation      string `json:"organisation"`
-	PrimaryLanguage   string `json:"primaryLanguage"`
-	SecondaryLanguage string `json:"secondaryLanguage"`
-	TertiaryLanguage  string `json:"tertiaryLanguage"`
-	Title             string `json:"title"`
-	Gender            string `json:"gender"`
-	CvText            string `json:"cvText"`
+	Id                string  `json:"id"`
+	Email             string  `json:"email"`
+	FirstName         string  `json:"firstName"`
+	LastName          string  `json:"lastName"`
+	Phone             string  `json:"phone"`
+	Organisation      string  `json:"organisation"`
+	PrimaryLanguage   string  `json:"primaryLanguage"`
+	SecondaryLanguage string  `json:"secondaryLanguage"`
+	TertiaryLanguage  string  `json:"tertiaryLanguage"`
+	Title             string  `json:"title"`
+	Gender            string  `json:"gender"`
+	CvText            string  `json:"cvText"`
+	Skills            []Skill `json:"skills"`
 }
 
 type CandidatesCountResponse struct {
 	ApiResponse *connect.ApiResponse
 	Count       int
+}
+
+type Skill struct {
+	Name        string `json:"name"`
+	DisplayName string `json:"displayName"`
 }
 
 func (client Client) GetCandidateByVendor(vendor string, vendorId string, token string) (CandidateResponse, error) {

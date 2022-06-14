@@ -41,8 +41,8 @@ func (psClient *Client) Publish(topic string, message Message) error {
 
 	log.Printf("Published a message; msg ID: %v\n", id)
 
-	psClient.PubSubClient.Close()
-	psClient.Ctx.Done()
+	// psClient.PubSubClient.Close()
+	// psClient.Ctx.Done()
 
 	return nil
 }

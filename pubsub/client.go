@@ -58,3 +58,7 @@ func NewAsyncClient() (*Client, error) {
 
 	return client, nil
 }
+
+func (psClient *Client) SetContext(ctx context.Context) {
+	psClient.Ctx = ctx
+}

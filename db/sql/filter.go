@@ -14,7 +14,6 @@ func GetFilterSql(q *Query) Clause {
 	c.Parameters = make(map[string]string)
 
 	whereFilters := make(map[string]data.Filter)
-	havingFilters := make(map[string]data.Filter)
 
 	for i, filter := range q.Filters {
 		// Only add filter if there are criterions
@@ -29,19 +28,13 @@ func GetFilterSql(q *Query) Clause {
 			modifiedFilter := OverrideCollation(filter, collation, q.FieldMap)
 
 			whereFilters[i+"_w"] = GetWhereFilters(modifiedFilter, q.FieldMap)
-			// also check for HAVING filter
-			havingFilters[i+"_w"] = GetHavingFilters(modifiedFilter, q.FieldMap)
 		}
 	}
 
 	whereClause := FiltersToSqlClause(whereFilters, q.FieldMap)
-	havingClause := FiltersToSqlClause(havingFilters, q.FieldMap)
 
 	// Copy parameters
 	c.Parameters = whereClause.Parameters
-	for k, v := range havingClause.Parameters {
-		c.Parameters[k] = v
-	}
 
 	if len(whereClause.Statement) > 0 {
 		// Remove whitespace
@@ -49,15 +42,6 @@ func GetFilterSql(q *Query) Clause {
 
 		// Trim first AND|OR and prepend with WHERE
 		c.Statement = "WHERE " + whereClause.removeLogicFromStatement().Statement
-	}
-
-	if len(havingClause.Statement) > 0 {
-		// Remove whitespace
-		havingClause.Statement = strings.TrimLeft(havingClause.Statement, " ")
-
-		// Trim first AND|OR and prepend with WHERE
-
-		c.Statement += " HAVING " + havingClause.removeLogicFromStatement().Statement
 	}
 
 	return c

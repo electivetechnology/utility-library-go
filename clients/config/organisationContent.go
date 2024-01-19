@@ -86,18 +86,18 @@ func organisationContentRequest(path string, tagPrefix string, client Client, fo
 func (client Client) GetOrganisationContents(filters string, query connect.ApiQuery) (OrganisationContentResponse, error) {
 	log.Printf("Will request organisationContents")
 
-	// Generate new path replacer
-	r := strings.NewReplacer(":filters", filters)
-	path := r.Replace(ORGANISATION_CONTENTS_URL)
-	log.Printf("New path generated for request %s", path)
-
 	// Generate new path
 	values := url.Values{
 		"limit":  []string{strconv.Itoa(query.GetLimit())},
 		"offset": []string{strconv.Itoa(query.GetOffset())},
 	}
 
-	path = client.ApiClient.GetBaseUrl() + path + "?" + values.Encode()
+	path := client.ApiClient.GetBaseUrl() + ORGANISATION_CONTENTS_URL + "?" + values.Encode()
+
+	// Generate new path replacer
+	r := strings.NewReplacer(":filters", filters)
+	path = r.Replace(path)
+	log.Printf("New path generated for request %s", path)
 
 	var formatData = func(data []byte) []OrganisationContent {
 		var responseData []OrganisationContent

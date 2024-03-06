@@ -44,6 +44,7 @@ type Invitation struct {
 	IsDialer              bool              `json:"isDialer"`
 	IsWhatsApp            bool              `json:"isWhatsApp"`
 	Transcripts           map[string]string `json:"transcripts"`
+	Organisation          string            `json:"organisation"`
 }
 
 func (client Client) GetInvitationById(id string, token string) (InvitationResponse, error) {

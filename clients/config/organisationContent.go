@@ -2,11 +2,12 @@ package config
 
 import (
 	"encoding/json"
-	"github.com/electivetechnology/utility-library-go/clients/connect"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
+
+	"github.com/electivetechnology/utility-library-go/clients/connect"
 )
 
 const (
@@ -23,10 +24,10 @@ type OrganisationContent struct {
 
 type OrganisationContentResponse struct {
 	ApiResponse *connect.ApiResponse
-	Data        []OrganisationContent
+	Data        interface{}
 }
 
-func organisationContentRequest(path string, tagPrefix string, client Client, formatData func(data []byte) []OrganisationContent) (OrganisationContentResponse, error) {
+func organisationContentRequest(path string, tagPrefix string, client Client, formatData func(data []byte) interface{}) (OrganisationContentResponse, error) {
 	request, _ := http.NewRequest(http.MethodGet, path, nil)
 
 	request.Header.Add("Content-Option", "application/json")
@@ -99,8 +100,23 @@ func (client Client) GetOrganisationContents(filters string, query connect.ApiQu
 	path = r.Replace(path)
 	log.Printf("New path generated for request %s", path)
 
-	var formatData = func(data []byte) []OrganisationContent {
+	var formatData = func(data []byte) interface{} {
 		var responseData []OrganisationContent
+		json.Unmarshal(data, &responseData)
+		return responseData
+	}
+
+	return organisationContentRequest(path, ORGANISATION_CONTENT_TAG_PREFIX, client, formatData)
+}
+
+func (client Client) GetByOrganisationContent(organisation string, contentName string) (OrganisationContentResponse, error) {
+	log.Printf("Will request organisationContent")
+
+	path := client.ApiClient.GetBaseUrl() + ORGANISATION_CONTENTS_URL +
+		"/organisation/" + organisation + "content/" + contentName
+
+	var formatData = func(data []byte) interface{} {
+		var responseData OrganisationContent
 		json.Unmarshal(data, &responseData)
 		return responseData
 	}

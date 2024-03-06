@@ -17,6 +17,7 @@ const (
 	CLIENT_NAME            = "Elective:UtilityLibrary:Assessments:0.*"
 	GET_JOB_URL            = "/v1/jobs/:job"
 	GET_JOB_FOR_VENDOR_URL = "/v1/jobs/vendor/:vendorName/:vendorId"
+	GET_INVITATION_URL     = "/v1/invitation/:invitation"
 )
 
 var log logger.Logging
@@ -30,6 +31,7 @@ type AssessmentsClient interface {
 	GetApiClient() connect.ApiClient
 	GetJobByVendor(vendor string, vendorId string, token string) (JobResponse, error)
 	GetJobById(id string, token string) (JobResponse, error)
+	GetInvitationById(id string, token string) (InvitationResponse, error)
 }
 
 type Client struct {

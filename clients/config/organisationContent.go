@@ -22,12 +22,35 @@ type OrganisationContent struct {
 	Organisation string `json:"organisation"`
 }
 
+type OrganisationContentsResponse struct {
+	ApiResponse *connect.ApiResponse
+	Data        []OrganisationContent
+}
+
 type OrganisationContentResponse struct {
+	ApiResponse *connect.ApiResponse
+	Data        OrganisationContent
+}
+
+type GenericResponse struct {
 	ApiResponse *connect.ApiResponse
 	Data        interface{}
 }
 
-func organisationContentRequest(path string, tagPrefix string, client Client, formatData func(data []byte) interface{}) (OrganisationContentResponse, error) {
+func setTags(res *connect.ApiResponse, client Client, key string) {
+	if !res.WasCached {
+		// Save response to cache
+		log.Printf("Client provided fresh/uncached response. Saving response to cache with TTL %d", client.ApiClient.GetRedisTTL())
+
+		// Generate tags for cache
+		var tags []string
+		tags = append(tags, key)
+
+		client.ApiClient.SaveToCache(key, res, tags)
+	}
+}
+
+func handleRequest(path string, tagPrefix string, client Client) (*connect.ApiResponse, string, error) {
 	request, _ := http.NewRequest(http.MethodGet, path, nil)
 
 	request.Header.Add("Content-Option", "application/json")
@@ -37,6 +60,51 @@ func organisationContentRequest(path string, tagPrefix string, client Client, fo
 
 	// Perform Request
 	res, err := client.ApiClient.HandleRequest(request, key)
+
+	return res, key, err
+}
+
+func organisationContentsRequest(path string, tagPrefix string, client Client, formatData func(data []byte) []OrganisationContent) (OrganisationContentsResponse, error) {
+	res, key, err := handleRequest(path, tagPrefix, client)
+
+	// Check for errors, organisationContent evaluation is false
+	if err != nil {
+		log.Printf("Error getting Option details: %v", err)
+		return OrganisationContentsResponse{}, connect.NewInternalError(err.Error())
+	}
+
+	// Success, populate token
+	response := OrganisationContentsResponse{ApiResponse: res}
+
+	// Check if the request was actually made
+	if !res.WasRequested {
+		// No request was made, let's return fake response
+		// This will be exactly the same token as requested for exchange
+		return OrganisationContentsResponse{}, nil
+	}
+
+	// read all response body
+	data := res.HttpResponse.Body
+
+	// print `data` as a string
+	log.Printf("%s\n", data)
+
+	switch res.HttpResponse.StatusCode {
+	case http.StatusOK:
+		setTags(res, client, key)
+
+		// Return response
+		response.Data = formatData(data)
+
+		return response, nil
+
+	default:
+		return response, nil
+	}
+}
+
+func organisationContentRequest(path string, tagPrefix string, client Client, formatData func(data []byte) OrganisationContent) (OrganisationContentResponse, error) {
+	res, key, err := handleRequest(path, tagPrefix, client)
 
 	// Check for errors, organisationContent evaluation is false
 	if err != nil {
@@ -62,17 +130,7 @@ func organisationContentRequest(path string, tagPrefix string, client Client, fo
 
 	switch res.HttpResponse.StatusCode {
 	case http.StatusOK:
-		// Check if respose was from Cache
-		if !res.WasCached {
-			// Save response to cache
-			log.Printf("Client provided fresh/uncached response. Saving response to cache with TTL %d", client.ApiClient.GetRedisTTL())
-
-			// Generate tags for cache
-			var tags []string
-			tags = append(tags, key)
-
-			client.ApiClient.SaveToCache(key, res, tags)
-		}
+		setTags(res, client, key)
 
 		// Return response
 		response.Data = formatData(data)
@@ -84,7 +142,7 @@ func organisationContentRequest(path string, tagPrefix string, client Client, fo
 	}
 }
 
-func (client Client) GetOrganisationContents(filters string, query connect.ApiQuery) (OrganisationContentResponse, error) {
+func (client Client) GetOrganisationContents(filters string, query connect.ApiQuery) (OrganisationContentsResponse, error) {
 	log.Printf("Will request organisationContents")
 
 	// Generate new path
@@ -100,13 +158,13 @@ func (client Client) GetOrganisationContents(filters string, query connect.ApiQu
 	path = r.Replace(path)
 	log.Printf("New path generated for request %s", path)
 
-	var formatData = func(data []byte) interface{} {
+	var formatData = func(data []byte) []OrganisationContent {
 		var responseData []OrganisationContent
 		json.Unmarshal(data, &responseData)
 		return responseData
 	}
 
-	return organisationContentRequest(path, ORGANISATION_CONTENT_TAG_PREFIX, client, formatData)
+	return organisationContentsRequest(path, ORGANISATION_CONTENT_TAG_PREFIX, client, formatData)
 }
 
 func (client Client) GetByOrganisationContent(organisation string, contentName string) (OrganisationContentResponse, error) {
@@ -115,7 +173,7 @@ func (client Client) GetByOrganisationContent(organisation string, contentName s
 	path := client.ApiClient.GetBaseUrl() + ORGANISATION_CONTENTS_URL +
 		"/organisation/" + organisation + "content/" + contentName
 
-	var formatData = func(data []byte) interface{} {
+	var formatData = func(data []byte) OrganisationContent {
 		var responseData OrganisationContent
 		json.Unmarshal(data, &responseData)
 		return responseData

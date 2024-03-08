@@ -171,7 +171,7 @@ func (client Client) GetByOrganisationContent(organisation string, contentName s
 	log.Printf("Will request organisationContent")
 
 	path := client.ApiClient.GetBaseUrl() + ORGANISATION_CONTENTS_URL +
-		"/organisation/" + organisation + "content/" + contentName
+		"/organisation/" + organisation + "/content/" + contentName
 
 	var formatData = func(data []byte) OrganisationContent {
 		var responseData OrganisationContent

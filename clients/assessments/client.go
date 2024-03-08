@@ -17,7 +17,7 @@ const (
 	CLIENT_NAME            = "Elective:UtilityLibrary:Assessments:0.*"
 	GET_JOB_URL            = "/v1/jobs/:job"
 	GET_JOB_FOR_VENDOR_URL = "/v1/jobs/vendor/:vendorName/:vendorId"
-	GET_INVITATION_URL     = "/v1/invitation/:invitation"
+	GET_INVITATION_URL     = "/v1/invitations/:invitation"
 )
 
 var log logger.Logging

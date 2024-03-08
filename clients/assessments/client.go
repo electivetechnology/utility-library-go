@@ -46,16 +46,22 @@ func NewClient() AssessmentsClient {
 		url = BASE_URL
 	}
 
+	url = "http://assessments-api-gateway"
+
 	// Check if client enabled
 	ret := os.Getenv(CLIENT_ENABLED_ENV)
+	log.Printf("CLIENT_ENABLED_ENV: %d", ret)
 	isEnabled, err := strconv.ParseBool(ret)
 	if err != nil {
 		log.Fatalf("Could not parse %s as bool value", CLIENT_ENABLED_ENV)
 		isEnabled = false
 	}
 
+	isEnabled = true
+
 	// Check if redis caching is enabled
 	ret = os.Getenv(CACHE_TTL_ENV)
+	log.Printf("CACHE_TTL_ENV: %d", ret)
 	ttl, err := strconv.Atoi(ret)
 	if err != nil {
 		log.Fatalf("Could not parse %s as integer value", CACHE_TTL_ENV)

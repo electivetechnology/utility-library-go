@@ -44,16 +44,23 @@ func NewClient() ConfigClient {
 		url = "http://config-api"
 	}
 
+	url = "http://config-api-gateway"
+
 	// Check if client enabled
 	ret := os.Getenv("CONFIG_CLIENT_ENABLED")
+	log.Printf("CONFIG_CLIENT_ENABLED: %d", ret)
+
 	isEnabled, err := strconv.ParseBool(ret)
 	if err != nil {
 		log.Fatalf("Could not parse CONFIG_CLIENT_ENABLED as bool value")
 		isEnabled = false
 	}
 
+	isEnabled = true
+
 	// Check if redis caching is enabled
 	ret = os.Getenv("CONFIG_CLIENT_REDIS_TTL")
+	log.Printf("CONFIG_CLIENT_REDIS_TTL: %d", ret)
 	ttl, err := strconv.Atoi(ret)
 	if err != nil {
 		log.Fatalf("Could not parse CONFIG_CLIENT_REDIS_TTL as integer value")

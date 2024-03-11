@@ -28,6 +28,8 @@ type ConfigClient interface {
 	GetDefaultConfig(defaultConfigIdOrName string, token string) (DefaultConfigResponse, error)
 	GetPurposes(token string) (PurposeResponse, error)
 	GetPurposeTemplateVariables(purposeId string, token string) (PurposeTemplateVariableResponse, error)
+	GetByOrganisationContent(organisation string, contentName string) (OrganisationContentResponse, error)
+	GetOrganisationContents(filter string, query connect.ApiQuery) (OrganisationContentsResponse, error)
 }
 
 type Client struct {

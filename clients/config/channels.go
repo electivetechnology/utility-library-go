@@ -2,10 +2,10 @@ package config
 
 import (
 	"encoding/json"
-	"errors"
-	"github.com/electivetechnology/utility-library-go/clients/connect"
 	"net/http"
 	"time"
+
+	"github.com/electivetechnology/utility-library-go/clients/connect"
 )
 
 const (
@@ -108,8 +108,6 @@ func channelRequest(path string, tagPrefix string, id string, token string, clie
 	default:
 		return response, nil
 	}
-
-	return response, errors.New("error getting config for given vendor")
 }
 
 func (client Client) GetChannel(channelId string, token string) (ChannelResponse, error) {

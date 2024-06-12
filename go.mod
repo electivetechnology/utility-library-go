@@ -1,13 +1,12 @@
 module github.com/electivetechnology/utility-library-go
 
-go 1.15
+go 1.18
 
 require (
 	cloud.google.com/go/bigquery v1.8.0
 	cloud.google.com/go/pubsub v1.10.3
 	github.com/apsdehal/go-logger v0.0.0-20190515212710-b0d6ccfee0e6
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-playground/validator/v10 v10.2.0
 	github.com/go-redis/redis/v7 v7.4.0
